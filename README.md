@@ -1,5 +1,5 @@
 
-<p align="center"> <img src="https://media.giphy.com/media/PRkIHD1Kxxz2QELXFH/giphy.gif" /> </p>
+<p align="center"> <img src="https://media.giphy.com/media/9X6OGGZ2SNyQ8/giphy.gif" /> </p>
 
 <h1 align="center"> Book Mates </h1>
 
