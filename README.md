@@ -101,7 +101,7 @@ Quick Read :)
 ## Developers 👥
 Nihita Soma    
 Nahum Million    
-Itihas Paluri    
+Itihas Paluri :)
 Faris Kazi  
 
 Safa Mohammed - *Project Manager*  
