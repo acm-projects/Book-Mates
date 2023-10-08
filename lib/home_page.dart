@@ -1,12 +1,12 @@
 import 'package:bookmates_app/Group%20Operations/create_group.dart';
 import 'package:bookmates_app/Group%20Operations/join_group.dart';
+import 'package:bookmates_app/GroupChat/chat_home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:bookmates_app/auth.dart';
 
 // the page you see when you sign in
-final user = Auth()
-    .currentUser; // the user is the data of the user thats currently signed in
+final user = Auth().currentUser; // the user is the data of the user thats currently signed in
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,7 +15,6 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-// ignore: unused_element
 Widget _betterButton(BuildContext c, Widget w, String buttonLabel) {
   return ElevatedButton(
     onPressed: () {
@@ -49,9 +48,9 @@ class _HomePageState extends State<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _betterButton(context, const JoinGroup(), 'Join Group'),
-              _betterButton(context, const CreateOrDeleteGroup(),
-                  'Create/Delete Group'), // have to change the group chats location
+              //  _betterButton(context, const JoinGroup(), 'Join Group'),
+              // _betterButton(context, const CreateOrDeleteGroup(),'Create/Delete Group'),
+              _betterButton(context, const Messaging(), 'Messaging'),
               _signOut(context),
             ],
           ),

@@ -1,13 +1,13 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:bookmates_app/User%20Implementation/user_model.dart';
+import 'package:bookmates_app/User%20Implementation/user_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:bookmates_app/auth.dart';
 
 //the page where the user will see first, option to sign in or register account
 
-
 class LoginPage extends StatefulWidget {
-  // stateful, meaning, data will change and cause re-render due to the action of logging in, or the state of the error msg, if any
+  
   const LoginPage({super.key});
 
   @override
@@ -15,25 +15,19 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  String errorMsg =
-      ""; // empty string for any error that might output, if there is one, then any catch will get it and set its text property to a string to output for the user
-  bool isLogin =
-      true; //flag that indicates the purpose of the button, wether that be to sign in, or make a new account, defualt is signing in
+  String errorMsg = ""; 
+  
+  bool isLogin =true; //flag that switches functionallity and verbiage of buttons when switched
 
-  final TextEditingController _controllerEmail =
-      TextEditingController(); // the TextEditingController is a class used to control and manipulate the content of a text input field
+  final TextEditingController _controllerEmail =TextEditingController(); // the variables that hold users input
   final TextEditingController _controllerPassword = TextEditingController();
   final TextEditingController _controllerUserName = TextEditingController();
 
   Future<void> signInWithEmailAndPassword() async {
     // Future is an asynchronous operation that represents a potentially long-running task. It's a way to work with code that doesn't block the main thread, the void is just the return type of this async function
     try {
-      await Auth().signInWithEmailAndPassword(
-          email: _controllerEmail.text,
-          password: _controllerPassword
-              .text); // try to signInWithEmailAndPassword by using the Auth class function defined previously using the fields the user typed in
-    } on FirebaseAuthException catch (error) {
-      // if there is an exeption in this classes function, which will always be of type FirebaseAuth, then catch the error;
+       await Auth().signInWithEmailAndPassword(email: _controllerEmail.text,password: _controllerPassword.text); // try to signInWithEmailAndPassword by using the Auth class function defined previously using the fields the user typed in
+    } on FirebaseAuthException catch (error) {  // if there is an exeption in this classes function, which will always be of type FirebaseAuth, then catch the error;
       setState(() {
         errorMsg = error
             .message!; // set the error's message to the data field errorMsg, the '!; means it can never be null, to prevent any issue
@@ -43,20 +37,19 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> createUserWithEmailAndPassword() async {
     // Create variable for firestore db so we can insert data
-    var db = FirebaseFirestore.instance;
     try {
       await Auth().createUserWithEmailAndPassword(
           email: _controllerEmail.text, password: _controllerPassword.text);
 
-      // Create dictionary for user info
-      final user = <String, dynamic>{
-        "Email": _controllerEmail.text,
-        "Password": _controllerPassword.text,
-        "userName": _controllerUserName.text,
-      };
+      final newUser = UserModel(
+        // instantiates a new UserModel to be used as an argument in the static function of UserRepo
+        id: _controllerEmail.text,
+        passsword: _controllerPassword.text,
+        email: _controllerEmail.text,
+        username: _controllerUserName.text,
+      );
 
-      // Now insert data into databse with custom ID
-      db.collection("users").doc(_controllerEmail.text).set(user);
+      await UserRepo.create(newUser); // creates a new user in Firetore
     } on FirebaseAuthException catch (e) {
       setState(() {
         errorMsg = e.message!;
@@ -64,7 +57,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  // the following are Widgets that will make up this login/register pag
+  // ******************************the following are Widgets that will make up this page *********************************
 
   Widget _title() {
     return const Text('This is the title');

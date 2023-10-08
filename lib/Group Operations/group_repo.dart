@@ -1,112 +1,121 @@
 import 'package:bookmates_app/Group%20Operations/group_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-//this class manages CRUD operations in firestore for the collection 'groups'
+//this class manages all CRUD operations in firestore for the collection 'groups' as well as its subcollections 'Messages', 'Members' and 'Milestones'
+
+// the docID of every group document will b the ID the user types in
+// the id of every Member and Message document will be the email of the user who instantiates / updated it 
+// we use the 'async' and 'await' keywords because the code is contacting Firestore servers, the runtime is asyncronous with the compile time of our code
 
 class GroupRepo {
-  static Stream<List<GroupModel>> read() {
-    // lists out all the users in the document
-    final userCollection = FirebaseFirestore.instance.collection("groups");
-    return userCollection.snapshots().map((querySnapshot) =>
-        querySnapshot.docs.map((e) => GroupModel.fromSnapshot(e)).toList());
-  }
 
-  static Future msgAdd(String subPath, userEmail) async {
+ static int mileStoneCount = 1; // will be the id of every milestone subcollection 
+
+  static Future msgAdd(String path, userEmail, msgContent) async { //   CU/CRUD the Message subcollection in a document of the groups collection
     final db = FirebaseFirestore.instance;
 
-    await db.collection(subPath).doc(userEmail).set({
-      // creating the Messages subcollection in every group created
-      // add the time sent as a  field
+    await db.collection(path).doc(userEmail).set({
       "TimeCreated": DateTime.now(),
+      "messageContent": msgContent,
+      "senderID": userEmail,
     });
   }
 
-  static Future<String> getFirstDocID(String subPath) async {
+  static Future memAdd(String path, userEmail, int admin) async { //    CU / CRUD the 'Members' subcollection (nested in 'groups' collection)
     final db = FirebaseFirestore.instance;
 
-    final first = db.collection(
-        subPath); // grabbing the id of the first document, this will be the email of the first user, therefore, the one that created it
-    final snap = await first.limit(1).get();
-    final id = snap.docs.first.id;
-
-    return id;
-  }
-
-  static Future memAdd(String subPath, userEmail, int admin) async {
-    final db = FirebaseFirestore.instance;
-
-    //final firstID = getFirstDocID(subPath);
-
-    await db.collection(subPath).doc(userEmail).set({
-      // creating the Members subcollection in every group created
-      // creating a document within this subcollection listing out the emails
+    await db.collection(path).doc(userEmail).set({
       "Member": userEmail,
       "isAdmin": admin == 1 ? true : false,
     });
   }
 
-  static Future create(GroupModel user) async {
-    // creates a user in firestore
-    final userCollection = FirebaseFirestore.instance.collection('groups');
-
-    final docPath = user
-        .groupID; // the id of each document in firestore is the id that the user typed in
-
-    final docRef = userCollection.doc(
-        docPath); // refrence of the specific document we want to put data into
-
-    final newUser = GroupModel(
-      bookName: user.bookName,
-      groupBio: user.groupBio,
-      groupName: user.groupName,
-      groupID: user.groupID,
-    ).toJson();
-
-    try {
-      await docRef.set(newUser);
-      // ignore: empty_catches
-    } catch (e) {}
-  }
-
-  static Future update(GroupModel user) async {
-    // updates firestore data
-
-    final userCollection = FirebaseFirestore.instance.collection("groups");
-
-    final docRef = userCollection
-        .doc(user.groupID); // document refrence of the document wanted
-
-    final newUser = GroupModel(
-      // convert the userModel data into type Map<String, dynamic> (type of data in firestore)
-      bookName: user.bookName,
-      groupBio: user.groupBio,
-      groupName: user.groupName,
-      groupID: user.groupID,
-    ).toJson();
-
-    try {
-      await docRef.update(newUser);
-      // ignore: empty_catches
-    } catch (e) {}
-  }
-
-  static Future subDelete(String subCollectPath) async {
+  static Future groupAdd(String path, String userEmail, String groupid) async { //  CU / CRUD the 'Groups' subcollection in 'users'
     final db = FirebaseFirestore.instance;
 
-    await db
-        .collection(subCollectPath)
-        .get()
-        .then((snapshot) => // delets all documents in Messages subcollection
+    await db.collection(path).doc(groupid).set({
+      "groupdID": groupid, 
+    });
+
+    await db.collection('users').doc(userEmail).update({ // updates the current group the user is in, may b useful for frontend to utilize to show group-specific data
+      'currentGroupID': groupid,
+    });
+  }
+
+  static Future milestoneAdd(String path, String userEmail, String groupid) async { //  CU / CRUD the 'Groups' subcollection in 'users'
+    final db = FirebaseFirestore.instance;
+
+    await db.collection(path).doc(mileStoneCount.toString()).set({
+      "Milestone": "N/A", 
+    });
+
+  }
+
+  static Future leaveGroup(String userEmail, String groupPath,String userPath, String groupID) async { // how a user leaves a group
+    
+    final userDocRef = FirebaseFirestore.instance.collection(userPath).doc(groupID);
+    final groupDocRef = FirebaseFirestore.instance.collection(groupPath).doc(userEmail);
+
+    await userDocRef.delete(); // removes the group from the 'user' subcollection 'Groups'
+    await groupDocRef.delete(); // removes the member from the 'Members' subcollection in 'groups'
+
+    await FirebaseFirestore.instance.collection('users').doc(userEmail).update({
+      "currentGroupID": "none"
+    });
+  }
+
+  static Future createOrUpdate(GroupModel user) async {
+   
+    final docRef = FirebaseFirestore.instance.collection('groups').doc(user.groupID); // refrence of the specific document we want to put data into
+
+    final newUser = GroupModel(
+      bookName: user.bookName,
+      groupBio: user.groupBio,
+      groupName: user.groupName,
+      groupID: user.groupID,
+    ).toJson(); // converting data into Firestore type
+
+    await docRef.set(newUser);
+  }
+
+  static Future subDelete(String path) async {
+    final db = FirebaseFirestore.instance;
+
+    await db.collection(path).get().then((snapshot) => // deletes all documents in Messages subcollection
             // ignore: avoid_function_literals_in_foreach_calls
             snapshot.docs.forEach((docuemnt) async {
               await docuemnt.reference.delete();
-            }));
+            }
+          )
+        );
   }
 
-  static Future mainDelete(String docPath, String collectPath) async {
-    await FirebaseFirestore.instance
-        .collection(collectPath)
-        .doc(docPath)
-        .delete(); // then finally deletes the entire docuemnt in the group collection
+  static Future clearUsers(String docPath, String userEmail) async{ // this removes all users that are in the group, useful if admin wants to delete when people are still members
+
+    final db = FirebaseFirestore.instance;
+
+    final memberQuery = await db.collection('groups/$docPath/Members').get();
+
+    for (final memberDoc in memberQuery.docs) {
+      final memberEmail = memberDoc.id; // this represents the docID of a document in the nested subcollection Members
+
+      final userGroupCollection = db.collection('users/$memberEmail/Groups');
+
+      await userGroupCollection.doc(docPath).delete();
+
+       await db.collection('users').doc(userEmail).update({
+      "currentGroupID": "none",
+    });
+    
+    }
+
+  }
+
+  static Future mainDelete(String docPath, String collectPath, String userEmail) async {
+    
+    GroupRepo.clearUsers(docPath, userEmail);
+    
+    await FirebaseFirestore.instance.collection('groups').doc(docPath).delete(); // removes the entire group document in firestore
+
   }
 }

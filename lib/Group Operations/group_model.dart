@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+// this is what each group will look like in Object form
+
 class GroupModel {
   final String? bookName;
   final String? groupBio;
@@ -8,8 +10,7 @@ class GroupModel {
 
   GroupModel({this.bookName, this.groupBio, this.groupName, this.groupID});
 
-  factory GroupModel.fromSnapshot(DocumentSnapshot snap) {
-    // when fetching data from firestore, this turns that map into object form
+  factory GroupModel.fromSnapshot(DocumentSnapshot snap) {// returns a type GroupModel that got its data from Firestore
     var snapshot = snap.data() as Map<String, dynamic>;
 
     return GroupModel(
@@ -20,8 +21,7 @@ class GroupModel {
     );
   }
 
-  Map<String, dynamic> toJson() => {
-        // turns object data in form firestore can understand
+  Map<String, dynamic> toJson() => {// turns object data in form firestore can understand
         "BookName": bookName,
         "GroupBio": groupBio,
         "GroupName": groupName,

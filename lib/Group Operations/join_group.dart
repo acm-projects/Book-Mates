@@ -2,6 +2,8 @@ import 'package:bookmates_app/Group%20Operations/group_repo.dart';
 import 'package:bookmates_app/auth.dart';
 import 'package:flutter/material.dart';
 
+final userEmail = Auth().currentUser?.email;
+
 class JoinGroup extends StatefulWidget {
   const JoinGroup({super.key});
 
@@ -14,19 +16,17 @@ class _JoinGroupState extends State<JoinGroup> {
   var isJoin = true;
 
   Future<void> joinGroup() async {
-    final userEmail = Auth().currentUser?.email;
 
-    GroupRepo.memAdd(
-        'groups/${_controllerGroupId.text}/Members', userEmail, 0);
+    await GroupRepo.memAdd('groups/${_controllerGroupId.text}/Members', userEmail, 0);
+      
+      await GroupRepo.groupAdd('users/$userEmail/Groups',userEmail!, _controllerGroupId.text);
   }
 
-  Future<void> leaveGroup() async {
-    // trying to kick the user from the id they've just submitted, _controllerGroupId has this id
-    final userEmail = Auth().currentUser?.email;
-
-    await GroupRepo.mainDelete(
-        userEmail!, 'groups/${_controllerGroupId.text}/Members');
+  Future<void> leaveGroup() async {// when user leaves the group
+    await GroupRepo.leaveGroup(userEmail!,'groups/${_controllerGroupId.text}/Members', 'users/$userEmail/Groups', _controllerGroupId.text);
   }
+
+// the following are widgets that make up the page
 
   Widget _title() {
     // the title of the page

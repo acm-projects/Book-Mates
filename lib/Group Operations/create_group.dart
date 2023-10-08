@@ -20,26 +20,27 @@ class _CreateGroupState extends State<CreateOrDeleteGroup> {
   final TextEditingController _controllerGroupID = TextEditingController();
 
   Future<void> createGroup() async {
+
     final userEmail = FirebaseAuth.instance.currentUser?.email;
 
     final newGroupModel = GroupModel(
-      // instantiated a new GroupModel to use the .toJson function to make this digestable data into firestore type
       bookName: _controllerBookName.text,
       groupBio: _controllerGroupBio.text,
       groupID: _controllerGroupID.text,
       groupName: _controllerGroupName.text,
     );
 
-    await GroupRepo.create(
-        newGroupModel); // this creates the 1D data fields found in each document of a group
+    await GroupRepo.createOrUpdate(
+        newGroupModel); // this creates the 1 & 2 D data fields found in each document of a group
 
-    await GroupRepo.msgAdd(
-        'groups/${_controllerGroupID.text}/Messages', userEmail);
-    await GroupRepo.memAdd(
-        'groups/${_controllerGroupID.text}/Members', userEmail, 1);
+    await GroupRepo.msgAdd('groups/${_controllerGroupID.text}/Messages', userEmail, "");
+    await GroupRepo.memAdd('groups/${_controllerGroupID.text}/Members', userEmail, 1);
+    await GroupRepo.milestoneAdd('groups/${_controllerGroupID.text}/Milestone', userEmail!, _controllerGroupID.text);
+    await GroupRepo.groupAdd('users/$userEmail/Groups',userEmail, _controllerGroupID.text);
+
   }
 
-  // the following are widgets that make up the screen
+  // *************the following are widgets that make up the screen******************
 
   Widget _createGroupOrDeleteButton() {
     return TextButton(
