@@ -4,7 +4,12 @@ import 'package:bookmates_app/widget_tree.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+      options: const FirebaseOptions(
+          apiKey: "AIzaSyBkxFME7rc2qYpjJcO_nSnEmlyfNBh5jms",
+          appId: "1:413615361765:web:a80bfa4e1ccedd1fdcce0c",
+          messagingSenderId: "413615361765",
+          projectId: "bookma-d79ce"));
 
   runApp(const MyApp());
 }
