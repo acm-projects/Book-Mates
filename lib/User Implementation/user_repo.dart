@@ -32,8 +32,7 @@ class UserRepo {
     await docRef.set(newUser);
 
     await FirebaseFirestore.instance.collection('users/$userEmail/Groups').doc().set({ // this creates the subcollection 'Groups' in a document of 'users' 
-      "groupID": "",
-      "dateJoined": DateTime.now(),
+     
     });
   }
 

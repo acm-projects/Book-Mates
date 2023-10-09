@@ -48,8 +48,8 @@ class _HomePageState extends State<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              //  _betterButton(context, const JoinGroup(), 'Join Group'),
-              // _betterButton(context, const CreateOrDeleteGroup(),'Create/Delete Group'),
+                _betterButton(context, const JoinGroup(), 'Join Group'),
+              _betterButton(context, const CreateOrDeleteGroup(),'Create/Delete Group'),
               _betterButton(context, const Messaging(), 'Messaging'),
               _signOut(context),
             ],
@@ -75,8 +75,8 @@ class _HomePageState extends State<HomePage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       SizedBox(
-                        width: MediaQuery.of(context).size.width / 1.2,
-                        height: MediaQuery.of(context).size.height / 6,
+                        width: MediaQuery.of(context).size.width ,
+                        height: MediaQuery.of(context).size.height / 25,
                         child: Text(
                             // ignore: prefer_interpolation_to_compose_strings
                             "${"Email: " + document["Email"]}  Password: " +

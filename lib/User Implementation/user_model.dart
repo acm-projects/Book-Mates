@@ -26,6 +26,5 @@ class UserModel { // this is the shape of data firestore contains in digestable 
     "Password": passsword,
     "id": id,
     "Email": email,
-    "currentGroupID": "",
   };
 }

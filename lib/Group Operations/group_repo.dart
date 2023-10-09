@@ -102,10 +102,10 @@ class GroupRepo {
       final userGroupCollection = db.collection('users/$memberEmail/Groups');
 
       await userGroupCollection.doc(docPath).delete();
-
-       await db.collection('users').doc(userEmail).update({
-      "currentGroupID": "none",
-    });
+      final updates = <String, dynamic>{
+        "currentGroupID": FieldValue.delete()
+      };
+       await db.collection('users').doc(userEmail).update(updates);
     
     }
 

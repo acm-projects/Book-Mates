@@ -1,5 +1,6 @@
 import 'package:bookmates_app/Group%20Operations/group_repo.dart';
 import 'package:bookmates_app/auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 final userEmail = Auth().currentUser?.email;
@@ -14,12 +15,20 @@ class JoinGroup extends StatefulWidget {
 class _JoinGroupState extends State<JoinGroup> {
   final TextEditingController _controllerGroupId = TextEditingController();
   var isJoin = true;
+  String errorMsg = "";
 
   Future<void> joinGroup() async {
 
-    await GroupRepo.memAdd('groups/${_controllerGroupId.text}/Members', userEmail, 0);
-      
-      await GroupRepo.groupAdd('users/$userEmail/Groups',userEmail!, _controllerGroupId.text);
+    final groupCollection = await FirebaseFirestore.instance.collection('groups').get();
+    
+    for(final groupDoc in groupCollection.docs){ // checks if the id that the user inputted exists, if it does, then add that user
+      final groupID = groupDoc.id;
+      if(_controllerGroupId.text == groupID){
+        await GroupRepo.memAdd('groups/${_controllerGroupId.text}/Members', userEmail, 0);
+        await GroupRepo.groupAdd('users/$userEmail/Groups',userEmail!, _controllerGroupId.text);
+      }
+    }
+
   }
 
   Future<void> leaveGroup() async {// when user leaves the group
