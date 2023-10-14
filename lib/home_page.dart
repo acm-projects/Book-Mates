@@ -1,12 +1,14 @@
-import 'package:bookmates_app/Group%20Operations/create_group.dart';
-import 'package:bookmates_app/Group%20Operations/join_group.dart';
+import 'package:bookmates_app/Group Operations/create_group.dart';
+import 'package:bookmates_app/Group Operations/join_group.dart';
 import 'package:bookmates_app/GroupChat/chat_home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:bookmates_app/auth.dart';
+import 'package:restart_app/restart_app.dart';
 
 // the page you see when you sign in
-final user = Auth().currentUser; // the user is the data of the user thats currently signed in
+final user = Auth()
+    .currentUser; // the user is the data of the user thats currently signed in
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -32,6 +34,7 @@ Widget _signOut(BuildContext c) {
   return ElevatedButton(
     onPressed: () {
       Auth().signOut();
+      Restart.restartApp();
     },
     child: const Text('Sign Out'),
   );
@@ -44,12 +47,13 @@ class _HomePageState extends State<HomePage> {
       bottomSheet: BottomAppBar(
         child: Container(
           padding: const EdgeInsets.all(12),
-          child: Row(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-                _betterButton(context, const JoinGroup(), 'Join Group'),
-              _betterButton(context, const CreateOrDeleteGroup(),'Create/Delete Group'),
+              _betterButton(context, const JoinGroup(), 'Join Group'),
+              _betterButton(
+                  context, const CreateOrDeleteGroup(), 'Create/Delete Group'),
               _betterButton(context, const Messaging(), 'Messaging'),
               _signOut(context),
             ],
@@ -75,7 +79,7 @@ class _HomePageState extends State<HomePage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       SizedBox(
-                        width: MediaQuery.of(context).size.width ,
+                        width: MediaQuery.of(context).size.width,
                         height: MediaQuery.of(context).size.height / 25,
                         child: Text(
                             // ignore: prefer_interpolation_to_compose_strings

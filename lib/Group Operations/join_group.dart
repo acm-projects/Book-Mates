@@ -12,41 +12,46 @@ class JoinGroup extends StatefulWidget {
   State<JoinGroup> createState() => _JoinGroupState();
 }
 
+final TextEditingController _controllerGroupId = TextEditingController();
+
 class _JoinGroupState extends State<JoinGroup> {
-  final TextEditingController _controllerGroupId = TextEditingController();
   var isJoin = true;
-  String errorMsg = "";
+  String errorMsg = ""; // for error handling
 
   Future<void> joinGroup() async {
+    final groupCollection =
+        await FirebaseFirestore.instance.collection('groups').get();
 
-    final groupCollection = await FirebaseFirestore.instance.collection('groups').get();
-    
-    for(final groupDoc in groupCollection.docs){ // checks if the id that the user inputted exists, if it does, then add that user
+    for (final groupDoc in groupCollection.docs) { // checks if the id that the user inputted exists, if it does, then add that user
       final groupID = groupDoc.id;
-      if(_controllerGroupId.text == groupID){
-        await GroupRepo.memAdd('groups/${_controllerGroupId.text}/Members', userEmail, 0);
-        await GroupRepo.groupAdd('users/$userEmail/Groups',userEmail!, _controllerGroupId.text);
+      if (_controllerGroupId.text == groupID) {
+        await GroupRepo.memAdd(
+            'groups/${_controllerGroupId.text}/Members', userEmail, 0);
+        await GroupRepo.groupAdd('users/$userEmail/Groups',
+            userEmail.toString(), _controllerGroupId.text);
       }
     }
-
   }
 
-  Future<void> leaveGroup() async {// when user leaves the group
-    await GroupRepo.leaveGroup(userEmail!,'groups/${_controllerGroupId.text}/Members', 'users/$userEmail/Groups', _controllerGroupId.text);
+  Future<void> leaveGroup() async {
+    // when user leaves the group
+    await GroupRepo.leaveGroup(
+        userEmail!,
+        'groups/${_controllerGroupId.text}/Members',
+        'users/$userEmail/Groups',
+        _controllerGroupId.text);
   }
 
-// the following are widgets that make up the page
+// ***********Widgets that make up the page ****************
 
-  Widget _title() {
-    // the title of the page
+  Widget _title() { // the title of the page
     return AppBar(
       title: const Text('Join Group Page'),
       backgroundColor: Colors.lightGreen,
     );
   }
 
-  Widget _entryField(String hintText, TextEditingController controller) {
-    // modular entry field that can be resued at any time
+  Widget _entryField(String hintText, TextEditingController controller) { // where users type in data
     return TextField(
       controller: controller,
       decoration: InputDecoration(
@@ -77,7 +82,7 @@ class _JoinGroupState extends State<JoinGroup> {
       body: Column(
         children: [
           _title(),
-          _entryField('Group u want 2 join', _controllerGroupId),
+          _entryField('Group ID', _controllerGroupId),
           _submitButton(),
           _joinOrDeleteButton(),
         ],

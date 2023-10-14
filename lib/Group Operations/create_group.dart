@@ -14,7 +14,7 @@ class CreateOrDeleteGroup extends StatefulWidget {
 class _CreateGroupState extends State<CreateOrDeleteGroup> {
   var isCreate = true;
 
-  final TextEditingController _controllerGroupName = TextEditingController();
+  final TextEditingController _controllerGroupName = TextEditingController(); // variables that hold the data that users type in any entryfield
   final TextEditingController _controllerGroupBio = TextEditingController();
   final TextEditingController _controllerBookName = TextEditingController();
   final TextEditingController _controllerGroupID = TextEditingController();
@@ -30,8 +30,7 @@ class _CreateGroupState extends State<CreateOrDeleteGroup> {
       groupName: _controllerGroupName.text,
     );
 
-    await GroupRepo.createOrUpdate(
-        newGroupModel); // this creates the 1 & 2 D data fields found in each document of a group
+    await GroupRepo.createOrUpdate(newGroupModel); // this instantiates the data fields in each document of the collection 'groups'
 
     await GroupRepo.msgAdd('groups/${_controllerGroupID.text}/Messages', userEmail, "");
     await GroupRepo.memAdd('groups/${_controllerGroupID.text}/Members', userEmail, 1);
@@ -44,18 +43,14 @@ class _CreateGroupState extends State<CreateOrDeleteGroup> {
 
   Widget _createGroupOrDeleteButton() {
     return TextButton(
-      onPressed: () => setState(() {
-        // if the login or register button is pressed, change the value of isLogin to switch between the 2 possible functions, signing in and registering
+      onPressed: () => setState(() { // if the login or register button is pressed, change the value of isLogin to switch between the 2 possible functions, signing in and registering
         isCreate = !isCreate;
       }),
-      child: Text(isCreate
-          ? 'delete instead?'
-          : 'create group instead?'), // changes the text of the button to tell  the user the other option based on the truth values of this flag
+      child: Text(isCreate ? 'delete instead?': 'create group instead?'), // changes the text of the button to tell  the user the other option based on the truth values of this flag
     );
   }
 
-  Widget _entryField(String title, TextEditingController controller) {
-    // this will be the line where the user actually types in the data
+  Widget _entryField(String title, TextEditingController controller) { // this will be the line where the user actually types in the data
     return TextField(
       controller: controller,
       decoration: InputDecoration(
@@ -71,9 +66,7 @@ class _CreateGroupState extends State<CreateOrDeleteGroup> {
             : () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => (const DeletePage()),
                 )), //if the button is pressed, based on the data field isLogin, if its true, that means we login in, and call the respected method, is not, call the regiser user function
-        child: Text(isCreate
-                ? 'Create'
-                : 'Delete' //based on the _loginOrregisterButton, which changes the value of the flag isLogin, print out login or register to not have to make another page
+        child: Text(isCreate ? 'Create' : 'Delete' //based on the _loginOrregisterButton, which changes the value of the flag isLogin, print out login or register to not have to make another page
             ));
   }
 
