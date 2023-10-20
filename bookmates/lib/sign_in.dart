@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthPage extends StatefulWidget {
+  const AuthPage({super.key});
+
   @override
   _AuthPageState createState() => _AuthPageState();
 }
@@ -14,27 +16,27 @@ class _AuthPageState extends State<AuthPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Log In!')),
+      appBar: AppBar(title: const Text('Log In!')),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
             TextField(
               controller: _emailController,
-              decoration: InputDecoration(labelText: 'Email'),
+              decoration: const InputDecoration(labelText: 'Email'),
             ),
             TextField(
               controller: _passwordController,
-              decoration: InputDecoration(labelText: 'Password'),
+              decoration: const InputDecoration(labelText: 'Password'),
               obscureText: true,
             ),
             ElevatedButton(
               onPressed: _register,
-              child: Text('Register'),
+              child: const Text('Register'),
             ),
             ElevatedButton(
               onPressed: _login,
-              child: Text('Login'),
+              child: const Text('Login'),
             ),
           ],
         ),
@@ -49,7 +51,7 @@ class _AuthPageState extends State<AuthPage> {
         password: _passwordController.text,
       );
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Registered Successfully')),
+        const SnackBar(content: Text('Registered Successfully')),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -65,7 +67,7 @@ class _AuthPageState extends State<AuthPage> {
         password: _passwordController.text,
       );
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Logged in Successfully')),
+        const SnackBar(content: Text('Logged in Successfully')),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
