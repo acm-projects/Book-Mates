@@ -1,33 +1,43 @@
+import 'package:bookmates_app/background_service.dart';
 import 'package:bookmates_app/User%20Implementation/user_model.dart';
 import 'package:bookmates_app/User%20Implementation/user_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:bookmates_app/auth.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 
 //the page where the user will see first, option to sign in or register account
 
 class LoginPage extends StatefulWidget {
-  
   const LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-  String errorMsg = ""; 
-  
-  bool isLogin =true; //flag that switches functionallity and verbiage of buttons when switched
+// Delete binding observer because service only starts if logged in
+class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
+  String errorMsg = "";
 
-  final TextEditingController _controllerEmail =TextEditingController(); // the variables that hold users input
+  bool isLogin =
+      true; //flag that switches functionallity and verbiage of buttons when switched
+
+  final TextEditingController _controllerEmail =
+      TextEditingController(); // the variables that hold users input
   final TextEditingController _controllerPassword = TextEditingController();
   final TextEditingController _controllerUserName = TextEditingController();
 
   Future<void> signInWithEmailAndPassword() async {
     // Future is an asynchronous operation that represents a potentially long-running task. It's a way to work with code that doesn't block the main thread, the void is just the return type of this async function
     try {
-       await Auth().signInWithEmailAndPassword(email: _controllerEmail.text,password: _controllerPassword.text); // try to signInWithEmailAndPassword by using the Auth class function defined previously using the fields the user typed in
-    } on FirebaseAuthException catch (error) {  // if there is an exeption in this classes function, which will always be of type FirebaseAuth, then catch the error;
+      await Auth().signInWithEmailAndPassword(
+          email: _controllerEmail.text,
+          password: _controllerPassword
+              .text); // try to signInWithEmailAndPassword by using the Auth class function defined previously using the fields the user typed in
+      // In case service is stopped, start the service on login
+      await initBackgroundService();
+    } on FirebaseAuthException catch (error) {
+      // if there is an exeption in this classes function, which will always be of type FirebaseAuth, then catch the error;
       setState(() {
         errorMsg = error
             .message!; // set the error's message to the data field errorMsg, the '!; means it can never be null, to prevent any issue
@@ -50,6 +60,8 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       await UserRepo.create(newUser); // creates a new user in Firetore
+      // In case service is stopped, start service on user creation
+      await initBackgroundService();
     } on FirebaseAuthException catch (e) {
       setState(() {
         errorMsg = e.message!;

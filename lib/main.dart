@@ -1,9 +1,14 @@
+import 'package:bookmates_app/background_service.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:bookmates_app/widget_tree.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+AppLifecycleState state = AppLifecycleState.detached;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(
       options: const FirebaseOptions(
           apiKey: "AIzaSyBkxFME7rc2qYpjJcO_nSnEmlyfNBh5jms",
@@ -11,6 +16,13 @@ Future<void> main() async {
           messagingSenderId: "413615361765",
           projectId: "bookma-d79ce"));
 
+  Permission.notification.isDenied.then(
+    (value) {
+      if (value) {
+        Permission.notification.request();
+      }
+    },
+  );
   runApp(const MyApp());
 }
 
