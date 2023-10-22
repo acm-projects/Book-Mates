@@ -1,4 +1,4 @@
-import 'package:bookmates_app/auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'chat_service.dart';
 import 'chat_model.dart';
@@ -14,98 +14,125 @@ class ChatHome extends StatefulWidget {
   State<ChatHome> createState() => _ChatHomeState();
 }
 
+// Example function to show delete functionality - can be expanded upon
+void deleteMessageFunctionality(BuildContext context, ChatMessage message) {
+  // Implement the functionality to delete the message.
+  // This can involve showing a dialog to confirm the deletion, then calling deleteMessage.
+}
+
 class _ChatHomeState extends State<ChatHome> {
-  final TextEditingController _messageController = TextEditingController();
+  final _messageController = TextEditingController();
 
-  final String _type = "text"; // assuming text for simplicity
-
-  @override
-  Widget build(BuildContext context) {
-    print(Auth().currentUser?.email);
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Chat Home'),
-      ),
-      body: Column(
+  Widget _entryField() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
         children: [
           Expanded(
-            child: FutureBuilder(
-              future: displayMessages(),
-              builder:
-                  (context, AsyncSnapshot<List<DocumentSnapshot>> snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (snapshot.hasError || !snapshot.hasData) {
-                  return const Center(child: Text("Error loading messages"));
-                }
-
-                List<ChatMessage> messages = snapshot.data!
-                    .map((doc) => ChatMessage.fromSnapshot(doc))
-                    .toList();
-                return ListView.builder(
-                  itemCount: messages.length,
-                  itemBuilder: (context, index) {
-                    bool isUser =
-                        (messages[index].senderId == Auth().currentUser?.email);
-                    TextAlign align = isUser ? TextAlign.right : TextAlign.left;
-
-                    return ListTile(
-                      title: Text(
-                        messages[index].text ?? "",
-                        textAlign: align,
-                      ),
-                      onTap: () => readMessage(messages[index].messageId!),
-                      onLongPress: () =>
-                          deleteMessageFunctionality(context, messages[index]),
-                    );
-                  },
-                );
-              },
+            child: TextField(
+              controller: _messageController,
+              decoration: const InputDecoration(hintText: "Message..."),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    decoration: const InputDecoration(hintText: "Message..."),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.send),
-                  onPressed: () async {
-                    if (_messageController.text.isNotEmpty) {
-                      await sendMessage(_messageController.text, _type);
-                      _messageController.clear();
-                      setState(() {}); // Refresh UI
-                    }
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.upload_file),
-                  onPressed: () async {
-                    FilePickerResult? mediaUp = await FilePicker.platform
-                        .pickFiles(type: FileType.media);
-                    if (mediaUp != null && mediaUp.files.isNotEmpty) {
-                      File selectedFile = File(mediaUp.files.single.path!);
-                      String? media = await uploadMedia(selectedFile);
-                    }
-                  },
-                ),
-              ],
-            ),
-          )
+          IconButton(
+            icon: const Icon(Icons.send),
+            onPressed: () async {
+              if (_messageController.text.isNotEmpty) {
+                await sendMessage(_messageController.text, 'text');
+                _messageController.clear();
+              }
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.upload_file),
+            onPressed: () async {
+              FilePickerResult? mediaUp =
+                  await FilePicker.platform.pickFiles(type: FileType.media);
+              if (mediaUp != null && mediaUp.files.isNotEmpty) {
+                File selectedFile = File(mediaUp.files.single.path!);
+                String? media = await uploadMedia(selectedFile);
+              }
+            },
+          ),
         ],
       ),
     );
   }
 
-  // Example function to show delete functionality - can be expanded upon
-  void deleteMessageFunctionality(BuildContext context, ChatMessage message) {
-    // Implement the functionality to delete the message.
-    // This can involve showing a dialog to confirm the deletion, then calling deleteMessage.
+  Widget _messageList(String? text) {
+    // listing all messages in the cloud
+    return SizedBox(
+      height: MediaQuery.of(context).size.height - 201.0,
+      child: StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection('groups')
+            .doc(text)
+            .collection('Messages')
+            .orderBy('timeStamp')
+            .snapshots(),
+        builder: (buildContext, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (!snapshot.hasData) {
+            return const CircularProgressIndicator();
+          }
+          return ListView(
+            children: snapshot.data!.docs.map((document) {
+              //changing the alingment id you were the one to send the message
+              bool isUser = (document['senderID'] ==
+                  FirebaseAuth.instance.currentUser?.email);
+              Alignment alignment =
+                  isUser ? Alignment.centerRight : Alignment.centerLeft;
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Align(
+                    alignment: alignment, // Apply the alignment here
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width / 4,
+                      height: MediaQuery.of(context).size.height / 25,
+                      // ignore: prefer_interpolation_to_compose_strings
+                      child: Text(
+                        document['text'],
+                        style: TextStyle(
+                          // Optionally, you can style the text based on the alignment
+                          color: isUser ? Colors.blue : Colors.grey,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }).toList(),
+          );
+        },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        resizeToAvoidBottomInset: false,
+        appBar: AppBar(
+          backgroundColor: Colors.lightGreen,
+          title: const Text('Messaging'),
+        ),
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              //putting streambuilder before buttons
+              FutureBuilder(
+                  future: getGroupId(),
+                  initialData: 'Loading messages...',
+                  builder: (BuildContext context, AsyncSnapshot<String> text) {
+                    return _messageList(text.data);
+                  }),
+              _entryField(),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

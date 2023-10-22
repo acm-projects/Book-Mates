@@ -34,8 +34,6 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
           email: _controllerEmail.text,
           password: _controllerPassword
               .text); // try to signInWithEmailAndPassword by using the Auth class function defined previously using the fields the user typed in
-      // In case service is stopped, start the service on login
-      await initBackgroundService();
     } on FirebaseAuthException catch (error) {
       // if there is an exeption in this classes function, which will always be of type FirebaseAuth, then catch the error;
       setState(() {
@@ -60,8 +58,6 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
       );
 
       await UserRepo.create(newUser); // creates a new user in Firetore
-      // In case service is stopped, start service on user creation
-      await initBackgroundService();
     } on FirebaseAuthException catch (e) {
       setState(() {
         errorMsg = e.message!;

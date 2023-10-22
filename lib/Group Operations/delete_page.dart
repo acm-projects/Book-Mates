@@ -12,13 +12,16 @@ class DeletePage extends StatefulWidget {
 class _MyWidgetState extends State<DeletePage> {
   final TextEditingController _controllerGroupID = TextEditingController();
 
-  Future<void> deleteGroup() async {// to delete the entire group
-    
+  Future<void> deleteGroup() async {
+    // to delete the entire group
+
     final userEmail = Auth().currentUser?.email;
-    
-    final subRef1 ='groups/${_controllerGroupID.text}/Members'; // refrecnces to the 2 subcollections of a document in the collection 'groups'
+
+    final subRef1 =
+        'groups/${_controllerGroupID.text}/Members'; // refrecnces to the 2 subcollections of a document in the collection 'groups'
     final subRef2 = 'groups/${_controllerGroupID.text}/Messages';
     final subRef3 = 'groups/${_controllerGroupID.text}/Milestone';
+
     GroupRepo.subDelete(subRef1);
     GroupRepo.subDelete(subRef2);
     GroupRepo.subDelete(subRef3);
@@ -26,9 +29,7 @@ class _MyWidgetState extends State<DeletePage> {
     GroupRepo.mainDelete(_controllerGroupID.text, 'groups', userEmail!);
   }
 
-
- // *************the following are widgets that make up the screen******************
-
+  // *************the following are widgets that make up the screen******************
 
   Widget _finalDelete(TextEditingController controller, String hintText) {
     return TextField(

@@ -141,7 +141,7 @@ Future<void> onStart(ServiceInstance service) async {
     }
     // Check for new message every second
     checkForNewMessages(service);
-
+    // print('BACKGROUND SERIVCE RUNNING');
     service.invoke('update');
   });
 }

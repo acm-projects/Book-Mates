@@ -63,9 +63,9 @@ Future<DocumentReference> sendMessage(String text, String type) async {
     'senderID': FirebaseAuth.instance.currentUser?.email,
     'timeStamp': FieldValue.serverTimestamp(),
     'type': type,
-    'readBy': [
-      Auth().currentUser?.email
-    ], //array that indicates users in the gc that have read message, originally only the sender
+    // 'readBy': [
+    //   Auth().currentUser?.email
+    // ], //array that indicates users in the gc that have read message, originally only the sender
     'mediaURL': '', //for images, videos, gifs, etc
   });
 }

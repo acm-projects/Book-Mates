@@ -37,11 +37,11 @@ Widget _signOut(BuildContext c) {
   return ElevatedButton(
     onPressed: () {
       // Stop background service if user is not logged in
-      FlutterBackgroundService().invoke('stopService');
+      // FlutterBackgroundService().invoke('stopService');
       print('BACKGROUND:::::::::::::SERVICE:::::::::::::STOPPED');
       Auth().signOut();
-      sleep(const Duration(milliseconds: 100));
-      Restart.restartApp();
+      sleep(const Duration(milliseconds: 200));
+      // Restart.restartApp()
     },
     child: const Text('Sign Out'),
   );

@@ -1,3 +1,4 @@
+import 'package:bookmates_app/background_service.dart';
 import 'package:bookmates_app/auth.dart';
 import 'package:bookmates_app/home_page.dart'; //importing the hompage
 import 'package:bookmates_app/login_register.dart';
@@ -28,4 +29,3 @@ class _WidgetTreeState extends State<WidgetTree> {
         });
   }
 }
-

@@ -1,5 +1,6 @@
 import 'package:bookmates_app/Group%20Operations/group_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:get/utils.dart';
 
 //this class manages all CRUD operations in firestore for the collection 'groups' as well as its subcollections 'Messages', 'Members' and 'Milestones'
 
@@ -8,19 +9,29 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 // we use the 'async' and 'await' keywords because the code is contacting Firestore servers, the runtime is asyncronous with the compile time of our code
 
 class GroupRepo {
-  static int mileStoneCount = 1; // will be the id of every milestone subcollection
+  static int mileStoneCount =
+      1; // will be the id of every milestone subcollection
 
-  static Future msgAdd(String path, userEmail, msgContent) async { //   CU/CRUD the Message subcollection in a document of the groups collection
+  static Future msgAdd(
+      {required String path,
+      userEmail,
+      msgContent,
+      String? type,
+      mediaURL}) async {
+    //   CU/CRUD the Message subcollection in a document of the groups collection
     final db = FirebaseFirestore.instance;
 
     await db.collection(path).doc().set({
-      "TimeCreated": DateTime.now(),
-      "messageContent": msgContent,
+      "timeStamp": DateTime.now(),
+      "text": msgContent,
       "senderID": userEmail,
+      "mediaURL": mediaURL ?? "",
+      "type": type ?? 'text',
     });
   }
 
-  static Future memAdd(String path, userEmail, int admin) async { //    CU / CRUD the 'Members' subcollection (nested in 'groups' collection)
+  static Future memAdd(String path, userEmail, int admin) async {
+    //    CU / CRUD the 'Members' subcollection (nested in 'groups' collection)
     final db = FirebaseFirestore.instance;
 
     await db.collection(path).doc(userEmail).set({
@@ -29,19 +40,23 @@ class GroupRepo {
     });
   }
 
-  static Future groupAdd(String path, String userEmail, String groupid) async {  //  CU / CRUD the 'Groups' subcollection in 'users'
+  static Future groupAdd(String path, String userEmail, String groupid) async {
+    //  CU / CRUD the 'Groups' subcollection in 'users'
     final db = FirebaseFirestore.instance;
 
     await db.collection(path).doc(groupid).set({
       "groupdID": groupid,
     });
 
-    await db.collection('users').doc(userEmail).set({ // updates the current group the user is in
+    await db.collection('users').doc(userEmail).set({
+      // updates the current group the user is in
       'currentGroupID': groupid,
     }, SetOptions(merge: true));
   }
 
-  static Future milestoneAdd(String path, String userEmail, String groupid) async { //  CU / CRUD the 'Milestone' subcollection in 'users'
+  static Future milestoneAdd(
+      String path, String userEmail, String groupid) async {
+    //  CU / CRUD the 'Milestone' subcollection in 'users'
     final db = FirebaseFirestore.instance;
 
     await db.collection(path).doc(mileStoneCount.toString()).set({
@@ -49,18 +64,24 @@ class GroupRepo {
     });
   }
 
-  static Future leaveGroup(String userEmail, String groupPath, String userPath,String groupID) async { // how a user leaves a group
+  static Future leaveGroup(String userEmail, String groupPath, String userPath,
+      String groupID) async {
+    // how a user leaves a group
 
-    final userDocRef = FirebaseFirestore.instance.collection(userPath).doc(groupID);
-    final groupDocRef = FirebaseFirestore.instance.collection(groupPath).doc(userEmail);
+    final userDocRef =
+        FirebaseFirestore.instance.collection(userPath).doc(groupID);
+    final groupDocRef =
+        FirebaseFirestore.instance.collection(groupPath).doc(userEmail);
 
-    await userDocRef .delete(); // removes the group from the 'user' subcollection 'Groups'
-    await groupDocRef .delete(); // removes the user from the 'Members' subcollection in 'groups'
+    await userDocRef
+        .delete(); // removes the group from the 'user' subcollection 'Groups'
+    await groupDocRef
+        .delete(); // removes the user from the 'Members' subcollection in 'groups'
 
     await FirebaseFirestore.instance
         .collection('users')
         .doc(userEmail)
-        .update({"currentGroupID": "none"});
+        .update({"currentGroupID": FieldValue.delete()});
   }
 
   static Future createOrUpdate(GroupModel user) async {
@@ -90,15 +111,16 @@ class GroupRepo {
             }));
   }
 
-  static Future clearUsers(String docPath, String userEmail) async { // this removes all users that are in the group
+  static Future clearUsers(String docPath, String userEmail) async {
+    // this removes all users that are in the group
 
     final db = FirebaseFirestore.instance;
 
     final memberQuery = await db.collection('groups/$docPath/Members').get();
 
     for (final memberDoc in memberQuery.docs) {
-      
-      final memberEmail = memberDoc.id; // this represents the docID of a document in the nested subcollection Members
+      final memberEmail = memberDoc
+          .id; // this represents the docID of a document in the nested subcollection Members
 
       final userGroupCollection = db.collection('users/$memberEmail/Groups');
 
