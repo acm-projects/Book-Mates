@@ -90,10 +90,38 @@ class _ChatHomeState extends State<ChatHome> {
     );
   }
 
-  // Example function to show delete functionality - can be expanded upon
-  void deleteMessageFunctionality(BuildContext context, ChatMessage message) {
-    // Implement the functionality to delete the message.
-    // This can involve showing a dialog to confirm the deletion, then calling deleteMessage.
-  }
+void deleteMessageFunctionality(BuildContext context, ChatMessage message) {
+  showDialog(
+    context: context,
+    builder: (BuildContext dialogContext) {
+      return AlertDialog(
+        title: Text('Delete Message'),
+        content: Text('Are you sure you want to delete this message?'),
+        actions: <Widget>[
+          TextButton(
+            child: Text('Cancel'),
+            onPressed: () {
+              Navigator.of(dialogContext).pop();  // Close the dialog
+            },
+          ),
+          TextButton(
+            child: Text('Delete'),
+            onPressed: () async {
+              await deleteMessage(
+                currentUser,
+                _groupId,
+                message.messageId!,
+                message.mediaUrl,  // Assuming your ChatMessage model has a 'mediaUrl' field
+              );
+              Navigator.of(dialogContext).pop();  // Close the dialog
+              setState(() {});  // Refresh UI
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
 }
 
