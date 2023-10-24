@@ -1,4 +1,3 @@
-import 'package:bookmates_app/background_service.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:bookmates_app/widget_tree.dart';
@@ -15,7 +14,6 @@ Future<void> main() async {
           appId: "1:413615361765:web:a80bfa4e1ccedd1fdcce0c",
           messagingSenderId: "413615361765",
           projectId: "bookma-d79ce"));
-
   Permission.notification.isDenied.then(
     (value) {
       if (value) {

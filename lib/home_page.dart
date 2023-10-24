@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'package:bookmates_app/PDF%20Upload/pdf_service.dart';
 
+import 'PDF Upload/pdf_screen.dart';
 import 'package:bookmates_app/Group Operations/create_group.dart';
 import 'package:bookmates_app/Group Operations/join_group.dart';
 import 'package:bookmates_app/GroupChat/chat_page.dart';
@@ -7,7 +9,6 @@ import 'package:bookmates_app/api_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:bookmates_app/auth.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
 
 // the page you see when you sign in
 final user = Auth()
@@ -39,6 +40,7 @@ Widget _signOut(BuildContext c) {
       // Stop background service if user is not logged in
       // FlutterBackgroundService().invoke('stopService');
       print('BACKGROUND:::::::::::::SERVICE:::::::::::::STOPPED');
+      RecentlyRead.clearHistory(); // clear the history of book reading
       Auth().signOut();
       sleep(const Duration(milliseconds: 200));
       // Restart.restartApp()
@@ -63,6 +65,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   context, const CreateOrDeleteGroup(), 'Create/Delete Group'),
               _betterButton(context, const ChatHome(), 'Messaging'),
               _betterButton(context, const APIPage(), 'api-stuff'),
+              _betterButton(context, PDFReaderApp(), 'pdf-stuff'),
               _signOut(context),
             ],
           ),

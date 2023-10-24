@@ -1,5 +1,6 @@
 import 'package:bookmates_app/Group%20Operations/group_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 //this class manages all CRUD operations in firestore for the collection 'groups' as well as its subcollections 'Messages', 'Members' and 'Milestones'
 
@@ -12,11 +13,7 @@ class GroupRepo {
       1; // will be the id of every milestone subcollection
 
   static Future msgAdd(
-      {required String path,
-      userEmail,
-      msgContent,
-      String? type,
-      mediaURL}) async {
+      String path, userEmail, msgContent, String? type, mediaURL) async {
     //   CU/CRUD the Message subcollection in a document of the groups collection
     final db = FirebaseFirestore.instance;
 
@@ -32,10 +29,12 @@ class GroupRepo {
   static Future memAdd(String path, userEmail, int admin) async {
     //    CU / CRUD the 'Members' subcollection (nested in 'groups' collection)
     final db = FirebaseFirestore.instance;
-
+    final f = FirebaseMessaging.instance;
     await db.collection(path).doc(userEmail).set({
       "Member": userEmail,
       "isAdmin": admin == 1 ? true : false,
+      "token":
+          await f.getToken(), // the device token of every user whos in a group
     });
   }
 
