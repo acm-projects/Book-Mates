@@ -1,10 +1,8 @@
-import 'package:bookmates_app/background_service.dart';
 import 'package:bookmates_app/User%20Implementation/user_model.dart';
 import 'package:bookmates_app/User%20Implementation/user_repo.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:bookmates_app/auth.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
 
 //the page where the user will see first, option to sign in or register account
 

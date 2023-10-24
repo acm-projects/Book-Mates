@@ -1,6 +1,5 @@
 import 'package:bookmates_app/Group%20Operations/group_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:get/utils.dart';
 
 //this class manages all CRUD operations in firestore for the collection 'groups' as well as its subcollections 'Messages', 'Members' and 'Milestones'
 

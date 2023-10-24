@@ -62,7 +62,7 @@ class _ChatHomeState extends State<ChatHome> {
   Widget _messageList(String? text) {
     // listing all messages in the cloud
     return SizedBox(
-      height: MediaQuery.of(context).size.height - 201.0,
+      height: MediaQuery.of(context).size.height - 202.0,
       child: StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection('groups')

@@ -23,7 +23,6 @@ Future<void> main() async {
       }
     },
   );
-  await initBackgroundService();
   runApp(const MyApp());
 }
 

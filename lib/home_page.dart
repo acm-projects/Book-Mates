@@ -3,11 +3,11 @@ import 'dart:io';
 import 'package:bookmates_app/Group Operations/create_group.dart';
 import 'package:bookmates_app/Group Operations/join_group.dart';
 import 'package:bookmates_app/GroupChat/chat_page.dart';
+import 'package:bookmates_app/api_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:bookmates_app/auth.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
-import 'package:restart_app/restart_app.dart';
 
 // the page you see when you sign in
 final user = Auth()
@@ -48,44 +48,6 @@ Widget _signOut(BuildContext c) {
 }
 
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
-  //////////////////////////////////////////////////////////////////////////////
-  /// Checking for app lifecycle state
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-
-    // These states execute after pause so we dont need to check them aswell
-    if ((state == AppLifecycleState.inactive) ||
-        (state == AppLifecycleState.detached)) {
-      return;
-    }
-
-    final isBackground = state == AppLifecycleState.paused;
-    final isForeground = state == AppLifecycleState.resumed;
-
-    if (isBackground) {
-      FlutterBackgroundService().invoke('setAsBackground');
-      print('NOTICE:::::::::::::SENDING TO BACKGROUND');
-    }
-    if (isForeground) {
-      FlutterBackgroundService().invoke('setAsForeground');
-      print('NOTICE:::::::::::::SENDING TO FOREGROUND');
-    }
-  }
-  //////////////////////////////////////////////////////////////////////////////
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -100,6 +62,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               _betterButton(
                   context, const CreateOrDeleteGroup(), 'Create/Delete Group'),
               _betterButton(context, const ChatHome(), 'Messaging'),
+              _betterButton(context, const APIPage(), 'api-stuff'),
               _signOut(context),
             ],
           ),
