@@ -14,9 +14,6 @@ class PDFViewer extends StatelessWidget {
 
     return Scaffold(
       //the pdf reading page once you select from your recently read
-      appBar: AppBar(
-        title: const Text("PDF Viewer"),
-      ),
       body: Center(
         child: PDFView(filePath: pdfPath),
       ),

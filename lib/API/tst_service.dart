@@ -1,4 +1,4 @@
-import 'package:bookmates_app/Services/tst_model.dart';
+import 'package:bookmates_app/API/tst_model.dart';
 import 'package:http/http.dart' as http;
 
 class RemoteService {

@@ -1,6 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'dart:ui';
+import 'package:bookmates_app/notification_service.dart';
 import 'package:bookmates_app/widget_tree.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 AppLifecycleState state = AppLifecycleState.detached;
@@ -21,6 +23,7 @@ Future<void> main() async {
       }
     },
   );
+  await initBackgroundService();
   runApp(const MyApp());
 }
 
