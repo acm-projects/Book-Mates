@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:bookmates_app/widget_tree.dart';
+import 'screen123.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,7 +12,7 @@ Future<void> main() async {
           messagingSenderId: "413615361765",
           projectId: "bookma-d79ce"));
 
-  runApp(const MyApp());
+  runApp(MaterialApp(home: signup()));
 }
 
 class MyApp extends StatelessWidget {
