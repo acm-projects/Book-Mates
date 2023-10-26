@@ -49,56 +49,124 @@ class _CreateGroupState extends State<CreateOrDeleteGroup> {
 
   Widget _createGroupOrDeleteButton() {
     return TextButton(
-      onPressed: () => setState(() {
-        // if the login or register button is pressed, change the value of isLogin to switch between the 2 possible functions, signing in and registering
-        isCreate = !isCreate;
-      }),
-      child: Text(isCreate
-          ? 'delete instead?'
-          : 'create group instead?'), // changes the text of the button to tell  the user the other option based on the truth values of this flag
+      onPressed: createGroup, // Call the createGroup function directly
+      child: Text(''),
     );
   }
 
   Widget _entryField(String title, TextEditingController controller) {
-    // this will be the line where the user actually types in the data
-    return TextField(
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: title,
+    return Container(
+      margin:
+          EdgeInsets.symmetric(horizontal: 16.0), // Add some horizontal margin
+      child: TextField(
+        controller: controller,
+        style: TextStyle(
+          fontFamily: 'LeagueSpartan', // Set the font family
+          fontWeight: FontWeight.w600,
+        ),
+        decoration: InputDecoration(
+          labelText: title,
+          border: OutlineInputBorder(), // Add a border to the input field
+          contentPadding:
+              EdgeInsets.symmetric(horizontal: 12.0), // Adjust padding
+        ),
       ),
     );
   }
 
   Widget _submitButton() {
     return ElevatedButton(
-        onPressed: isCreate
-            ? createGroup
-            : () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => (const DeletePage()),
-                )), //if the button is pressed, based on the data field isLogin, if its true, that means we login in, and call the respected method, is not, call the regiser user function
-        child: Text(isCreate
-                ? 'Create'
-                : 'Delete' //based on the _loginOrregisterButton, which changes the value of the flag isLogin, print out login or register to not have to make another page
-            ));
+      onPressed: isCreate
+          ? createGroup
+          : () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => (const DeletePage()),
+              )),
+      style: ElevatedButton.styleFrom(
+        primary: Color(0xFF75A10F), // Set the button background color to green
+      ),
+      child: Text(
+        isCreate ? 'Create' : 'or Join a Group',
+        style: TextStyle(
+          fontFamily: 'LeagueSpartan', // Set the font family to League Spartan
+          fontSize: 18, // Adjust the font size as needed
+          color: Colors.white, // Set the text color to white
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Creating or Deleting Group"),
-        backgroundColor: Colors.green,
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
+      body: Stack(
         children: [
-          _entryField('Book Name', _controllerBookName),
-          _entryField("Group Bio", _controllerGroupBio),
-          _entryField('Group Name', _controllerGroupName),
-          _entryField('Group ID', _controllerGroupID),
-          _submitButton(),
-          _createGroupOrDeleteButton(),
+          Container(
+            color: Color(0xFF75A10F), // Background color
+            height: double.infinity,
+          ),
+          Positioned(
+            top: 100,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Color.fromARGB(255, 240, 223, 173), // Tan color
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(35.0),
+                  topRight: Radius.circular(35.0),
+                ),
+              ),
+              child: Column(
+                children: [
+                  SizedBox(height: 100),
+                  _entryField('Book Name', _controllerBookName),
+                  SizedBox(height: 16),
+                  _entryField("Group Bio", _controllerGroupBio),
+                  SizedBox(height: 16),
+                  _entryField('Group Name', _controllerGroupName),
+                  SizedBox(height: 16),
+                  _entryField('Group ID', _controllerGroupID),
+                  SizedBox(height: 16),
+                  _submitButton(),
+                  SizedBox(height: 16),
+                  _createGroupOrDeleteButton(),
+                ],
+              ),
+            ),
+          ),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: AppBar(
+              automaticallyImplyLeading: false,
+              title: Container(
+                padding: EdgeInsets.only(
+                  top: 25,
+                ),
+                child: Text(
+                  "Create your group",
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontFamily: 'LeagueSpartan',
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white, // Text color
+                    shadows: [
+                      BoxShadow(
+                        color: Color.fromRGBO(70, 70, 70, 0.918),
+                        blurRadius: 12,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              backgroundColor: Colors.transparent,
+              centerTitle: true,
+              elevation: 0,
+            ),
+          ),
         ],
       ),
     );
