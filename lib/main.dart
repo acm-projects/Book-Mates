@@ -1,5 +1,5 @@
 import 'dart:ui';
-import 'package:bookmates_app/notification_service.dart';
+import 'package:bookmates_app/Notification/notification_service.dart';
 import 'package:bookmates_app/widget_tree.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';

@@ -1,9 +1,10 @@
 import 'dart:io';
+import 'package:bookmates_app/API/screens/book_search_screen.dart';
+import 'package:bookmates_app/Milestone/milestone_page.dart';
 import 'PDF Upload/pdf_screen.dart';
 import 'package:bookmates_app/Group Operations/create_group.dart';
 import 'package:bookmates_app/Group Operations/join_group.dart';
 import 'package:bookmates_app/GroupChat/chat_page.dart';
-import 'package:bookmates_app/api_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:bookmates_app/auth.dart';
@@ -62,8 +63,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               _betterButton(
                   context, const CreateOrDeleteGroup(), 'Create/Delete Group'),
               _betterButton(context, const ChatHome(), 'Messaging'),
-              _betterButton(context, const APIPage(), 'api-stuff'),
               _betterButton(context, const PDFReaderApp(), 'pdf-stuff'),
+              _betterButton(context, MilestoneListPage(), 'Milestones'),
+              _betterButton(context, BookSearchScreen(), 'Api-stuff'),
               _signOut(context),
             ],
           ),

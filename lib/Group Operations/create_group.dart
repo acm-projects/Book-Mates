@@ -33,14 +33,11 @@ class _CreateGroupState extends State<CreateOrDeleteGroup> {
     await GroupRepo.createOrUpdate(
         newGroupModel); // this instantiates the data fields in each document of the collection 'groups'
 
-    await GroupRepo.msgAdd('groups/${_controllerGroupID.text}/Messages',
-        userEmail, "", 'text', "");
-    await GroupRepo.memAdd(
-        'groups/${_controllerGroupID.text}/Members', userEmail, 1);
-    await GroupRepo.milestoneAdd('groups/${_controllerGroupID.text}/Milestone',
-        userEmail!, _controllerGroupID.text);
+    await GroupRepo.memAdd('groups/${_controllerGroupID.text}/Members',
+        userEmail, _controllerGroupID.text, 1);
+
     await GroupRepo.groupAdd(
-        'users/$userEmail/Groups', userEmail, _controllerGroupID.text);
+        'users/$userEmail/Groups', userEmail!, _controllerGroupID.text);
   }
 
   // *************the following are widgets that make up the screen******************

@@ -22,11 +22,12 @@ class _JoinGroupState extends State<JoinGroup> {
     final groupCollection =
         await FirebaseFirestore.instance.collection('groups').get();
 
-    for (final groupDoc in groupCollection.docs) { // checks if the id that the user inputted exists, if it does, then add that user
+    for (final groupDoc in groupCollection.docs) {
+      // checks if the id that the user inputted exists, if it does, then add that user
       final groupID = groupDoc.id;
       if (_controllerGroupId.text == groupID) {
-        await GroupRepo.memAdd(
-            'groups/${_controllerGroupId.text}/Members', userEmail, 0);
+        await GroupRepo.memAdd('groups/${_controllerGroupId.text}/Members',
+            userEmail, _controllerGroupId.text, 0);
         await GroupRepo.groupAdd('users/$userEmail/Groups',
             userEmail.toString(), _controllerGroupId.text);
       }
@@ -44,14 +45,16 @@ class _JoinGroupState extends State<JoinGroup> {
 
 // ***********Widgets that make up the page ****************
 
-  Widget _title() { // the title of the page
+  Widget _title() {
+    // the title of the page
     return AppBar(
       title: const Text('Join Group Page'),
       backgroundColor: Colors.lightGreen,
     );
   }
 
-  Widget _entryField(String hintText, TextEditingController controller) { // where users type in data
+  Widget _entryField(String hintText, TextEditingController controller) {
+    // where users type in data
     return TextField(
       controller: controller,
       decoration: InputDecoration(
