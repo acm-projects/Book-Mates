@@ -2,8 +2,9 @@ import 'package:bookmates_app/Milestone/milestone_service.dart';
 import 'package:flutter/material.dart';
 
 class MilestoneListPage extends StatefulWidget {
+  const MilestoneListPage({super.key});
   @override
-  _MilestoneListPageState createState() => _MilestoneListPageState();
+  State<MilestoneListPage> createState() => _MilestoneListPageState();
 }
 
 class _MilestoneListPageState extends State<MilestoneListPage> {
@@ -76,6 +77,7 @@ class _MilestoneListPageState extends State<MilestoneListPage> {
                           onPressed: () {
                             completeMilestone(milestoneID);
                             setState(() {});
+                            Navigator.popAndPushNamed(context, '/milestonePage');
                           },
                           child: const Text('Complete'),
                         ),

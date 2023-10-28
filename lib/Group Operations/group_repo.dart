@@ -49,30 +49,18 @@ class GroupRepo {
     await FirebaseFirestore.instance.collection('groups').doc(groupID).update({
       'memberCount': newCount,
     });
-    //update the ratio of every milestone instantiated in a group, will get smaller
-    //already have the new count, will get smaller
 
-    // final allMilestones = await FirebaseFirestore.instance
-    //     .collection('groups')
-    //     .doc(currentGroupID)
-    //     .collection('Milestone')
-    //     .get();
+    //update the ratio for every milestone
+    final snapshot = await FirebaseFirestore.instance.collection('groups').doc(groupID).collection('Milestone').get();
+    final milestoneCollection = snapshot.docs;
 
-    // //iterate through all documents in a groups Milestone sub to upd8 the ratio
-    // if (allMilestones.docs.toList().isNotEmpty) {
-    //   for (final milestoneDoc in allMilestones.docs) {
-    //     final milestoneData = milestoneDoc.data();
-    //     //get progression count in each doc
-    //     final membersCompleted = milestoneData['progress'];
-    //     //instantiate the new ratio in each doc
-    //     final ratio = (membersCompleted / newCount) * 100;
+    for (var document in milestoneCollection) {
+      final milestoneMap = document.data();
+      final progress = milestoneMap['progress'];
+      final ratio = (progress/newCount)*100;
 
-    //     //input the new ratio in each milestone for the group
-    //     await milestoneDoc.reference.set({
-    //       'ratio': ratio,
-    //     }, SetOptions(merge: true));
-    //   }
-    // }
+      await FirebaseFirestore.instance.collection('groups').doc(groupID).collection('Milestone').doc(milestoneMap['id']).set({'ratio': ratio}, SetOptions(merge: true));
+    }
   }
 
   static Future groupAdd(String path, String userEmail, String groupid) async {
@@ -114,29 +102,20 @@ class GroupRepo {
     });
 
     //update the ratio for every milestone
-    //update the ratio of every milestone instantiated in a group, will get larger
+    final snapshot = await FirebaseFirestore.instance.collection('groups').doc(groupID).collection('Milestone').get();
+    final milestoneCollection = snapshot.docs;
 
-    // final allMilestones = await FirebaseFirestore.instance
-    //     .collection('groups')
-    //     .doc(groupID)
-    //     .collection('Milestone')
-    //     .get();
+    for (var document in milestoneCollection) {
+      final milestoneMap = document.data();
+      final progress = milestoneMap['progress'];
+      final ratio = (progress/newCount)*100;
 
-    // //iterate through all documents in a groups Milestone sub to upd8 the ratio
-    // if (allMilestones.docs.toList().isNotEmpty) {
-    //   for (final milestoneDoc in allMilestones.docs) {
-    //     final milestoneData = milestoneDoc.data();
-    //     //get progression count in each doc
-    //     final membersCompleted = milestoneData['progress'];
-    //     //instantiate the new ratio in each doc
-    //     final ratio = (membersCompleted / newCount);
-
-    //     //input the new ratio in each milestone for the group
-    //     await milestoneDoc.reference.set({
-    //       'ratio': ratio,
-    //     }, SetOptions(merge: true));
-    //   }
-    // }
+      await FirebaseFirestore.instance.collection('groups').doc(groupID).collection('Milestone').doc(milestoneMap['id']).set({'ratio': ratio}, SetOptions(merge: true));
+      final map = await FirebaseFirestore.instance.collection('groups').doc(groupID).collection('Milestone').doc(milestoneMap['id']).get();
+      final maps = map.data(); 
+      final ratios = maps!['ratio'];
+      if (ratios >= 100) { await FirebaseFirestore.instance.collection('groups').doc(groupID).collection('Milestone').doc(milestoneMap['id']).set({'hide': true}, SetOptions(merge: true)); }
+    }
   }
 
   static Future createOrUpdate(GroupModel user) async {

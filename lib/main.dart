@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:bookmates_app/Milestone/milestone_page.dart';
 import 'package:bookmates_app/Notification/notification_service.dart';
 import 'package:bookmates_app/widget_tree.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -33,6 +34,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      routes: {
+        '/milestonePage': (context) => const MilestoneListPage(),
+      },
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.cyan,

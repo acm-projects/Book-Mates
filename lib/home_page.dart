@@ -36,9 +36,6 @@ Widget _betterButton(BuildContext c, Widget w, String buttonLabel) {
 Widget _signOut(BuildContext c) {
   return ElevatedButton(
     onPressed: () {
-      // Stop background service if user is not logged in
-      // FlutterBackgroundService().invoke('stopService');
-      print('BACKGROUND:::::::::::::SERVICE:::::::::::::STOPPED');
       // RecentlyRead.clearHistory(); // clear the history of book reading
       Auth().signOut();
       sleep(const Duration(milliseconds: 200));

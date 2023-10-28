@@ -59,7 +59,7 @@ Future<void> completeMilestone(String milestoneID) async {
       .get();
   int members = snapshotGroup.data()?['memberCount'];
   double ratio = ((currentProgress + 1) / members) * 100;
-  milestoneDB.set({'ratio': ratio}, SetOptions(merge: true));
+  await milestoneDB.set({'ratio': ratio}, SetOptions(merge: true));
 
   // if ratio full set hide true to hide from milestone list
   if (ratio >= 100) {
@@ -68,7 +68,7 @@ Future<void> completeMilestone(String milestoneID) async {
 
   // add the completed milestone id to the user collection
   String? userEmail = FirebaseAuth.instance.currentUser?.email;
-  FirebaseFirestore.instance
+  await FirebaseFirestore.instance
       .collection('users')
       .doc(userEmail)
       .collection('completedMilestones')
