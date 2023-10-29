@@ -1,22 +1,13 @@
+import 'package:bookmates_app/Group%20Operations/group_repo.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-Future<String> getCurrentGroupID() async {
-  String? userEmail = FirebaseAuth.instance.currentUser?.email;
-  final userData =
-      FirebaseFirestore.instance.collection('users').doc(userEmail);
-  final snapshot = await userData.get();
-  Map<String, dynamic>? data = snapshot.data();
-  if (data != null && data.containsKey('currentGroupID')) {
-    return data['currentGroupID'];
-  } else {
-    return "";
-  }
-}
-
 Future<void> createMilestone(String goal, int days) async {
+  // to create a milestone for a group
   final timeLimit = DateTime.now().add(Duration(days: days));
   String id = DateTime.now().millisecondsSinceEpoch.toString();
+
+  //create an object of type milestone
   Map<String, dynamic> milestone = {
     "id": id,
     "goal": goal,
@@ -27,6 +18,7 @@ Future<void> createMilestone(String goal, int days) async {
     "hide": false,
   };
 
+  // put the milstone in firestore
   String currentGroupID = await getCurrentGroupID();
   final milestoneDB = FirebaseFirestore.instance
       .collection('groups')
@@ -41,6 +33,7 @@ Future<void> createMilestone(String goal, int days) async {
 }
 
 Future<void> completeMilestone(String milestoneID) async {
+  // to complete a milestone
   String currentGroupID = await getCurrentGroupID();
   final milestoneDB = FirebaseFirestore.instance
       .collection('groups')
@@ -77,9 +70,13 @@ Future<void> completeMilestone(String milestoneID) async {
 }
 
 Future<List<Map<String, dynamic>>> fetchMilestonesData() async {
+  // returning the list of milestones that have not been completed and not been
+  // completed by the current user
+
   String currentGroupID = await getCurrentGroupID();
   String? userEmail = FirebaseAuth.instance.currentUser?.email;
 
+  // get all milestones a user has completed an convert into a list
   final userSnapshot = await FirebaseFirestore.instance
       .collection('users')
       .doc(userEmail)
@@ -87,6 +84,7 @@ Future<List<Map<String, dynamic>>> fetchMilestonesData() async {
       .get();
   final userMilestoneList = userSnapshot.docs.map((doc) => doc.data()).toList();
 
+  // do the same for all milstones in the group aswell
   final milestoneSnapshot = await FirebaseFirestore.instance
       .collection('groups')
       .doc(currentGroupID)
@@ -110,6 +108,7 @@ Future<List<Map<String, dynamic>>> fetchMilestonesData() async {
 }
 
 Future<bool> checkAdmin() async {
+  // optional functionality, can only admins make milestones?
   String currentGroupID = await getCurrentGroupID();
   String? userEmail = FirebaseAuth.instance.currentUser?.email;
   final snapshot = await FirebaseFirestore.instance
@@ -120,4 +119,36 @@ Future<bool> checkAdmin() async {
       .get();
   final data = snapshot.data();
   return data?['isAdmin'] as bool; // Check if null error
+}
+
+Future<void> updateAllRatio(String groupID, int newCount) async {
+  // to update all ratio's, helpful for when user leaves/joins group
+
+  final milestoneRef = FirebaseFirestore.instance
+      .collection('groups')
+      .doc(groupID)
+      .collection('Milestone');
+
+  final snapshot = await milestoneRef.get();
+  final milestoneCollection = snapshot.docs;
+
+  for (var document in milestoneCollection) {
+    final milestoneMap = document.data();
+    final progress = milestoneMap['progress'];
+    final ratio = (progress / newCount) * 100;
+
+    await milestoneRef
+        .doc(milestoneMap['id'])
+        .set({'ratio': ratio}, SetOptions(merge: true));
+
+    final map = await milestoneRef.doc(milestoneMap['id']).get();
+    final maps = map.data();
+    final ratios = maps!['ratio'];
+
+    if (ratios >= 100) {
+      await milestoneRef
+          .doc(milestoneMap['id'])
+          .set({'hide': true}, SetOptions(merge: true));
+    }
+  }
 }

@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:bookmates_app/Milestone/milestone_page.dart';
 import 'package:bookmates_app/Notification/notification_service.dart';
 import 'package:bookmates_app/widget_tree.dart';
@@ -41,8 +40,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.cyan,
       ),
-      home:
-          const WidgetTree(), // the home of the app is the widget tree, where itll direct the unsigned user to the loginpage, or the signed in user to the hompage
+      home: const WidgetTree(),
     );
   }
 }

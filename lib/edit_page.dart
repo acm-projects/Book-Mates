@@ -1,8 +1,6 @@
-import 'package:bookmates_app/auth.dart';
-import 'package:bookmates_app/widget_tree.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'User Implementation/user_repo.dart';
 
 class EditUserPage extends StatefulWidget {
   const EditUserPage({super.key});
@@ -12,27 +10,14 @@ class EditUserPage extends StatefulWidget {
 }
 
 class _EditPageState extends State<EditUserPage> {
-  final TextEditingController _controllerNewPassword =TextEditingController(); // the controllers for the new data to be written in this page
+  //variables that hold the users data
+  final TextEditingController _controllerNewPassword = TextEditingController();
   final TextEditingController _controllerNewUserName = TextEditingController();
+  // email of current user
+  final email = FirebaseAuth.instance.currentUser?.email;
 
-  bool isUpdate =true; //flag indicating wether user wants to update or delete their account, will alter the text and functionally of button(s)
-
-  Future<void> deleteUser() async {
-    var db = FirebaseFirestore.instance;
-
-    String? currentUserEmail = FirebaseAuth.instance.currentUser?.email;
-
-    db.collection("users").doc(currentUserEmail).delete();
-    var auth = FirebaseAuth.instance;
-
-    auth.currentUser?.delete();
-  }
-  
-  
-//*************************The following are widgets used to make up the UI of the page*********************** */
-
-
-  Widget _entryField(String hintText, TextEditingController controller) {// generalized widget to take in user data
+  Widget _entryField(String hintText, TextEditingController controller) {
+    // generalized widget to take in user data
     return TextField(
       controller: controller,
       decoration: InputDecoration(
@@ -41,47 +26,16 @@ class _EditPageState extends State<EditUserPage> {
     );
   }
 
-  Future<void> updateUserInformation() async {
-    var db = FirebaseFirestore.instance;
-    var auth = FirebaseAuth.instance;
-
-    String? currentUserEmail = FirebaseAuth.instance.currentUser?.email;
-
-    final currentUserReference = db.collection("users").doc(currentUserEmail);
-
-    currentUserReference.update({// updates the document in firestore
-      "Password": _controllerNewPassword.text,
-      "userName": _controllerNewUserName.text
-    });
-
-    auth.currentUser?.updatePassword(_controllerNewPassword.text);
-  }
-
-  Widget _submitButton() {// button that either says delete or update user, based on if user presses the testButton
+  Widget _submitButton() {
+    // button that either says delete or update user, based on if user presses the testButton
     return ElevatedButton(
-        onPressed: () async => {
-              isUpdate ? updateUserInformation() : deleteUser(),
-              Auth().signOut(),
-              Navigator.of(context).pop(MaterialPageRoute(
-                builder: (context) => const WidgetTree(),
-              ))
-            },
-        child: Text(isUpdate ? 'Update User' : "Delete User"));
-  }
-
-  Widget _updateOrDeleteButton() {
-    return TextButton(
-        onPressed: () => setState(() {
-              // if the login or register button is pressed, change the value/state of isLogin to switch between the 2 possible functions, signing in and registering
-              isUpdate = !isUpdate;
-            }),
-        child: Text(
-          isUpdate ? 'Delete User' : 'saveChanges',
-          style: TextStyle(
-            color: isUpdate ? Colors.red : Colors.blue,
-          ),
-        ) // changes the text of the button to tell  the user the other option based on the truth values of this flag
-        );
+        onPressed: () async {
+          await createUser(
+              _controllerNewUserName.text, _controllerNewPassword.text, email);
+          await FirebaseAuth.instance.currentUser
+              ?.updatePassword(_controllerNewPassword.text);
+        },
+        child: const Text('Update User information'));
   }
 
   @override
@@ -98,7 +52,6 @@ class _EditPageState extends State<EditUserPage> {
             _entryField("New Password", _controllerNewPassword),
             _entryField("New UserName", _controllerNewUserName),
             _submitButton(),
-            _updateOrDeleteButton(),
           ],
         ),
       ),

@@ -5,6 +5,7 @@ import 'chat_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
+import 'package:bookmates_app/Group Operations/group_repo.dart';
 
 class ChatHome extends StatefulWidget {
   //use Key class to order stream and update efficiently
@@ -24,6 +25,7 @@ class _ChatHomeState extends State<ChatHome> {
   final _messageController = TextEditingController();
 
   Widget _entryField() {
+    // the entry field where user inputs text and or media
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Row(
@@ -123,7 +125,7 @@ class _ChatHomeState extends State<ChatHome> {
             children: [
               //putting streambuilder before buttons
               FutureBuilder(
-                  future: getGroupId(),
+                  future: getCurrentGroupID(),
                   initialData: 'Loading messages...',
                   builder: (BuildContext context, AsyncSnapshot<String> text) {
                     return _messageList(text.data);

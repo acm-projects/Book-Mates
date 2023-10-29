@@ -1,42 +1,61 @@
-import 'package:bookmates_app/User%20Implementation/user_model.dart';
-import 'package:bookmates_app/auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-//this class manages the firestore database
-// the ID of every document in the 'users' collection is the user's email that was used to register
+// manages the firestore database for the 'users' collection
 
-class UserRepo {
-  static Future create(UserModel user) async {
-    // creates a user in firestore
+Future<void> createUser(String userName, password, String? email) async {
+  // reference to a docuemnt that will store a users data upon registering
+  final docRef = FirebaseFirestore.instance.collection('users').doc(email);
 
-    final userCollection = FirebaseFirestore.instance.collection("users");
+  //the data fields of a single user in the firestore database
+  await docRef.set({
+    'userName': userName,
+    'Email': email,
+    'Password': password,
+  });
 
-    final userEmail = Auth().currentUser?.email;
+//creating the subcollections of a single user
+  await FirebaseFirestore.instance
+      .collection('users/$email/Library')
+      .doc()
+      .set({});
 
-    final docRef = userCollection.doc(userEmail);
+  await FirebaseFirestore.instance
+      .collection('users/$email/Groups')
+      .doc()
+      .set({});
+}
 
-    final newUser = UserModel(
-      id: userEmail,
-      email: user.email,
-      passsword: user.passsword,
-      username: user.username,
-    ).toJson();
+Future<void> joinGroup(String userEmail, groupID) async {
+  //CRUD the subcollection 'Groups
+  final userDocRef =
+      FirebaseFirestore.instance.collection('users').doc(userEmail);
 
-    await docRef.set(newUser);
+  await userDocRef.set({
+    // updates the current group the user is in
+    'currentGroupID': groupID,
+  }, SetOptions(merge: true));
 
-    await FirebaseFirestore.instance
-        .collection('users/$userEmail/Groups')
-        .doc()
-        .set({
-      // this creates the subcollection 'Groups' in a document of 'users'
-    });
-    await FirebaseFirestore.instance
-        .collection('users/$userEmail/Library')
-        .doc()
-        .set({});
-    await FirebaseFirestore.instance
-        .collection('users/$userEmail/Library')
-        .doc()
-        .set({});
-  }
+  // creating a new document in Groups subcollection
+  await FirebaseFirestore.instance
+      .collection('users/$userEmail/Groups')
+      .doc(groupID)
+      .set({
+    'groupID': groupID,
+  });
+}
+
+Future<void> leaveGroup(String userEmail, groupID) async {
+  // get the refrence of the group we want delete in the subcollection of 'Groups'
+  final userDocRef = FirebaseFirestore.instance
+      .collection('users/$userEmail/Groups')
+      .doc(groupID);
+
+  await userDocRef.delete();
+
+  // make the user's current group deleted, need to navigate to another on or
+  //join a group to get field back
+
+  await FirebaseFirestore.instance.collection('users').doc(userEmail).set({
+    'currentGroupID': FieldValue.delete(),
+  }, SetOptions(merge: true));
 }

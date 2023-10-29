@@ -1,19 +1,8 @@
-import 'package:bookmates_app/auth.dart';
+import 'package:bookmates_app/Notification/notification_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:io';
-
-Future<String> getGroupId() async {
-  // to get the current group of the user
-
-  String? email = Auth().currentUser?.email;
-  final userdb = FirebaseFirestore.instance.collection('users').doc(email);
-  final snapshot = await userdb.get();
-  Map<String, dynamic>? data = snapshot.data()!;
-
-  return data['currentGroupID'];
-}
 
 Future<void> deleteMessage(
     String senderId, groupId, messageId, String? mediaUrl) async {
@@ -43,7 +32,7 @@ Future<void> deleteMessage(
 
 Future<List<DocumentSnapshot>> displayMessages({int limit = 30}) async {
   CollectionReference groupChat = FirebaseFirestore.instance
-      .collection('groups/${await getGroupId()}/Messages');
+      .collection('groups/${await getCurrentGroupID()}/Messages');
 
   QuerySnapshot snapshot = await groupChat
       .orderBy('timeStamp', descending: false)
@@ -55,7 +44,7 @@ Future<List<DocumentSnapshot>> displayMessages({int limit = 30}) async {
 
 Future<DocumentReference> sendMessage(String text, String type) async {
   CollectionReference groupChat = FirebaseFirestore.instance
-      .collection('groups/${await getGroupId()}/Messages');
+      .collection('groups/${await getCurrentGroupID()}/Messages');
 
   return groupChat.add({
     // add data fields in firestore
@@ -63,9 +52,6 @@ Future<DocumentReference> sendMessage(String text, String type) async {
     'senderID': FirebaseAuth.instance.currentUser?.email,
     'timeStamp': FieldValue.serverTimestamp(),
     'type': type,
-    // 'readBy': [
-    //   Auth().currentUser?.email
-    // ], //array that indicates users in the gc that have read message, originally only the sender
     'mediaURL': '', //for images, videos, gifs, etc
   });
 }
@@ -73,7 +59,7 @@ Future<DocumentReference> sendMessage(String text, String type) async {
 //updates readby array with the current user who has read it
 Future<void> readMessage(String messageId) async {
   DocumentReference groupChat = FirebaseFirestore.instance
-      .collection('groups/${await getGroupId()}/Messages')
+      .collection('groups/${await getCurrentGroupID()}/Messages')
       .doc(messageId);
 
   return groupChat.update({
@@ -88,7 +74,7 @@ Future<String?> uploadMedia(File mediaFile) async {
 
     //get filepath to inlclude in storage
     String filePath =
-        'Messages/${await getGroupId()}/${DateTime.now().millisecondsSinceEpoch}.$fileExtension';
+        'Messages/${await getCurrentGroupID()}/${DateTime.now().millisecondsSinceEpoch}.$fileExtension';
 
     //initiate firebase storage where we will store the file
     Reference storageReference = FirebaseStorage.instance.ref().child(filePath);

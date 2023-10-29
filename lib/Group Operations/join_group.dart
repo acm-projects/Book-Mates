@@ -1,9 +1,8 @@
 import 'package:bookmates_app/Group%20Operations/group_repo.dart';
-import 'package:bookmates_app/auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-final userEmail = Auth().currentUser?.email;
+// page for user to join a group
 
 class JoinGroup extends StatefulWidget {
   const JoinGroup({super.key});
@@ -15,35 +14,9 @@ class JoinGroup extends StatefulWidget {
 final TextEditingController _controllerGroupId = TextEditingController();
 
 class _JoinGroupState extends State<JoinGroup> {
+  final userEmail = FirebaseAuth.instance.currentUser?.email;
   var isJoin = true;
   String errorMsg = ""; // for error handling
-
-  Future<void> joinGroup() async {
-    final groupCollection =
-        await FirebaseFirestore.instance.collection('groups').get();
-
-    for (final groupDoc in groupCollection.docs) {
-      // checks if the id that the user inputted exists, if it does, then add that user
-      final groupID = groupDoc.id;
-      if (_controllerGroupId.text == groupID) {
-        await GroupRepo.memAdd('groups/${_controllerGroupId.text}/Members',
-            userEmail, _controllerGroupId.text, 0);
-        await GroupRepo.groupAdd('users/$userEmail/Groups',
-            userEmail.toString(), _controllerGroupId.text);
-      }
-    }
-  }
-
-  Future<void> leaveGroup() async {
-    // when user leaves the group
-    await GroupRepo.leaveGroup(
-        userEmail!,
-        'groups/${_controllerGroupId.text}/Members',
-        'users/$userEmail/Groups',
-        _controllerGroupId.text);
-  }
-
-// ***********Widgets that make up the page ****************
 
   Widget _title() {
     // the title of the page
@@ -66,7 +39,13 @@ class _JoinGroupState extends State<JoinGroup> {
   Widget _submitButton() {
     // the submit button to join a group that will call  the join group function when pressed
     return ElevatedButton(
-        onPressed: isJoin ? joinGroup : leaveGroup,
+        onPressed: isJoin
+            ? () async {
+                await checkGroupExists(_controllerGroupId.text, 1);
+              }
+            : () async {
+                await checkGroupExists(_controllerGroupId.text, 0);
+              },
         child: Text(isJoin ? 'Join Group' : 'Leave Group'));
   }
 

@@ -1,5 +1,5 @@
 import 'package:bookmates_app/Group%20Operations/group_repo.dart';
-import 'package:bookmates_app/auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class DeletePage extends StatefulWidget {
@@ -10,27 +10,10 @@ class DeletePage extends StatefulWidget {
 }
 
 class _MyWidgetState extends State<DeletePage> {
+  // hold ID of the group the user inputs
   final TextEditingController _controllerGroupID = TextEditingController();
-
-  Future<void> deleteGroup() async {
-    // to delete the entire group
-
-    final userEmail = Auth().currentUser?.email;
-
-    final subRef1 =
-        'groups/${_controllerGroupID.text}/Members'; // refrecnces to the 2 subcollections of a document in the collection 'groups'
-    final subRef2 = 'groups/${_controllerGroupID.text}/Messages';
-    final subRef3 = 'groups/${_controllerGroupID.text}/Milestone';
-
-    GroupRepo.subDelete(subRef1);
-    GroupRepo.subDelete(subRef2);
-    GroupRepo.subDelete(subRef3);
-
-    GroupRepo.mainDelete(_controllerGroupID.text, 'groups', userEmail!);
-  }
-
-  // *************the following are widgets that make up the screen******************
-
+  // hold user's email
+  final userEmail = FirebaseAuth.instance.currentUser?.email;
   Widget _finalDelete(TextEditingController controller, String hintText) {
     return TextField(
       controller: controller,
@@ -42,8 +25,8 @@ class _MyWidgetState extends State<DeletePage> {
 
   Widget _button() {
     return ElevatedButton(
-        onPressed: () {
-          deleteGroup();
+        onPressed: () async {
+          await deleteGroup(_controllerGroupID.text, userEmail);
         },
         child: const Text('Delete for good'));
   }
