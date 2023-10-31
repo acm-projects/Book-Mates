@@ -41,6 +41,10 @@ Future<void> completeMilestone(String milestoneID) async {
       .collection('Milestone')
       .doc(milestoneID);
   final snapshot = await milestoneDB.get();
+
+  // Set completed timestamp
+  milestoneDB.set({'completeTime': DateTime.now()}, SetOptions(merge: true));
+
   // Increment the progress
   int currentProgress = await snapshot.data()?['progress'];
   milestoneDB.set({'progress': currentProgress + 1}, SetOptions(merge: true));

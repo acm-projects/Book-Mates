@@ -18,7 +18,6 @@ class _CreateGroupState extends State<CreateOrDeleteGroup> {
   final TextEditingController _controllerGroupName = TextEditingController();
   final TextEditingController _controllerGroupBio = TextEditingController();
   final TextEditingController _controllerBookName = TextEditingController();
-  final TextEditingController _controllerGroupID = TextEditingController();
   //holding the user's email
   final userEmail = FirebaseAuth.instance.currentUser?.email;
 
@@ -41,16 +40,37 @@ class _CreateGroupState extends State<CreateOrDeleteGroup> {
     );
   }
 
-  Widget _submitButton() {
+  Widget _submitButton(BuildContext context) {
+    // gives an alert giving user code and create the group on press
     return ElevatedButton(
         onPressed: isCreate
             ? () async {
-                createOrUpdate(
-                    _controllerBookName.text,
-                    _controllerGroupBio.text,
-                    _controllerGroupName.text,
-                    _controllerGroupID.text,
-                    userEmail);
+                showDialog<String>(
+                    context: context,
+                    builder: (BuildContext context) {
+                      final groupID = generateGroupID();
+                      return AlertDialog(
+                        title: const Text('Your GroupID'),
+                        content: Text(
+                            '$groupID is your unique group ID, only show to potential members!'),
+                        actions: [
+                          TextButton(
+                              onPressed: () {
+                                createOrUpdate(
+                                  _controllerBookName.text,
+                                  _controllerGroupBio.text,
+                                  _controllerGroupName.text,
+                                  userEmail,
+                                  groupID,
+                                );
+                                //send to the homepage after
+                                Navigator.of(context)
+                                    .popAndPushNamed('/homePage');
+                              },
+                              child: const Text('Ok')),
+                        ],
+                      );
+                    });
               }
             : () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => (const DeletePage()),
@@ -72,8 +92,7 @@ class _CreateGroupState extends State<CreateOrDeleteGroup> {
           _entryField('Book Name', _controllerBookName),
           _entryField("Group Bio", _controllerGroupBio),
           _entryField('Group Name', _controllerGroupName),
-          _entryField('Group ID', _controllerGroupID),
-          _submitButton(),
+          _submitButton(context),
           _createGroupOrDeleteButton(),
         ],
       ),

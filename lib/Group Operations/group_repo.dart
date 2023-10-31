@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:bookmates_app/Milestone/milestone_service.dart';
 import 'package:bookmates_app/User%20Implementation/user_repo.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -12,6 +14,12 @@ Future<int> getMemberCount(String groupID) async {
   final data = snapshot.data();
 
   return data!['memberCount'];
+}
+
+String generateGroupID() {
+  // creates a random 6-digit number that'll b the group's ID
+  final random = Random();
+  return (random.nextInt(900000) + 100000).toString();
 }
 
 Future<String> getCurrentGroupID() async {
@@ -129,8 +137,9 @@ Future<void> loseMember(String userEmail, groupPath, groupID) async {
 }
 
 Future createOrUpdate(
-    String bookName, groupBio, groupName, groupID, userEmail) async {
+    String bookName, groupBio, groupName, userEmail, groupID) async {
   // create a group document and its data fields
+  // create random groupID number
   final docRef = FirebaseFirestore.instance.collection('groups').doc(
       groupID); // refrence of the specific document we want to put data into
 

@@ -52,13 +52,29 @@ class _ChatHomeState extends State<ChatHome> {
                   await FilePicker.platform.pickFiles(type: FileType.media);
               if (mediaUp != null && mediaUp.files.isNotEmpty) {
                 File selectedFile = File(mediaUp.files.single.path!);
-                String? media = await uploadMedia(selectedFile);
+                await uploadMedia(selectedFile);
               }
             },
           ),
         ],
       ),
     );
+  }
+
+  Widget getImage(QueryDocumentSnapshot<Object?> o, bool isUser) {
+    // checking wether a text or an image was sent
+    if (o['mediaURL'] != '') {
+      return Image.network(
+        o['mediaURL'],
+        width: 200,
+        height: 200,
+      );
+    } else {
+      return Text(
+        o['text'],
+        style: TextStyle(color: isUser ? Colors.blue : Colors.grey),
+      );
+    }
   }
 
   Widget _messageList(String? text) {
@@ -84,22 +100,11 @@ class _ChatHomeState extends State<ChatHome> {
               Alignment alignment =
                   isUser ? Alignment.centerRight : Alignment.centerLeft;
               return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Align(
                     alignment: alignment, // Apply the alignment here
                     child: SizedBox(
-                      width: MediaQuery.of(context).size.width / 4,
-                      height: MediaQuery.of(context).size.height / 25,
-                      // ignore: prefer_interpolation_to_compose_strings
-                      child: Text(
-                        document['text'],
-                        style: TextStyle(
-                          // Optionally, you can style the text based on the alignment
-                          color: isUser ? Colors.blue : Colors.grey,
-                        ),
-                      ),
+                      child: getImage(document, isUser),
                     ),
                   ),
                 ],
@@ -123,7 +128,6 @@ class _ChatHomeState extends State<ChatHome> {
         body: SingleChildScrollView(
           child: Column(
             children: [
-              //putting streambuilder before buttons
               FutureBuilder(
                   future: getCurrentGroupID(),
                   initialData: 'Loading messages...',
