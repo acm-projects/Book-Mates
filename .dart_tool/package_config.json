@@ -260,6 +260,12 @@
       "languageVersion": "3.0"
     },
     {
+      "name": "flutter_verification_code",
+      "rootUri": "file:///home/bubbq/.pub-cache/hosted/pub.dev/flutter_verification_code-1.1.7",
+      "packageUri": "lib/",
+      "languageVersion": "2.16"
+    },
+    {
       "name": "flutter_web_plugins",
       "rootUri": "file:///home/bubbq/flutter/packages/flutter_web_plugins",
       "packageUri": "lib/",
@@ -584,7 +590,7 @@
       "languageVersion": "3.1"
     }
   ],
-  "generated": "2023-10-31T19:58:36.397413Z",
+  "generated": "2023-11-02T18:30:29.017994Z",
   "generator": "pub",
   "generatorVersion": "3.1.3"
 }

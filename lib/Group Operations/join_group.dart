@@ -1,72 +1,141 @@
 import 'package:bookmates_app/Group%20Operations/group_repo.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
-// page for user to join a group
+import 'package:flutter_verification_code/flutter_verification_code.dart';
 
 class JoinGroup extends StatefulWidget {
-  const JoinGroup({super.key});
+  const JoinGroup({Key? key});
 
   @override
   State<JoinGroup> createState() => _JoinGroupState();
 }
 
-final TextEditingController _controllerGroupId = TextEditingController();
+// variable to hold user input
+final _controllerVerificationCode = TextEditingController();
 
 class _JoinGroupState extends State<JoinGroup> {
-  final userEmail = FirebaseAuth.instance.currentUser?.email;
-  var isJoin = true;
-  String errorMsg = ""; // for error handling
+  // output any errors user might encounter joining a group
+  String errorMsg = "";
 
-  Widget _title() {
-    // the title of the page
-    return AppBar(
-      title: const Text('Join Group Page'),
-      backgroundColor: Colors.lightGreen,
-    );
-  }
-
-  Widget _entryField(String hintText, TextEditingController controller) {
-    // where users type in data
-    return TextField(
-      controller: controller,
-      decoration: InputDecoration(
-        hintText: hintText,
+  // button to join a group
+  Widget _submitButton() {
+    return ElevatedButton(
+      onPressed: () async {
+        // navigate to homepage after joining a group
+        Navigator.of(context).popAndPushNamed('/homePage');
+        // check group existence before joining
+        await checkGroupExists(_controllerVerificationCode.text, 1);
+      },
+      style: ElevatedButton.styleFrom(
+        primary: const Color(0xFF75A10F),
+      ),
+      child: const Text(
+        'Join Group',
+        style: TextStyle(
+          fontFamily: 'LeagueSpartan',
+          fontSize: 18,
+          color: Colors.white,
+        ),
       ),
     );
   }
 
-  Widget _submitButton() {
-    // the submit button to join a group that will call  the join group function when pressed
-    return ElevatedButton(
-        onPressed: isJoin
-            ? () async {
-                await checkGroupExists(_controllerGroupId.text, 1);
-              }
-            : () async {
-                await checkGroupExists(_controllerGroupId.text, 0);
-              },
-        child: Text(isJoin ? 'Join Group' : 'Leave Group'));
-  }
-
-  Widget _joinOrDeleteButton() {
-    return TextButton(
-      onPressed: () => setState(() {
-        isJoin = !isJoin;
-      }),
-      child: Text(isJoin ? 'leave instead?' : 'join instead'),
+  // backgroud color of the join group page
+  Widget _backgroundContainer() {
+    return Container(
+      color: const Color(0xFF75A10F),
+      height: double.infinity,
     );
   }
 
+  // 6 digits user types in to join a group
+  Widget _verificationCodeWidget() {
+    return Column(
+      children: [
+        const SizedBox(height: 100),
+        VerificationCode(
+          length: 6,
+          textStyle: const TextStyle(
+            fontFamily: 'LeagueSpartan',
+            fontSize: 18,
+            color: Colors.white,
+          ),
+          keyboardType: TextInputType.number,
+          onCompleted: (String value) {
+            // update variable holding user input
+            _controllerVerificationCode.text = value;
+          },
+          onEditing: (bool value) {
+            if (!value) {
+              FocusScope.of(context).unfocus();
+            }
+          },
+        ),
+        const SizedBox(height: 16),
+        _submitButton(),
+      ],
+    );
+  }
+
+// the title of the page
+  Widget _appBarWidget() {
+    return AppBar(
+      automaticallyImplyLeading: false,
+      title: Container(
+        padding: const EdgeInsets.only(
+          top: 25,
+        ),
+        child: const Text(
+          "Join a Group",
+          style: TextStyle(
+            fontSize: 24,
+            fontFamily: 'LeagueSpartan',
+            fontWeight: FontWeight.w600,
+            color: Colors.white, // Text color
+            shadows: [
+              BoxShadow(
+                color: Color.fromRGBO(70, 70, 70, 0.918),
+                blurRadius: 12,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+        ),
+      ),
+      backgroundColor: Colors.transparent,
+      centerTitle: true,
+      elevation: 0,
+    );
+  }
+
+  // the 'main' of flutter, where are all the widgets are called
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
+      body: Stack(
         children: [
-          _title(),
-          _entryField('Group ID', _controllerGroupId),
-          _submitButton(),
-          _joinOrDeleteButton(),
+          _backgroundContainer(),
+          Positioned(
+            top: 100,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Color.fromARGB(255, 240, 223, 173),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(35.0),
+                  topRight: Radius.circular(35.0),
+                ),
+              ),
+              child: _verificationCodeWidget(),
+            ),
+          ),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: _appBarWidget(),
+          ),
         ],
       ),
     );
