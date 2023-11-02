@@ -212,6 +212,12 @@
       "languageVersion": "3.0"
     },
     {
+      "name": "flutter_verification_code",
+      "rootUri": "file:///C:/Users/ittip/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_verification_code-1.1.7",
+      "packageUri": "lib/",
+      "languageVersion": "2.16"
+    },
+    {
       "name": "flutter_web_plugins",
       "rootUri": "file:///C:/src/flutter/packages/flutter_web_plugins",
       "packageUri": "lib/",
@@ -428,7 +434,7 @@
       "languageVersion": "3.1"
     }
   ],
-  "generated": "2023-10-24T07:52:46.969917Z",
+  "generated": "2023-11-02T01:11:14.590797Z",
   "generator": "pub",
   "generatorVersion": "3.1.4"
 }

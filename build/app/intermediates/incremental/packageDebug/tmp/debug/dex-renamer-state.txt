@@ -1,4 +1,4 @@
-#Wed Oct 25 20:16:25 CDT 2023
+#Wed Nov 01 19:35:22 CDT 2023
 base.0=C\:\\Users\\ittip\\Book-Mates\\build\\app\\intermediates\\dex\\debug\\mergeDexDebug\\classes.dex
 base.1=C\:\\Users\\ittip\\Book-Mates\\build\\app\\intermediates\\dex\\debug\\mergeDexDebug\\classes2.dex
 base.2=C\:\\Users\\ittip\\Book-Mates\\build\\app\\intermediates\\dex\\debug\\mergeDexDebug\\classes3.dex

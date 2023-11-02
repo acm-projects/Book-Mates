@@ -1,9 +1,9 @@
-import 'package:bookmates_app/Group%20Operations/group_repo.dart';
-import 'package:bookmates_app/auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_verification_code/flutter_verification_code.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-final userEmail = Auth().currentUser?.email;
+final FirebaseAuth _auth = FirebaseAuth.instance;
 
 class JoinGroup extends StatefulWidget {
   const JoinGroup({Key? key});
@@ -12,86 +12,71 @@ class JoinGroup extends StatefulWidget {
   State<JoinGroup> createState() => _JoinGroupState();
 }
 
-final TextEditingController _controllerGroupId = TextEditingController();
+final TextEditingController _controllerVerificationCode =
+    TextEditingController();
 
 class _JoinGroupState extends State<JoinGroup> {
-  var isJoin = true;
-  String errorMsg = ""; // for error handling
+  String errorMsg = "";
 
-  Future<void> joinGroup() async {
-    final groupCollection =
-        await FirebaseFirestore.instance.collection('groups').get();
+  Future<void> joinGroupWithVerificationCode() async {
+    final verificationCode = _controllerVerificationCode.text;
 
-    for (final groupDoc in groupCollection.docs) {
-      // checks if the id that the user inputted exists, if it does, then add that user
-      final groupID = groupDoc.id;
-      if (_controllerGroupId.text == groupID) {
-        await GroupRepo.memAdd(
-            'groups/${_controllerGroupId.text}/Members', userEmail, 0);
-        await GroupRepo.groupAdd('users/$userEmail/Groups',
-            userEmail.toString(), _controllerGroupId.text);
+    try {
+      final user = _auth.currentUser;
+      if (user != null) {
+        // Verify the code and join the group.
+        if (verificationCode.isNotEmpty) {
+          final userEmail = user.email;
+
+          // Replace these with your Firestore collection paths and logic.
+          await FirebaseFirestore.instance
+              .collection('groups')
+              .doc(verificationCode)
+              .update({
+            'members': FieldValue.arrayUnion([userEmail]),
+          });
+
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(userEmail)
+              .update({
+            'groups': FieldValue.arrayUnion([verificationCode]),
+          });
+        }
       }
+    } catch (e) {
+      setState(() {
+        errorMsg = "Error: $e"; // Handle any errors
+      });
     }
-  }
-
-  Future<void> leaveGroup() async {
-    // when the user leaves the group
-    await GroupRepo.leaveGroup(
-        userEmail!,
-        'groups/${_controllerGroupId.text}/Members',
-        'users/$userEmail/Groups',
-        _controllerGroupId.text);
   }
 
   TextStyle _textStyle() {
     return TextStyle(
       fontFamily: 'LeagueSpartan',
       fontSize: 18,
-      color: Colors.white, // Adjust the text color to white
+      color: Colors.white,
     );
   }
 
   Widget _title() {
-    // the title of the page
     return AppBar(
       title: Text(
         'Join a Group',
         style: _textStyle(),
       ),
-      backgroundColor: Color(0xFF75A10F), // Use the green color
-    );
-  }
-
-  Widget _entryField(String hintText, TextEditingController controller) {
-    // where users type in data
-    return Container(
-      margin:
-          EdgeInsets.symmetric(horizontal: 16.0), // Add some horizontal margin
-      child: TextField(
-        controller: controller,
-        style: TextStyle(
-          fontFamily: 'LeagueSpartan',
-          fontSize: 18,
-          color: Colors.white, // Adjust the text color to white
-        ),
-        decoration: InputDecoration(
-          labelText: hintText,
-          border: OutlineInputBorder(),
-          contentPadding: EdgeInsets.symmetric(horizontal: 12.0),
-        ),
-      ),
+      backgroundColor: Color(0xFF75A10F),
     );
   }
 
   Widget _submitButton() {
-    // the submit button to join a group that will call the join group function when pressed
     return ElevatedButton(
-      onPressed: isJoin ? joinGroup : leaveGroup,
+      onPressed: joinGroupWithVerificationCode,
       style: ElevatedButton.styleFrom(
-        primary: Color(0xFF75A10F), // Set the button background color to green
+        primary: Color(0xFF75A10F),
       ),
       child: Text(
-        isJoin ? 'Join Group' : '',
+        'Join Group',
         style: TextStyle(
           fontFamily: 'LeagueSpartan',
           fontSize: 18,
@@ -101,55 +86,23 @@ class _JoinGroupState extends State<JoinGroup> {
     );
   }
 
-  Widget _joinOrDeleteButton() {
-    return TextButton(
-      onPressed: () => setState(() {
-        isJoin = !isJoin;
-      }),
-      child: Text(
-        isJoin ? '' : 'Join Instead',
-        style: _textStyle(),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false, // Removes the back arrow
-        title: Center(
-          // Centers the title
-          child: Text(
-            'Join Group Page',
-            style: TextStyle(
-              fontFamily: 'LeagueSpartan',
-              color: Colors.white, // Set text color to white
-            ),
-          ),
-        ),
-        backgroundColor: Color(0xFF75A10F), // Make the app bar transparent
-        elevation: 0, // Remove the shadow/elevation
-      ),
       body: Stack(
         children: [
           Container(
-            color: Color(0xFF75A10F), // Set the background color to green
-            height: double.infinity, // Take up the full height
+            color: Color(0xFF75A10F), // Background color
+            height: double.infinity,
           ),
           Positioned(
-            top: 0, // Position the tan part at the top
+            top: 100,
             left: 0,
             right: 0,
-            bottom: 0, // Extend the tan part to the bottom
+            bottom: 0,
             child: Container(
               decoration: BoxDecoration(
-                color: Color.fromARGB(
-                  255,
-                  240,
-                  223,
-                  173,
-                ), // Your desired tan color
+                color: Color.fromARGB(255, 240, 223, 173), // Tan color
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(35.0),
                   topRight: Radius.circular(35.0),
@@ -157,14 +110,62 @@ class _JoinGroupState extends State<JoinGroup> {
               ),
               child: Column(
                 children: [
-                  SizedBox(height: 100), // Add spacing at the top
-                  _entryField('Group ID', _controllerGroupId),
+                  SizedBox(height: 100),
+                  VerificationCode(
+                    length: 6,
+                    textStyle: TextStyle(
+                      fontFamily: 'LeagueSpartan',
+                      fontSize: 18,
+                      color: Colors.white,
+                    ),
+                    keyboardType: TextInputType.number,
+                    onCompleted: (String value) {
+                      // Handle the completed verification code
+                      _controllerVerificationCode.text = value;
+                    },
+                    onEditing: (bool value) {
+                      // Handle the editing state, for example, unfocus the text field when editing is complete
+                      if (!value) {
+                        FocusScope.of(context).unfocus();
+                      }
+                    },
+                  ),
                   SizedBox(height: 16),
                   _submitButton(),
-                  SizedBox(height: 16),
-                  _joinOrDeleteButton(),
                 ],
               ),
+            ),
+          ),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: AppBar(
+              automaticallyImplyLeading: false,
+              title: Container(
+                padding: EdgeInsets.only(
+                  top: 25,
+                ),
+                child: Text(
+                  "Join a Group",
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontFamily: 'LeagueSpartan',
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white, // Text color
+                    shadows: [
+                      BoxShadow(
+                        color: Color.fromRGBO(70, 70, 70, 0.918),
+                        blurRadius: 12,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              backgroundColor: Colors.transparent,
+              centerTitle: true,
+              elevation: 0,
             ),
           ),
         ],

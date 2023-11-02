@@ -109,6 +109,8 @@ class _ChatHomeState extends State<ChatHome> {
     );
   }
 
+  /*
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -132,6 +134,79 @@ class _ChatHomeState extends State<ChatHome> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+*/
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          Container(
+            color: Colors.lightGreen, // Background color
+            height: double.infinity,
+          ),
+          Positioned(
+            top: 100,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Color.fromARGB(255, 240, 223, 173), // Tan color
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(35.0),
+                  topRight: Radius.circular(35.0),
+                ),
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    // Replace this section with your FutureBuilder
+                    FutureBuilder(
+                      future: getGroupId(),
+                      initialData: 'Loading messages...',
+                      builder:
+                          (BuildContext context, AsyncSnapshot<String> text) {
+                        return _messageList(text.data);
+                      },
+                    ),
+                    _entryField(),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: AppBar(
+              backgroundColor: Colors.transparent,
+              title: Text(
+                'Messaging',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontFamily: 'LeagueSpartan',
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white, // Text color
+                  shadows: [
+                    BoxShadow(
+                      color: Color.fromRGBO(70, 70, 70, 0.918),
+                      blurRadius: 12,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+              ),
+              centerTitle: true,
+              elevation: 0,
+            ),
+          ),
+        ],
       ),
     );
   }
