@@ -37,6 +37,7 @@ class _ChatHomeState extends State<ChatHome> {
             ),
           ),
           IconButton(
+            // icon user presses to send a message
             icon: const Icon(Icons.send),
             onPressed: () async {
               if (_messageController.text.isNotEmpty) {
@@ -46,13 +47,14 @@ class _ChatHomeState extends State<ChatHome> {
             },
           ),
           IconButton(
+            // button that lets you choose an img to upload
             icon: const Icon(Icons.upload_file),
             onPressed: () async {
               FilePickerResult? mediaUp =
                   await FilePicker.platform.pickFiles(type: FileType.media);
               if (mediaUp != null && mediaUp.files.isNotEmpty) {
                 File selectedFile = File(mediaUp.files.single.path!);
-                String? media = await uploadMedia(selectedFile);
+                await uploadMedia(selectedFile);
               }
             },
           ),
@@ -61,8 +63,24 @@ class _ChatHomeState extends State<ChatHome> {
     );
   }
 
+  Widget getImage(QueryDocumentSnapshot<Object?> o, bool isUser) {
+    // checking wether a text or an image was sent
+    if (o['mediaURL'] != '') {
+      return Image.network(
+        o['mediaURL'],
+        width: 200,
+        height: 200,
+      );
+    } else {
+      return Text(
+        o['text'],
+        style: TextStyle(color: isUser ? Colors.blue : Colors.grey),
+      );
+    }
+  }
+
   Widget _messageList(String? text) {
-    // listing all messages in the cloud
+    // listing all messages/images in the cloud
     return SizedBox(
       height: MediaQuery.of(context).size.height - 202.0,
       child: StreamBuilder(
@@ -84,22 +102,13 @@ class _ChatHomeState extends State<ChatHome> {
               Alignment alignment =
                   isUser ? Alignment.centerRight : Alignment.centerLeft;
               return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Align(
                     alignment: alignment, // Apply the alignment here
                     child: SizedBox(
-                      width: MediaQuery.of(context).size.width / 4,
-                      height: MediaQuery.of(context).size.height / 25,
-                      // ignore: prefer_interpolation_to_compose_strings
-                      child: Text(
-                        document['text'],
-                        style: TextStyle(
-                          // Optionally, you can style the text based on the alignment
-                          color: isUser ? Colors.blue : Colors.grey,
-                        ),
-                      ),
+                      // output will either be a text msg or img based on
+                      // the existence of the 'mediaUrl' data field
+                      child: getImage(document, isUser),
                     ),
                   ),
                 ],
@@ -113,27 +122,72 @@ class _ChatHomeState extends State<ChatHome> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        resizeToAvoidBottomInset: false,
-        appBar: AppBar(
-          backgroundColor: Colors.lightGreen,
-          title: const Text('Messaging'),
-        ),
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              //putting streambuilder before buttons
-              FutureBuilder(
-                  future: getCurrentGroupID(),
-                  initialData: 'Loading messages...',
-                  builder: (BuildContext context, AsyncSnapshot<String> text) {
-                    return _messageList(text.data);
-                  }),
-              _entryField(),
-            ],
+    return Scaffold(
+      body: Stack(
+        children: [
+          Container(
+            color: Colors.lightGreen, // Background color
+            height: double.infinity,
           ),
-        ),
+          Positioned(
+            top: 100,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Color.fromARGB(255, 240, 223, 173), // Tan color
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(35.0),
+                  topRight: Radius.circular(35.0),
+                ),
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    // Replace this section with your FutureBuilder
+                    FutureBuilder(
+                      future: getCurrentGroupID(),
+                      initialData: 'Loading messages...',
+                      builder:
+                          (BuildContext context, AsyncSnapshot<String> text) {
+                        return _messageList(text.data);
+                      },
+                    ),
+                    // where user inputs text or an img
+                    _entryField(),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: AppBar(
+              backgroundColor: Colors.transparent,
+              title: const Text(
+                'Messaging',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontFamily: 'LeagueSpartan',
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white, // Text color
+                  shadows: [
+                    BoxShadow(
+                      color: Color.fromRGBO(70, 70, 70, 0.918),
+                      blurRadius: 12,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+              ),
+              centerTitle: true,
+              elevation: 0,
+            ),
+          ),
+        ],
       ),
     );
   }

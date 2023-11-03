@@ -1,4 +1,6 @@
 import 'package:bookmates_app/PDF%20Upload/pdf_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 
@@ -13,6 +15,7 @@ class PDFReaderApp extends StatefulWidget {
 class _PDFReaderAppState extends State<PDFReaderApp> {
   String? selectedPDFPath;
   List<String> recentlyReadPDFs = [];
+  final email = FirebaseAuth.instance.currentUser?.email;
 
   @override
   void initState() {
@@ -33,6 +36,16 @@ class _PDFReaderAppState extends State<PDFReaderApp> {
   Future<void> pickAndDisplayPDF() async {
     // to update the filepath to view in app
     final pdfPath = await pickPDF();
+    final pdfName = pdfPath?.split('/').join();
+    final docID = pdfName?.substring(50, pdfName.length - 4);
+    final pdfRef =
+        FirebaseFirestore.instance.collection('users/$email/BookPDFs');
+
+    await pdfRef.doc(docID).set({
+      'filePath': pdfPath, // actual path in user's device to access
+      'timeStamp': DateTime.now(), // to be able to store history in order
+    });
+
     if (pdfPath != null) {
       setState(() {
         selectedPDFPath = pdfPath;
@@ -64,20 +77,6 @@ class _PDFReaderAppState extends State<PDFReaderApp> {
 
 //**********************************WIDGETS**************************** */
 
-//buttons
-
-  Widget _openPDFInApp() {
-    // button to press when opening selected pdf in-app
-    return ElevatedButton(
-        onPressed: () async {
-          await Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => PDFViewer(selectedPDFPath!),
-          ));
-          _loadRecentlyReadPDFs(); // rerender recently read after opening
-        },
-        child: const Text('Open Book'));
-  }
-
   Widget _selectPDF() {
     //choosing a pdf in drive to eventually open
     return ElevatedButton(
@@ -96,20 +95,43 @@ class _PDFReaderAppState extends State<PDFReaderApp> {
   }
 
   Widget _displayRecentlyRead() {
-    // each individual pdf that the user has read before displayed in a list
+    // each individual PDF that the user has read before displayed in a list
     return Expanded(
-      child: ListView.builder(
-        itemCount: recentlyReadPDFs.length,
-        itemBuilder: (context, index) {
-          final PDFPath = recentlyReadPDFs[index];
-          final PDFTitle = PDFPath.split('/').join();
-          return ListTile(
-              title: Text(PDFTitle.substring(50, PDFTitle.length - 4)),
-              onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => PDFViewer(PDFPath),
-                ));
-              });
+      child: StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection('users/$email/BookPDFs')
+            .orderBy('timeStamp',
+                descending: true) // Order by timeStamp in descending order
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const CircularProgressIndicator();
+          }
+
+          var documents = snapshot.data!.docs;
+
+          return ListView.builder(
+            itemCount: documents.length,
+            itemBuilder: (context, index) {
+              final PDFPath = documents[index].data()['filePath'];
+              final displayTitle = PDFPath.split('/').join().substring(50);
+              final display =
+                  displayTitle.substring(0, displayTitle.length - 4);
+              return ListTile(
+                title: Text(display),
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => PDFViewer(PDFPath),
+                  ));
+                },
+                // delete specific book from history of books
+                onLongPress: () async => await FirebaseFirestore.instance
+                    .collection('users/$email/BookPDFs')
+                    .doc(display)
+                    .delete(),
+              );
+            },
+          );
         },
       ),
     );
@@ -130,7 +152,6 @@ class _PDFReaderAppState extends State<PDFReaderApp> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            if (selectedPDFPath != null) _openPDFInApp(),
             _selectPDF(),
             if (recentlyReadPDFs.isNotEmpty) _displayReadTitle(),
             _displayRecentlyRead(),

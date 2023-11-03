@@ -260,6 +260,12 @@
       "languageVersion": "3.0"
     },
     {
+      "name": "flutter_verification_code",
+      "rootUri": "file:///home/bubbq/.pub-cache/hosted/pub.dev/flutter_verification_code-1.1.7",
+      "packageUri": "lib/",
+      "languageVersion": "2.16"
+    },
+    {
       "name": "flutter_web_plugins",
       "rootUri": "file:///home/bubbq/flutter/packages/flutter_web_plugins",
       "packageUri": "lib/",
@@ -336,6 +342,24 @@
       "rootUri": "file:///home/bubbq/.pub-cache/hosted/pub.dev/path_parsing-1.0.1",
       "packageUri": "lib/",
       "languageVersion": "2.12"
+    },
+    {
+      "name": "path_provider",
+      "rootUri": "file:///home/bubbq/.pub-cache/hosted/pub.dev/path_provider-2.1.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.19"
+    },
+    {
+      "name": "path_provider_android",
+      "rootUri": "file:///home/bubbq/.pub-cache/hosted/pub.dev/path_provider_android-2.2.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.19"
+    },
+    {
+      "name": "path_provider_foundation",
+      "rootUri": "file:///home/bubbq/.pub-cache/hosted/pub.dev/path_provider_foundation-2.3.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.19"
     },
     {
       "name": "path_provider_linux",
@@ -566,7 +590,7 @@
       "languageVersion": "3.1"
     }
   ],
-  "generated": "2023-10-29T03:51:11.348339Z",
+  "generated": "2023-11-03T15:05:51.296838Z",
   "generator": "pub",
   "generatorVersion": "3.1.3"
 }
