@@ -15,16 +15,20 @@ Future<void> initNotifications() async {
   await FlutterLocalNotificationsPlugin().initialize(initSettings);
 }
 
-Future<void> sendNotification(String title, String body) async {
-  AndroidNotificationDetails androidPlatformChannel =
-      const AndroidNotificationDetails(
-          'notification_service', 'notification service',
-          playSound: true, importance: Importance.max, priority: Priority.max);
+Future<void> sendNotification(String title, String body, bool media) async {
+  AndroidNotificationDetails androidPlatformChannel = const AndroidNotificationDetails(
+    'notification_service',
+    'notification service',
+    playSound: true, 
+    importance: Importance.max, 
+    priority: Priority.max
+  );
   final details = NotificationDetails(android: androidPlatformChannel);
-  await FlutterLocalNotificationsPlugin().show(0, title, body, details);
+  if (media) { await FlutterLocalNotificationsPlugin().show(0, title, 'image', details); }
+  else { await FlutterLocalNotificationsPlugin().show(0, title, body, details); }
 }
 
-Future<String> getCurrentGroupID() async {
+Future<String?> getCurrentGroupID() async {
   String? userEmail = FirebaseAuth.instance.currentUser?.email;
   final userData =
       FirebaseFirestore.instance.collection('users').doc(userEmail);
@@ -33,29 +37,17 @@ Future<String> getCurrentGroupID() async {
   if (data != null && data.containsKey('currentGroupID')) {
     return data['currentGroupID'];
   } else {
-    return "";
+    return null;
   }
 }
 
 DateTime appstartTime = DateTime.now();
 
-// Fix null type error here
-bool isNewData(Timestamp? initTime, Timestamp? compareTime) {
-  if (initTime!.toDate().isAfter(appstartTime)) {
-    if (compareTime == null) {
-      return true;
-    }
-    if (initTime != compareTime) {
-      return true;
-    }
-  }
-  return false;
-}
-
 Map<String, dynamic> newMessage = {};
 Future<void> checkForNewMessages() async {
-  String currentGroupID = await getCurrentGroupID();
-  if (currentGroupID != "") {
+  String? currentGroupID = await getCurrentGroupID();
+  bool media = false;
+  if (currentGroupID != null) {
     FirebaseFirestore.instance
         .collection('groups')
         .doc(currentGroupID)
@@ -68,17 +60,13 @@ Future<void> checkForNewMessages() async {
         messages.add(doc.data());
       }
 
-      // if (isNewData(messages.last?['timeStamp'], newMessage['timeStamp'])) {
-      //   newMessage = messages.last;
-      //   print('New message from ${newMessage['senderID']}: ${newMessage['text']}');
-      //   sendNotification(newMessage['senderID'], newMessage['text']);
-      // }
-      if ((messages.last['timeStamp']).toDate().isAfter(appstartTime)) {
+      if (messages.last['timeStamp'] != null && (messages.last['timeStamp']).toDate().isAfter(appstartTime)) {
         if (messages.last['timeStamp'] != newMessage['timeStamp']) {
           newMessage = messages.last;
-          print(
-              'New message from ${newMessage['senderID']}: ${newMessage['text']}');
-          sendNotification(newMessage['senderID'], newMessage['text']);
+          if (newMessage['mediaURL'] != '') { media = true; }
+          else { media = false; }
+          print('New message from ${newMessage['senderID']}: ${newMessage['text']}, media: $media');
+          sendNotification(newMessage['senderID'], newMessage['text'], media);
         }
       }
     });
@@ -87,8 +75,8 @@ Future<void> checkForNewMessages() async {
 
 Map<String, dynamic> newMilestone = {};
 Future<void> checkForNewMilestone() async {
-  String currentGroupID = await getCurrentGroupID();
-  if (currentGroupID != "") {
+  String? currentGroupID = await getCurrentGroupID();
+  if (currentGroupID != null) {
     FirebaseFirestore.instance
         .collection('groups')
         .doc(currentGroupID)
@@ -101,26 +89,42 @@ Future<void> checkForNewMilestone() async {
         milestones.add(doc.data());
       }
 
-      // if (isNewData(milestones.last['startTime'], newMilestone['start'])) {
-      //   newMilestone = milestones.last;
-      //   print('New milestone has been created ${newMilestone['goal']}');
-      //   sendNotification('${currentGroupID} has a new Milestone!', newMilestone['goal']);
-      // }
-
-      if ((milestones.last['startTime']).toDate().isAfter(appstartTime)) {
+      if (milestones.last['startTime'] != null && (milestones.last['startTime']).toDate().isAfter(appstartTime)) {
         if (milestones.last['startTime'] != newMilestone['startTime']) {
           newMilestone = milestones.last;
           print('New milestone has been created ${newMilestone['goal']}');
-          sendNotification(
-              '$currentGroupID has a new Milestone!', newMilestone['goal']);
+          sendNotification('$currentGroupID has a new Milestone!', newMilestone['goal'], false);
         }
       }
     });
   }
 }
 
+List<String> completedMilestones = [];
+Future<void> checkForCompletedMilestone() async {
+  String? currentGroupID = await getCurrentGroupID();
+  if (currentGroupID != null) {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('groups')
+        .doc(currentGroupID)
+        .collection('Milestone').get();
+
+    final milestoneCollection = snapshot.docs; 
+    for (var data in milestoneCollection) {
+      final milestoneData = data.data();
+      if (milestoneData['completeTime'] != null && (milestoneData['completeTime']).toDate().isAfter(appstartTime)) {
+        if (!completedMilestones.contains(milestoneData['id'])) {
+          completedMilestones.add(milestoneData['id']);
+          print('Milestone ${milestoneData['goal']} has been completed');
+          sendNotification('$currentGroupID Milestone completed!', '${milestoneData['goal']}', false);
+        }
+      }
+    }
+  }
+}
+
 Future<void> initBackgroundService() async {
-  print('Background service startTimeed');
+  print('Background service started');
   final service = FlutterBackgroundService();
   await service.configure(
     iosConfiguration: IosConfiguration(),
@@ -150,15 +154,10 @@ Future<void> onStart(ServiceInstance service) async {
   });
 
   Timer.periodic(const Duration(seconds: 5), (timer) async {
-    if (service is AndroidServiceInstance) {
-      if (await service.isForegroundService()) {
-        service.setForegroundNotificationInfo(
-            title: 'FOREGROUND', content: 'App is in foreground');
-      }
-    }
     checkForNewMessages();
     checkForNewMilestone();
+    checkForCompletedMilestone();
     print('Background service running');
-    service.invoke('update');
+    // service.invoke('update');
   });
 }

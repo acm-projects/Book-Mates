@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:bookmates_app/Milestone/milestone_service.dart';
 import 'package:bookmates_app/User%20Implementation/user_repo.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -12,6 +14,12 @@ Future<int> getMemberCount(String groupID) async {
   final data = snapshot.data();
 
   return data!['memberCount'];
+}
+
+String generateGroupID() {
+  // creates a random 6-digit number that'll b the group's ID
+  final random = Random();
+  return (random.nextInt(900000) + 100000).toString();
 }
 
 Future<String> getCurrentGroupID() async {
@@ -59,7 +67,7 @@ Future addMember(String path, userEmail, groupID, int admin) async {
 
   for (final groupDoc in userGroupsDocs) {
     final userGroupID = groupDoc.id;
-    if (userGroupID == groupID) validAdd = false; // if they are, change flag
+    if (userGroupID == groupID) validAdd = false; // if they are, stop operation
   }
 
   if (validAdd) {
@@ -86,7 +94,8 @@ Future addMember(String path, userEmail, groupID, int admin) async {
 Future<void> loseMember(String userEmail, groupPath, groupID) async {
   // how a user leaves a group
 
-  bool validLeave = false; // assume they are in the group, have to be to leave
+  bool validLeave = false;
+  // assume they aren't in the group, have to check in order to leave
 
   final userGroups = await FirebaseFirestore.instance
       .collection('users/$userEmail/Groups')
@@ -128,8 +137,9 @@ Future<void> loseMember(String userEmail, groupPath, groupID) async {
 }
 
 Future createOrUpdate(
-    String bookName, groupBio, groupName, groupID, userEmail) async {
+    String bookName, groupBio, groupName, userEmail, groupID) async {
   // create a group document and its data fields
+  // create random groupID number
   final docRef = FirebaseFirestore.instance.collection('groups').doc(
       groupID); // refrence of the specific document we want to put data into
 
@@ -178,7 +188,7 @@ Future clearUsers(String docPath, String userEmail) async {
 Future deleteGroup(String groupID, userEmail) async {
   // have to remove all users
   clearUsers(groupID, userEmail);
-  // delete every subcollection of the group
+  // in Firestore, you have to delete all documents in a subcollection b4 u delete
   subDelete('groups/$groupID/Members');
   subDelete('groups/$groupID/Milestone');
   subDelete('groups/$groupID/Messages');

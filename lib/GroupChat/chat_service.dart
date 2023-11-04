@@ -56,6 +56,26 @@ Future<DocumentReference> sendMessage(String text, String type) async {
   });
 }
 
+Future<void> sendMedia(String mediaUrl) async {
+  try {
+    String? currentGroupID = await getCurrentGroupID();
+    final groupDB = FirebaseFirestore.instance
+        .collection('groups')
+        .doc(currentGroupID)
+        .collection('Messages');
+    await groupDB.add({
+      'text': 'none',
+      'senderID': FirebaseAuth.instance.currentUser?.email,
+      'timeStamp': FieldValue.serverTimestamp(),
+      'type': 'media',
+      'mediaURL': mediaUrl,
+    });
+  } catch (e) {
+    print('Error $e');
+    return;
+  }
+}
+
 //updates readby array with the current user who has read it
 Future<void> readMessage(String messageId) async {
   DocumentReference groupChat = FirebaseFirestore.instance
@@ -67,28 +87,20 @@ Future<void> readMessage(String messageId) async {
   });
 }
 
-Future<String?> uploadMedia(File mediaFile) async {
-  try {
-    //it can be diff file extensions so we have to extract the file extension from the upload
-    String fileExtension = mediaFile.path.split('.').last;
+Future<void> uploadMedia(File mediaFile) async {
+  String? currentGroupID = await getCurrentGroupID();
+  // need to get the file extension type 'pdf, jpg, etc'
+  String fileExtension = mediaFile.path.split('.').last;
+  String filePath =
+      'groups/$currentGroupID/${DateTime.now().millisecondsSinceEpoch}.$fileExtension';
 
-    //get filepath to inlclude in storage
-    String filePath =
-        'Messages/${await getCurrentGroupID()}/${DateTime.now().millisecondsSinceEpoch}.$fileExtension';
+  Reference storageReference = FirebaseStorage.instance.ref().child(filePath);
+  UploadTask uploadTask = storageReference.putFile(mediaFile);
 
-    //initiate firebase storage where we will store the file
-    Reference storageReference = FirebaseStorage.instance.ref().child(filePath);
-
-    //upload file and store it on firebase
-    UploadTask uploadTask = storageReference.putFile(mediaFile);
-
-    //wait for upload to finish to download url
-    await uploadTask.whenComplete(() => {});
+  //wait for upload to finish to download url
+  await uploadTask.whenComplete(() async {
     String downloadUrl = await storageReference.getDownloadURL();
-
-    return downloadUrl;
-  } catch (e) {
-    print("Error uploading media: $e");
-    return null;
-  }
+    print('URL $downloadUrl');
+    sendMedia(downloadUrl);
+  });
 }

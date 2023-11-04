@@ -12,17 +12,6 @@ Future<void> createUser(String userName, password, String? email) async {
     'Email': email,
     'Password': password,
   });
-
-//creating the subcollections of a single user
-  await FirebaseFirestore.instance
-      .collection('users/$email/Library')
-      .doc()
-      .set({});
-
-  await FirebaseFirestore.instance
-      .collection('users/$email/Groups')
-      .doc()
-      .set({});
 }
 
 Future<void> joinGroup(String userEmail, groupID) async {
@@ -36,10 +25,10 @@ Future<void> joinGroup(String userEmail, groupID) async {
   }, SetOptions(merge: true));
 
   // creating a new document in Groups subcollection
-  await FirebaseFirestore.instance
-      .collection('users/$userEmail/Groups')
-      .doc(groupID)
-      .set({
+  final groupRef =
+      FirebaseFirestore.instance.collection('users/$userEmail/Groups');
+
+  await groupRef.doc(groupID).set({
     'groupID': groupID,
   });
 }
@@ -52,7 +41,7 @@ Future<void> leaveGroup(String userEmail, groupID) async {
 
   await userDocRef.delete();
 
-  // make the user's current group deleted, need to navigate to another on or
+  // make the user's current group deleted, need to navigate to homepage or
   //join a group to get field back
 
   await FirebaseFirestore.instance.collection('users').doc(userEmail).set({
