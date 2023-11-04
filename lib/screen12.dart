@@ -162,7 +162,7 @@ class Register extends StatelessWidget {
             
              Text("Create an Account\n\n",
               textAlign: TextAlign.left,
-              style:TextStyle(color: Colors.black, fontSize: 30,fontWeight: FontWeight.bold, fontFamily: 'Spartan')),
+              style:TextStyle(color: Colors.black, fontSize: 31,fontWeight: FontWeight.bold, fontFamily: 'Spartan')),
             TextFormField(
             decoration:  InputDecoration(
               border: UnderlineInputBorder(),
