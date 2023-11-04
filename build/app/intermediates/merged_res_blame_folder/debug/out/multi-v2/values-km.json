@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.bookmates_app-mergeDebugResources-14:/values-km/values-km.xml",
+            "outputFile": "com.example.bookmates_app-mergeDebugResources-17:/values-km/values-km.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\Nihita\\.gradle\\caches\\transforms-3\\cf72013d765e0f69e97cd3b9cbb09800\\transformed\\core-1.6.0\\res\\values-km\\values-km.xml",
+                    "source": "C:\\Users\\Nihita\\.gradle\\caches\\transforms-3\\fe5e04f437acc23ed511f2b110e1b670\\transformed\\core-1.7.0\\res\\values-km\\values-km.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

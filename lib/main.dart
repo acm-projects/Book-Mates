@@ -1,10 +1,8 @@
 import 'package:bookmates_app/Milestone/milestone_page.dart';
-import 'package:bookmates_app/Notification/notification_service.dart';
 import 'package:bookmates_app/widget_tree.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:bookmates_app/widget_tree.dart';
+import 'library.dart';
 
 AppLifecycleState state = AppLifecycleState.detached;
 
@@ -20,7 +18,7 @@ Future<void> main() async {
           messagingSenderId: "413615361765",
           projectId: "bookma-d79ce"));
 
-  runApp(const MyApp());
+  runApp(const MaterialApp(home: Library()));
 }
 
 class MyApp extends StatelessWidget {

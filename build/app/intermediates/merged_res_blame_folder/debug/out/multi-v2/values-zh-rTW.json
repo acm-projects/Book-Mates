@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.bookmates_app-mergeDebugResources-14:/values-zh-rTW/values-zh-rTW.xml",
+            "outputFile": "com.example.bookmates_app-mergeDebugResources-17:/values-zh-rTW/values-zh-rTW.xml",
             "map": [
                 {
                     "source": "C:\\Users\\Nihita\\.gradle\\caches\\transforms-3\\5eaba1f028ac62aaabee71faac8d9308\\transformed\\jetified-play-services-basement-18.1.0\\res\\values-zh-rTW\\values.xml",
@@ -38,23 +38,6 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\Nihita\\.gradle\\caches\\transforms-3\\cf72013d765e0f69e97cd3b9cbb09800\\transformed\\core-1.6.0\\res\\values-zh-rTW\\values-zh-rTW.xml",
-                    "from": {
-                        "startLines": "2",
-                        "startColumns": "4",
-                        "startOffsets": "55",
-                        "endColumns": "100",
-                        "endOffsets": "151"
-                    },
-                    "to": {
-                        "startLines": "24",
-                        "startColumns": "4",
-                        "startOffsets": "2244",
-                        "endColumns": "100",
-                        "endOffsets": "2340"
-                    }
-                },
-                {
                     "source": "C:\\Users\\Nihita\\.gradle\\caches\\transforms-3\\f253648b0be692c533908993735bbd2e\\transformed\\jetified-play-services-base-18.0.1\\res\\values-zh-rTW\\values.xml",
                     "from": {
                         "startLines": "4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20",
@@ -69,6 +52,23 @@
                         "startOffsets": "55,156,284,399,501,608,724,824,1022,1132,1233,1362,1477,1579,1687,1743,1800",
                         "endColumns": "100,127,114,101,106,115,99,94,109,100,128,114,101,107,55,56,73",
                         "endOffsets": "151,279,394,496,603,719,819,914,1127,1228,1357,1472,1574,1682,1738,1795,1869"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\Nihita\\.gradle\\caches\\transforms-3\\fe5e04f437acc23ed511f2b110e1b670\\transformed\\core-1.7.0\\res\\values-zh-rTW\\values-zh-rTW.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "100",
+                        "endOffsets": "151"
+                    },
+                    "to": {
+                        "startLines": "24",
+                        "startColumns": "4",
+                        "startOffsets": "2244",
+                        "endColumns": "100",
+                        "endOffsets": "2340"
                     }
                 }
             ]

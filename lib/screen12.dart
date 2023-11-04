@@ -1,153 +1,226 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MaterialApp(home: signup()) 
+  runApp( MaterialApp(home: LogIn()) 
     );
 }
-class Home extends StatelessWidget {
-  
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.amber[100],
-      appBar: AppBar(
-        backgroundColor:Colors.green[700],
-        title: Text("BOOKMATES", style:TextStyle(fontSize:40.0, fontWeight: FontWeight.bold, color: Colors.white70)),
-        centerTitle: true,
-        toolbarHeight: 200,
-        elevation: 25,
-      ),
-      body: Center(
-        
-        child:Text.rich(
-        
-        TextSpan(
-          
-          text:"Welcome Back!\n\n\n",
-          style:TextStyle(fontSize:25, color:Colors.black87),
-          children: [TextSpan(
-            
-            text:"Login\n\n",
-            style:TextStyle(fontSize:20,),
-            children: [TextSpan(
-              text: "Email\n\n____________________________________________\n\nPassword\n\n____________________________________________",
-               
-            )]
-        )]
-         
-
-        
-        ),
-        
-           
-        
-      )),
-          
-      /*bottomSheet: Center(
-        child:TextButton(
-          onPressed: () {},
-          child: Text("Login"),
-        ),
-      ),*/
-  );
+class LogIn extends StatelessWidget {
+   LogIn({super.key});
+  void call_Signup()
+  {
+     Register();
   }
-}
-class signup extends StatelessWidget {
   
 
   @override
   Widget build(BuildContext context) {
+    imageCache.clear();
+    //button();
     return Scaffold(
-      backgroundColor: Colors.amber[100],
-      appBar: AppBar(
-        backgroundColor:Colors.green[700],
-        title: Text("BOOKMATES", style:TextStyle(fontSize:40.0, fontWeight: FontWeight.bold, color: Colors.white70)),
-        centerTitle: true,
-        toolbarHeight: 200,
-        elevation: 25,
-      ),
-      body: Center(
-        
-        child:Text.rich(
-        
-        TextSpan(
-          
-          text:"Create an account!\n\n\n",
-          style:TextStyle(fontSize:25, color:Colors.black87),
-          children: [TextSpan(
-            
-            text:"First Name\n\n",
-            style:TextStyle(fontSize:20,),
-            children: [TextSpan(
-              text: "Email\n\n________________________________________\n\Last Name\n\n_________________________________________\n\Email\n\n_________________________________________\n\Password\n__________________________________________",
-               
-            )]
-        )]
-           
-
-        
-        ),
-        
-           
-        
-      )),
-        
+      backgroundColor:  Color.fromARGB(255,117, 161, 15),
       
-      /*bottomSheet: Center(
-        child:TextButton(
-          onPressed: () {},
-          child: Text("Login"),
+      
+      
+      
+      
+      body: SingleChildScrollView(
+
+        child :
+      Stack(
+          children : [
+          
+        Column(
+          children:[
+            SizedBox(height: 60,width:410),
+           
+          Image(image:AssetImage('lib/icons/Title.png'),alignment:Alignment.topCenter)]
         ),
-      ),*/
-  );
+        Container(
+          padding: EdgeInsets.all(40),
+            margin:  EdgeInsets.only(top:150),
+            width:415,
+            height:900,
+            decoration: BoxDecoration(
+              color:Color.fromARGB(255,250, 241, 213),
+              borderRadius: BorderRadius.only(topRight: Radius.circular(40.0),topLeft: Radius.circular(40.0)),
+    
+              
+            ),
+           
+             
+            child:
+            Stack(
+            
+            children : [
+            Column(
+              
+              children: [
+            
+            
+             Text("Welcome Back!\n\n",
+              textAlign: TextAlign.left,
+              style:TextStyle(color: Colors.black, fontSize: 30,fontWeight: FontWeight.bold, fontFamily: 'Spartan')),
+            TextFormField(
+            decoration:  InputDecoration(
+              border: UnderlineInputBorder(),
+              labelText: 'Email\n\n\n\n',
+            ),),
+             Text("\n\n\n",
+              textAlign: TextAlign.left),
+            TextFormField(
+            decoration:  InputDecoration(
+              border: UnderlineInputBorder(),
+              labelText: 'Password\n\n\n\n',
+            ),
+            ),
+            
+             SizedBox(height:150),
+                ElevatedButton(onPressed: (){},style:ElevatedButton.styleFrom( fixedSize: const Size(240, 50),backgroundColor: Color.fromARGB(255,117, 161, 15),shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),), child: const Text("Log In")),
+              
+               SizedBox(height:20),
+             Text("\nDon't have an account?\n",
+            style:TextStyle(fontSize: 15, fontFamily: 'Spartan'),
+              textAlign: TextAlign.center),
+
+               InkWell(child: Text('Sign Up', style:TextStyle(color: Colors.orange,fontWeight: FontWeight.bold,fontFamily:'Spartan')), onTap:() {
+                 Navigator.push(context, MaterialPageRoute(builder: (context) {return Register();}));
+               },),
+              
+
+              
+        ])])
+      ),
+
+   
+            
+            
+
+            
+    ])));     
+  
+            
   }
+
+    
+ 
 }
 
-class createGroup extends StatelessWidget {
+void callLogIn()
+{
+  LogIn();
+}
+
+class Register extends StatelessWidget {
+  const Register({super.key});
+
   
 
   @override
   Widget build(BuildContext context) {
+    imageCache.clear();
+    //button();
     return Scaffold(
-      backgroundColor: Colors.amber[100],
-      appBar: AppBar(
-        backgroundColor:Colors.green[700],
-        title: Text("Create Your Group", style:TextStyle(fontSize:40.0, fontWeight: FontWeight.bold, color: Colors.white70)),
-        centerTitle: true,
-        toolbarHeight: 200,
-        elevation: 25,
-      ),
-      body: Center(
-        
-        child:Text.rich(
-        
-        TextSpan(
-            
-            text:"Group Name\n\n",
-            style:TextStyle(fontSize:20,),
-            children: [TextSpan(
-              text: "________________________________________\n\Book Name\n\n_________________________________________\n\Add a group profile pic",
-               
-            )]
-        )
-           
-
-        
-        ,
-        
-           
-        
-      )),
-        
+      backgroundColor: const Color.fromARGB(255,117, 161, 15),
       
-      /*bottomSheet: Center(
-        child:TextButton(
-          onPressed: () {},
-          child: Text("Login"),
+      
+      
+      
+      
+      body: SingleChildScrollView(
+
+        child :
+      Stack(
+          children : [
+          
+        Column(
+          children:[
+           const SizedBox(height: 60,width:410),
+           
+          Image(image:AssetImage('lib/icons/Title.png'),alignment:Alignment.topCenter)]
         ),
-      ),*/
-  );
+        Container(
+          padding: EdgeInsets.all(40),
+            margin:  EdgeInsets.only(top:150),
+            width:415,
+            height:900,
+            decoration: BoxDecoration(
+              color:Color.fromARGB(255,250, 241, 213),
+              borderRadius: BorderRadius.only(topRight: Radius.circular(40.0),topLeft: Radius.circular(40.0)),
+    
+              
+            ),
+           
+             
+            child:
+            Stack(
+            
+            children : [
+            Column(
+              
+              children: [
+            
+            
+             Text("Create an Account\n\n",
+              textAlign: TextAlign.left,
+              style:TextStyle(color: Colors.black, fontSize: 30,fontWeight: FontWeight.bold, fontFamily: 'Spartan')),
+            TextFormField(
+            decoration:  InputDecoration(
+              border: UnderlineInputBorder(),
+              labelText: 'First Name\n',
+            ),),
+             Text("\n",
+              textAlign: TextAlign.left),
+            TextFormField(
+            decoration:  InputDecoration(
+              border: UnderlineInputBorder(),
+              labelText: 'Last Name\n',
+            ),
+            ),
+            Text("\n",
+              textAlign: TextAlign.left),
+            TextFormField(
+            decoration:  InputDecoration(
+              border: UnderlineInputBorder(),
+              labelText: 'Email\n',
+            ),
+            ),
+            Text("\n",
+              textAlign: TextAlign.left),
+            TextFormField(
+            decoration:  InputDecoration(
+              border: UnderlineInputBorder(),
+              labelText: 'Password',
+            ),
+            ),
+            
+             SizedBox(height:80),
+                ElevatedButton(onPressed: (){},style:ElevatedButton.styleFrom( fixedSize:  Size(240, 50),backgroundColor: Color.fromARGB(255,117, 161, 15),shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),), child:  Text("Sign Up")),
+              
+               SizedBox(height:20),
+             Text("\nAlready have an account?\n",
+            style:TextStyle(fontSize: 15, fontFamily: 'Spartan'),
+              textAlign: TextAlign.center),
+               InkWell(child: Text('Log In', style:TextStyle(color: Colors.orange,fontWeight: FontWeight.bold,fontFamily:'Spartan')),onTap:() {
+                 Navigator.push(context, MaterialPageRoute(builder: (context) {return LogIn();}));
+   } )
+              
+
+              
+        ])])
+      ),
+
+
+            
+            
+
+            
+    ])));     
+      
+            
   }
 
+  
 }
+
+
+

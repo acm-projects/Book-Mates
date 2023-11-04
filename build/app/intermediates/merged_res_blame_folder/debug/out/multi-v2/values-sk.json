@@ -1,25 +1,8 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.bookmates_app-mergeDebugResources-14:/values-sk/values-sk.xml",
+            "outputFile": "com.example.bookmates_app-mergeDebugResources-17:/values-sk/values-sk.xml",
             "map": [
-                {
-                    "source": "C:\\Users\\Nihita\\.gradle\\caches\\transforms-3\\cf72013d765e0f69e97cd3b9cbb09800\\transformed\\core-1.6.0\\res\\values-sk\\values-sk.xml",
-                    "from": {
-                        "startLines": "2",
-                        "startColumns": "4",
-                        "startOffsets": "55",
-                        "endColumns": "100",
-                        "endOffsets": "151"
-                    },
-                    "to": {
-                        "startLines": "24",
-                        "startColumns": "4",
-                        "startOffsets": "2749",
-                        "endColumns": "100",
-                        "endOffsets": "2845"
-                    }
-                },
                 {
                     "source": "C:\\Users\\Nihita\\.gradle\\caches\\transforms-3\\f253648b0be692c533908993735bbd2e\\transformed\\jetified-play-services-base-18.0.1\\res\\values-sk\\values.xml",
                     "from": {
@@ -52,6 +35,23 @@
                         "startOffsets": "2322,2429,2532,2647",
                         "endColumns": "106,102,114,101",
                         "endOffsets": "2424,2527,2642,2744"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\Nihita\\.gradle\\caches\\transforms-3\\fe5e04f437acc23ed511f2b110e1b670\\transformed\\core-1.7.0\\res\\values-sk\\values-sk.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "100",
+                        "endOffsets": "151"
+                    },
+                    "to": {
+                        "startLines": "24",
+                        "startColumns": "4",
+                        "startOffsets": "2749",
+                        "endColumns": "100",
+                        "endOffsets": "2845"
                     }
                 },
                 {
