@@ -1,10 +1,10 @@
 import 'package:bookmates_app/auth.dart';
 import 'package:bookmates_app/home_page.dart';
-import 'package:bookmates_app/login_register.dart';
+import 'package:bookmates_app/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-// the main hub that determines wether to return the login/register or the homepage
+// service widget that determines wether to return the login/register or the homepage
 
 class WidgetTree extends StatefulWidget {
   const WidgetTree({super.key});

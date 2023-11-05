@@ -5,7 +5,7 @@ import 'package:bookmates_app/Milestone/milestone_page.dart';
 import 'package:bookmates_app/Notification/notification_service.dart';
 import 'package:bookmates_app/PDF%20Upload/pdf_screen.dart';
 import 'package:bookmates_app/home_page.dart';
-import 'package:bookmates_app/login_register.dart';
+import 'package:bookmates_app/login_screen.dart';
 import 'package:bookmates_app/widget_tree.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -47,7 +47,7 @@ class MyApp extends StatelessWidget {
         '/chatPage': (context) => const ChatHome(),
         '/pdfScreen': (context) => const PDFReaderApp(),
         '/homePage': (context) => const HomePage(),
-        'loginRegister': (context) => const LoginPage(),
+        '/loginPage': (context) => const LoginPage(),
       },
       debugShowCheckedModeBanner: false,
       theme: ThemeData(

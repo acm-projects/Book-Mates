@@ -8,7 +8,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:bookmates_app/Group Operations/group_repo.dart';
 
 class ChatHome extends StatefulWidget {
-  //use Key class to order stream and update efficiently
   const ChatHome({Key? key}) : super(key: key);
 
   @override
