@@ -4,7 +4,7 @@ import '../services/google_books_service.dart';
 
 class BookProvider with ChangeNotifier {
   List<Book> _books = [];
-  bool _isLoading = false;
+  final bool _isLoading = false;
   String _error = '';
 
   List<Book> get books => _books;

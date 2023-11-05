@@ -5,11 +5,13 @@ import '../providers/book_provider.dart';
 class BookSearchScreen extends StatelessWidget {
   final TextEditingController _controller = TextEditingController();
 
+  BookSearchScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Book Search'),
+        title: const Text('Book Search'),
       ),
       body: Column(
         children: [
@@ -23,7 +25,7 @@ class BookSearchScreen extends StatelessWidget {
               decoration: InputDecoration(
                 labelText: 'Search for a book',
                 suffixIcon: IconButton(
-                  icon: Icon(Icons.search),
+                  icon: const Icon(Icons.search),
                   onPressed: () {
                     context.read<BookProvider>().fetchBooks(_controller.text);
                   },
@@ -35,7 +37,7 @@ class BookSearchScreen extends StatelessWidget {
             child: Consumer<BookProvider>(
               builder: (context, bookProvider, _) {
                 if (bookProvider.isLoading) {
-                  return Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator());
                 }
 
                 if (bookProvider.error.isNotEmpty) {
