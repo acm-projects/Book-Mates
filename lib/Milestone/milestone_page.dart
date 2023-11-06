@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:bookmates_app/Milestone/milestone_service.dart';
 import 'package:bookmates_app/Notification/notification_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get_rx/get_rx.dart';
 
 class MilestoneListPage extends StatefulWidget {
   const MilestoneListPage({super.key});
@@ -116,9 +119,36 @@ class _MilestoneListPageState extends State<MilestoneListPage> {
       itemBuilder: (context, index) {
         final milestoneData = snapshot.data![index];
         final milestoneID = milestoneData['id'].toString();
-        final ratio = milestoneData['ratio'];
+        print(milestoneID);
+        // final ratio = milestoneData['ratio'];
 
-        return _progressBar(ratio, 20, 200, milestoneID);
+        return FutureBuilder<String?>(
+          future: getCurrentGroupID(),
+          builder: (context, groupIDSnapshot) {
+            // get the groupID from the snapshot
+            final groupID = groupIDSnapshot.data;
+            return StreamBuilder(
+              stream: FirebaseFirestore.instance
+                  .collection('groups/$groupID/Milestone')
+                  .doc(milestoneID)
+                  .snapshots(),
+              builder: (context, milestoneSnapshot) {
+                // update the ratio of the milestone every click
+                if (milestoneSnapshot.hasData) {
+                  sleep(const Duration(seconds: 2));
+                  dynamic updatedRatio = milestoneSnapshot.data?['ratio'];
+                  if (updatedRatio != null) {
+                    print(updatedRatio);
+                  }
+                  return CircularProgressIndicator();
+                  // final updatedRatio = milestoneSnapshot.data!['ratio'];
+                  // return _progressBar(updatedRatio, 20, 200, milestoneID);
+                }
+                return Container();
+              },
+            );
+          },
+        );
       },
     );
   }
@@ -141,7 +171,7 @@ class _MilestoneListPageState extends State<MilestoneListPage> {
             final milestoneList = snapshot.data;
 
             return Column(
-              children: [
+              children: <Widget>[
                 // can only have one milestone at a time
                 if (milestoneList!.isEmpty)
                   Padding(
