@@ -1,10 +1,7 @@
-import 'dart:io';
-
 import 'package:bookmates_app/Milestone/milestone_service.dart';
 import 'package:bookmates_app/Notification/notification_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get_rx/get_rx.dart';
 
 class MilestoneListPage extends StatefulWidget {
   const MilestoneListPage({super.key});
@@ -17,8 +14,8 @@ class _MilestoneListPageState extends State<MilestoneListPage> {
   final _milestoneBodyController = TextEditingController();
   final _milestoneDeadlineController = TextEditingController();
 
+  // to prompt user input
   Widget _entryField(TextEditingController controller, String headerText) {
-    // to prompt user input
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(
@@ -27,8 +24,8 @@ class _MilestoneListPageState extends State<MilestoneListPage> {
     );
   }
 
+  // to create a milestone
   Widget _submitButton() {
-    // to create a milestone
     return ElevatedButton(
         onPressed: () {
           // convert user input into int
@@ -39,12 +36,14 @@ class _MilestoneListPageState extends State<MilestoneListPage> {
             //clear both inputs
             _milestoneBodyController.clear();
             _milestoneDeadlineController.clear();
+            // update the UI after submission
             setState(() {});
           }
         },
         child: const Text('Create Milestone'));
   }
 
+  // makeshift progress bar that increases based on a 'ratio' data field in firestore
   Widget _progressBar(dynamic ratio, double height, width, String milestoneID) {
     return Row(
       children: [
@@ -56,16 +55,19 @@ class _MilestoneListPageState extends State<MilestoneListPage> {
           child: Stack(
             children: [
               Container(
+                // gets larger as the ratio increases
                 width: width * (ratio / 100),
                 height: height,
                 decoration: BoxDecoration(
-                  color: Colors.blue,
+                  color: Colors.red,
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
               Align(
                   alignment: Alignment.center,
-                  child: Text(
+                  child:
+                      // show the ratio on the bar
+                      Text(
                     '${ratio}%',
                     style: const TextStyle(
                       color: Colors.white,
@@ -75,13 +77,12 @@ class _MilestoneListPageState extends State<MilestoneListPage> {
             ],
           ),
         ),
-        // button user presses to update the ratio
+        // button user presses to increase the ratio
         ElevatedButton(
           onPressed: () async {
             await completeMilestone(milestoneID);
-            setState(() async {
-              // ratio = await getRatio(milestoneID);
-            });
+            // update UI after press
+            setState(() {});
           },
           child: const Text('Complete'),
         ),
@@ -89,62 +90,42 @@ class _MilestoneListPageState extends State<MilestoneListPage> {
     );
   }
 
-  // Widget _listMilestones(AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-  //   // to output all uncompleted milestones
-  //   return ListView.builder(
-  //     itemCount: snapshot.data?.length,
-  //     itemBuilder: (context, index) {
-  //       final milestoneData = snapshot.data![index];
-  //       final milestoneID = milestoneData['id'].toString();
-  //       return ListTile(
-  //         title: Text(milestoneData['goal'].toString()),
-  //         subtitle: Text('Progress Ratio: ${milestoneData['ratio']}%'),
-  //         trailing: ElevatedButton(
-  //           onPressed: () {
-  //             completeMilestone(milestoneID);
-  //             setState(() {});
-  //             Navigator.popAndPushNamed(context, '/milestonePage');
-  //           },
-  //           child: const Text('Complete'),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
-
   Widget _listMilestones(AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-    // to output all uncompleted milestones
+    // to output all uncompleted milestones in a group
     return ListView.builder(
       itemCount: snapshot.data?.length,
       itemBuilder: (context, index) {
+        // the data of this snapshot
         final milestoneData = snapshot.data![index];
+        // the docID of the milestone subcollection in 'groups'
         final milestoneID = milestoneData['id'].toString();
-        print(milestoneID);
-        // final ratio = milestoneData['ratio'];
 
         return FutureBuilder<String?>(
+          // wait for the current group ID so we can acess the specific milestone live
           future: getCurrentGroupID(),
           builder: (context, groupIDSnapshot) {
             // get the groupID from the snapshot
             final groupID = groupIDSnapshot.data;
-            return StreamBuilder(
+            return StreamBuilder<DocumentSnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('groups/$groupID/Milestone')
                   .doc(milestoneID)
                   .snapshots(),
               builder: (context, milestoneSnapshot) {
-                // update the ratio of the milestone every click
-                if (milestoneSnapshot.hasData) {
-                  sleep(const Duration(seconds: 2));
-                  dynamic updatedRatio = milestoneSnapshot.data?['ratio'];
-                  if (updatedRatio != null) {
-                    print(updatedRatio);
-                  }
-                  return CircularProgressIndicator();
-                  // final updatedRatio = milestoneSnapshot.data!['ratio'];
-                  // return _progressBar(updatedRatio, 20, 200, milestoneID);
+                if (milestoneSnapshot.connectionState ==
+                    ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                } else if (milestoneSnapshot.hasError) {
+                  return Text('Error: ${milestoneSnapshot.error}');
+                } else if (milestoneSnapshot.hasData &&
+                    milestoneSnapshot.data!.exists) {
+                  // fetch the ratio and update/create the progress widget
+                  final updatedRatio = milestoneSnapshot.data!['ratio'];
+                  return _progressBar(updatedRatio, 20, 200, milestoneID);
+                } else {
+                  // Handle the case when the document doesn't exist
+                  return Container();
                 }
-                return Container();
               },
             );
           },
