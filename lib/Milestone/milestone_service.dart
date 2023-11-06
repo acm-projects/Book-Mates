@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:bookmates_app/Group%20Operations/group_repo.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 
 Future<void> createMilestone(String goal, int days) async {
   // to create a milestone for a group
@@ -43,7 +46,6 @@ Future<void> completeMilestone(String milestoneID) async {
   final snapshot = await milestoneDB.get();
 
   // Set completed timestamp
-  milestoneDB.set({'completeTime': DateTime.now()}, SetOptions(merge: true));
 
   // Increment the progress
   int currentProgress = await snapshot.data()?['progress'];
@@ -60,7 +62,11 @@ Future<void> completeMilestone(String milestoneID) async {
 
   // if ratio full set hide true to hide from milestone list
   if (ratio >= 100) {
-    milestoneDB.set({"hide": true}, SetOptions(merge: true));
+    // milestoneDB.set({"hide": true}, SetOptions(merge: true));
+
+    // delete the milestone after you complete it
+    await milestoneDB
+        .set({'completeTime': DateTime.now()}, SetOptions(merge: true));
   }
 
   // add the completed milestone id to the user collection
@@ -86,7 +92,7 @@ Future<List<Map<String, dynamic>>> fetchMilestonesData() async {
       .doc(userEmail)
       .collection('completedMilestones')
       .get();
-  final userMilestoneList = userSnapshot.docs.map((doc) => doc.data()).toList();
+  // final userMilestoneList = userSnapshot.docs.map((doc) => doc.data()).toList();
 
   // do the same for all milstones in the group aswell
   final milestoneSnapshot = await FirebaseFirestore.instance
@@ -100,13 +106,13 @@ Future<List<Map<String, dynamic>>> fetchMilestonesData() async {
   // remove all hidden milestones
   milestoneList.removeWhere((milestone) => milestone['hide'] == true);
 
-  // remove all milestones that are the same as the user completed milestones
-  if (userMilestoneList.isNotEmpty) {
-    for (var userMilestone in userMilestoneList) {
-      milestoneList
-          .removeWhere((milestone) => milestone['id'] == userMilestone['id']);
-    }
-  }
+  // // remove all milestones that are the same as the user completed milestones
+  // if (userMilestoneList.isNotEmpty) {
+  //   for (var userMilestone in userMilestoneList) {
+  //     milestoneList
+  //         .removeWhere((milestone) => milestone['id'] == userMilestone['id']);
+  //   }
+  // }
 
   return milestoneList;
 }
@@ -152,7 +158,8 @@ Future<void> updateAllRatio(String groupID, int newCount) async {
     if (ratios >= 100) {
       await milestoneRef
           .doc(milestoneMap['id'])
-          .set({'hide': true}, SetOptions(merge: true));
+          // .set({'hide': true}, SetOptions(merge: true));
+          .delete();
     }
   }
 }
