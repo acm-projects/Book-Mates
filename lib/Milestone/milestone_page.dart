@@ -1,6 +1,7 @@
 import 'package:bookmates_app/Milestone/milestone_service.dart';
 import 'package:bookmates_app/Notification/notification_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class MilestoneListPage extends StatefulWidget {
@@ -13,6 +14,9 @@ class _MilestoneListPageState extends State<MilestoneListPage> {
   // variables holding user input
   final _milestoneBodyController = TextEditingController();
   final _milestoneDeadlineController = TextEditingController();
+
+  // user's email
+  final userEmail = FirebaseAuth.instance.currentUser?.email;
 
   // to prompt user input
   Widget _entryField(TextEditingController controller, String headerText) {
@@ -44,7 +48,8 @@ class _MilestoneListPageState extends State<MilestoneListPage> {
   }
 
   // makeshift progress bar that increases based on a 'ratio' data field in firestore
-  Widget _progressBar(dynamic ratio, double height, width, String milestoneID) {
+  Widget _progressBar(dynamic ratio, double height, width, String milestoneID,
+      bool showButton) {
     return Row(
       children: [
         Container(
@@ -78,14 +83,15 @@ class _MilestoneListPageState extends State<MilestoneListPage> {
           ),
         ),
         // button user presses to increase the ratio
-        ElevatedButton(
-          onPressed: () async {
-            await completeMilestone(milestoneID);
-            // update UI after press
-            setState(() {});
-          },
-          child: const Text('Complete'),
-        ),
+        if (!showButton)
+          ElevatedButton(
+            onPressed: () async {
+              await completeMilestone(milestoneID);
+              // update UI after press
+              setState(() {});
+            },
+            child: const Text('Complete'),
+          ),
       ],
     );
   }
@@ -106,28 +112,67 @@ class _MilestoneListPageState extends State<MilestoneListPage> {
           builder: (context, groupIDSnapshot) {
             // get the groupID from the snapshot
             final groupID = groupIDSnapshot.data;
-            return StreamBuilder<DocumentSnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('groups/$groupID/Milestone')
-                  .doc(milestoneID)
-                  .snapshots(),
-              builder: (context, milestoneSnapshot) {
-                if (milestoneSnapshot.connectionState ==
-                    ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                } else if (milestoneSnapshot.hasError) {
-                  return Text('Error: ${milestoneSnapshot.error}');
-                } else if (milestoneSnapshot.hasData &&
-                    milestoneSnapshot.data!.exists) {
-                  // fetch the ratio and update/create the progress widget
-                  final updatedRatio = milestoneSnapshot.data!['ratio'];
-                  return _progressBar(updatedRatio, 20, 200, milestoneID);
-                } else {
-                  // Handle the case when the document doesn't exist
+
+            // streamBuilder to get completedMilestone info
+            return StreamBuilder(
+                stream: FirebaseFirestore.instance
+                    .collection('users/$userEmail/completedMilestones')
+                    .snapshots(),
+                builder: (context, completedSnapshot) {
+                  if (completedSnapshot.connectionState ==
+                      ConnectionState.waiting)
+                    return CircularProgressIndicator();
+                  else if (completedSnapshot.hasError)
+                    return Text('${completedSnapshot.error}');
+                  else if (completedSnapshot.hasData) {
+                    // assuming the user has not completed the milestone
+                    bool userCompleted = false;
+
+                    // go through the entire subcollection in user to find
+                    // the id, if it is present
+
+                    for (QueryDocumentSnapshot completedDoc
+                        in completedSnapshot.data!.docs) {
+                      // the completedDoc represents one document in the subcollection
+                      //check if the 'id' is =2 the current milestone
+                      if (completedDoc['id'] == milestoneID) {
+                        userCompleted = true;
+                        break;
+                      }
+                    }
+
+                    // if the user has NOT completed the milestone, show
+                    // this _progressBar widget
+
+                    // streamBuilder to get milestone ratio
+                    return StreamBuilder<DocumentSnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('groups/$groupID/Milestone')
+                          .doc(milestoneID)
+                          .snapshots(),
+                      builder: (context, milestoneSnapshot) {
+                        if (milestoneSnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const CircularProgressIndicator();
+                        } else if (milestoneSnapshot.hasError) {
+                          return Text('Error: ${milestoneSnapshot.error}');
+                        } else if (milestoneSnapshot.hasData &&
+                            milestoneSnapshot.data!.exists) {
+                          // fetch the ratio and update/create the progress widget
+                          final updatedRatio = milestoneSnapshot.data!['ratio'];
+                          return _progressBar(updatedRatio, 20, 200,
+                              milestoneID, userCompleted);
+                        } else {
+                          // Handle the case when the document doesn't exist
+                          return Container();
+                        }
+                      },
+                    );
+                  }
+
+                  // if the user has completed the milestone, dont show
                   return Container();
-                }
-              },
-            );
+                });
           },
         );
       },

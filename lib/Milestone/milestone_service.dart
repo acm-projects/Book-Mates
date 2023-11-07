@@ -1,9 +1,6 @@
-import 'dart:io';
-
 import 'package:bookmates_app/Group%20Operations/group_repo.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 
 Future<void> createMilestone(String goal, int days) async {
   // to create a milestone for a group
