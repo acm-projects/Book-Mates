@@ -1,4 +1,3 @@
-import 'package:bookmates_app/Group%20Operations/group_repo.dart';
 import 'package:bookmates_app/PDF%20Upload/pdf_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -47,35 +46,52 @@ class _PDFReaderAppState extends State<PDFReaderApp> {
               final display =
                   displayTitle.substring(0, displayTitle.length - 4);
 
-              // Update Container to have rounded corners
-              return Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                  color: const Color(0xFF75A10F), // Background color
-                ),
-                margin:
-                    const EdgeInsets.all(5), // Optional: Add margin for spacing
-                child: ListTile(
-                  // Bold and white text style
-                  title: Text(
-                    display,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+              return Dismissible(
+                // the key of each widget
+                key: Key(display),
+
+                onDismissed: (direction) async {
+                  await FirebaseFirestore.instance
+                      .collection('users/$email/BookPDFs')
+                      .doc(display)
+                      .delete();
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 4,
+                      horizontal: 10), // Adjust the vertical padding as needed
+                  margin: const EdgeInsets.only(
+                      bottom:
+                          10), // Add margin only to the bottom for vertical spacing
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      color: const Color(0xFF75A10F), // Background color
+                    ),
+                    child: ListTile(
+                      // Bold and white text style
+                      title: Text(
+                        display,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => PDFViewer(pdfPath),
+                        ));
+                      },
+                      // delete specific book from history of books
+                      onLongPress: () async {
+                        await FirebaseFirestore.instance
+                            .collection('users/$email/BookPDFs')
+                            .doc(display)
+                            .delete();
+                      },
+                      selectedColor: Colors.lightGreen,
                     ),
                   ),
-                  onTap: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => PDFViewer(pdfPath),
-                    ));
-                  },
-                  // delete specific book from history of books
-                  onLongPress: () async {
-                    await FirebaseFirestore.instance
-                        .collection('users/$email/BookPDFs')
-                        .doc(display)
-                        .delete();
-                  },
                 ),
               );
             },
@@ -132,48 +148,39 @@ class _PDFReaderAppState extends State<PDFReaderApp> {
 
   // where all the widgets are placed in the screen
   Widget _home() {
-    return Column(
+    return Stack(
       children: [
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: _displayRecentlyRead(),
+        Column(
+          children: [
+            _displayRecentlyRead(),
+          ],
+        ),
+        Positioned(
+          top: 600,
+          right: 0,
+          bottom: 0, // Adjust the desired distance from the bottom
+          left: -150, // Adjust the desired distance from the left
+          child: Transform.scale(
+            scale: 0.9, // You can adjust the scale factor as needed
+            child: const Image(
+              image: AssetImage('icons/worm.png'),
+              alignment: Alignment.topCenter,
+            ),
           ),
         ),
-        const Positioned(
-          bottom: 16,
-          left: 0,
-          right: 0,
-          child: Image(
-              image: AssetImage('icons/coolWorm.png'),
-              alignment: Alignment.topCenter),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Container(
-              margin: const EdgeInsets.all(8),
-              child: ElevatedButton(
-                onPressed: () async {
-                  await subDelete('users/$email/BookPDFs');
-                },
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.red,
-                ),
-                child: Icon(Icons.delete, color: Colors.white),
+        Positioned(
+          bottom: 0, // Adjust the desired distance from the bottom
+          right: 0, // Adjust the desired distance from the right
+          child: Container(
+            margin: const EdgeInsets.all(8),
+            child: ElevatedButton(
+              onPressed: pickAndDisplayPDF,
+              style: ElevatedButton.styleFrom(
+                primary: const Color(0xFF75A10F),
               ),
+              child: Icon(Icons.add, color: Colors.white),
             ),
-            Container(
-              margin: const EdgeInsets.all(8),
-              child: ElevatedButton(
-                onPressed: pickAndDisplayPDF,
-                style: ElevatedButton.styleFrom(
-                  primary: const Color(0xFF75A10F),
-                ),
-                child: Icon(Icons.add, color: Colors.white),
-              ),
-            ),
-          ],
+          ),
         ),
       ],
     );
