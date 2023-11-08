@@ -12,8 +12,7 @@ class PDFReaderApp extends StatefulWidget {
 }
 
 class _PDFReaderAppState extends State<PDFReaderApp> {
-  String? selectedPDFPath;
-  List<String> recentlyReadPDFs = [];
+  // email of the current user
   final email = FirebaseAuth.instance.currentUser?.email;
 
   @override
@@ -21,7 +20,55 @@ class _PDFReaderAppState extends State<PDFReaderApp> {
     super.initState();
   }
 
-  Widget _displayRecentlyRead() {
+  // represents the book widget a user uploaded
+  Widget _bookWidget(String displayName, pdfPath) {
+    return Dismissible(
+      // the key of each widget, needed to swipe to delete
+      key: Key(displayName),
+
+      // lets the user delete the book swiping left or right
+      onDismissed: (direction) async {
+        await FirebaseFirestore.instance
+            .collection('users/$email/BookPDFs')
+            .doc(displayName)
+            .delete();
+      },
+
+      child: Container(
+        //padding
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 10),
+        margin: const EdgeInsets.only(bottom: 10),
+
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            color: const Color(0xFF75A10F), // Background color
+          ),
+          child: ListTile(
+            // display the docID in Firestore (BookPDFs subcollection)
+
+            title: Text(
+              displayName,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+
+            // pressing the button takes user to read PDF
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => PDFViewer(pdfPath),
+              ));
+            },
+            selectedColor: Colors.lightGreen,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _displayLibrary() {
     // each individual PDF that the user has read before displayed in a list
     return Expanded(
       child: StreamBuilder(
@@ -30,6 +77,7 @@ class _PDFReaderAppState extends State<PDFReaderApp> {
             .orderBy('timeStamp', descending: true) // newest pdf first
             .snapshots(),
         builder: (context, snapshot) {
+          // show loading screen when data hasn't been renedered
           if (!snapshot.hasData) {
             return const CircularProgressIndicator();
           }
@@ -39,61 +87,15 @@ class _PDFReaderAppState extends State<PDFReaderApp> {
 
           return ListView.builder(
             // user can only have 5 books at the same time
-            itemCount: documents.length > 5 ? 5 : documents.length,
+            itemCount: (documents.length > 5) ? 5 : documents.length,
             itemBuilder: (context, index) {
               final pdfPath = documents[index].data()['filePath'];
               final displayTitle = pdfPath.split('/').join().substring(50);
               final display =
                   displayTitle.substring(0, displayTitle.length - 4);
 
-              return Dismissible(
-                // the key of each widget
-                key: Key(display),
-
-                onDismissed: (direction) async {
-                  await FirebaseFirestore.instance
-                      .collection('users/$email/BookPDFs')
-                      .doc(display)
-                      .delete();
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 4,
-                      horizontal: 10), // Adjust the vertical padding as needed
-                  margin: const EdgeInsets.only(
-                      bottom:
-                          10), // Add margin only to the bottom for vertical spacing
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      color: const Color(0xFF75A10F), // Background color
-                    ),
-                    child: ListTile(
-                      // Bold and white text style
-                      title: Text(
-                        display,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      onTap: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => PDFViewer(pdfPath),
-                        ));
-                      },
-                      // delete specific book from history of books
-                      onLongPress: () async {
-                        await FirebaseFirestore.instance
-                            .collection('users/$email/BookPDFs')
-                            .doc(display)
-                            .delete();
-                      },
-                      selectedColor: Colors.lightGreen,
-                    ),
-                  ),
-                ),
-              );
+              // create bookWidget for every document in firestore
+              return _bookWidget(display, pdfPath);
             },
           );
         },
@@ -101,15 +103,8 @@ class _PDFReaderAppState extends State<PDFReaderApp> {
     );
   }
 
-  Widget _displayClearHistory() {
-    return ElevatedButton(
-        onPressed: () async {
-          RecentlyRead.clearHistory();
-        },
-        child: const Text('Clear Books?'));
-  }
-
-  Widget _appBarWidget() {
+  // the top part of the screen
+  Widget _title() {
     return AppBar(
       automaticallyImplyLeading: false,
       title: Container(
@@ -139,6 +134,7 @@ class _PDFReaderAppState extends State<PDFReaderApp> {
     );
   }
 
+  // background of screen
   Widget _backgroundContainer() {
     return Container(
       color: const Color(0xFF75A10F),
@@ -146,22 +142,22 @@ class _PDFReaderAppState extends State<PDFReaderApp> {
     );
   }
 
-  // where all the widgets are placed in the screen
+  // where all the widgets are oriented
   Widget _home() {
     return Stack(
       children: [
         Column(
           children: [
-            _displayRecentlyRead(),
+            _displayLibrary(),
           ],
         ),
         Positioned(
           top: 600,
           right: 0,
-          bottom: 0, // Adjust the desired distance from the bottom
-          left: -150, // Adjust the desired distance from the left
+          bottom: 0,
+          left: -150,
           child: Transform.scale(
-            scale: 0.9, // You can adjust the scale factor as needed
+            scale: 0.9,
             child: const Image(
               image: AssetImage('icons/worm.png'),
               alignment: Alignment.topCenter,
@@ -169,16 +165,16 @@ class _PDFReaderAppState extends State<PDFReaderApp> {
           ),
         ),
         Positioned(
-          bottom: 0, // Adjust the desired distance from the bottom
-          right: 0, // Adjust the desired distance from the right
+          bottom: 0,
+          right: 0,
           child: Container(
             margin: const EdgeInsets.all(8),
             child: ElevatedButton(
-              onPressed: pickAndDisplayPDF,
+              onPressed: addPDF,
               style: ElevatedButton.styleFrom(
-                primary: const Color(0xFF75A10F),
+                backgroundColor: const Color(0xFF75A10F),
               ),
-              child: Icon(Icons.add, color: Colors.white),
+              child: const Icon(Icons.add, color: Colors.white),
             ),
           ),
         ),
@@ -186,6 +182,7 @@ class _PDFReaderAppState extends State<PDFReaderApp> {
     );
   }
 
+  // main of flutter
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -212,7 +209,7 @@ class _PDFReaderAppState extends State<PDFReaderApp> {
             top: 0,
             left: 0,
             right: 0,
-            child: _appBarWidget(),
+            child: _title(),
           ),
         ],
       ),
