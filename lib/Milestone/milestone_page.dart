@@ -50,50 +50,76 @@ class _MilestoneListPageState extends State<MilestoneListPage> {
   // makeshift progress bar that increases based on a 'ratio' data field in firestore
   Widget _progressBar(dynamic ratio, double height, width, String milestoneID,
       bool showButton) {
-    return Row(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.red,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Stack(
-            children: [
-              Container(
-                // gets larger as the ratio increases
-                width: width * (ratio / 100),
-                height: height,
-                decoration: BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.circular(10),
+    return Center(
+      // Center the _progressBar
+      child: Row(
+        mainAxisAlignment:
+            MainAxisAlignment.center, // Center the Row horizontally
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.red,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Stack(
+              children: [
+                Container(
+                  // gets larger as the ratio increases
+                  width: width * (ratio / 100),
+                  height: height,
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
-              ),
-              Align(
-                  alignment: Alignment.center,
-                  child:
-                      // show the ratio on the bar
-                      Text(
-                    '${ratio}%',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  )),
-            ],
+                Align(
+                    alignment: Alignment.center,
+                    // show the ratio on the bar
+                    child: Text(
+                      '${ratio}%',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )),
+              ],
+            ),
           ),
-        ),
-        // button user presses to increase the ratio
-        if (!showButton)
-          ElevatedButton(
-            onPressed: () async {
-              await completeMilestone(milestoneID);
-              // update UI after press
-              setState(() {});
-            },
-            child: const Text('Complete'),
-          ),
-      ],
+          _completeMilestoneButton(milestoneID, showButton),
+        ],
+      ),
     );
+  }
+
+  // button user presses to complete a milestone
+  Widget _completeMilestoneButton(String milestoneID, bool userCompleted) {
+    return ElevatedButton(
+        onPressed: () async {
+          if (userCompleted) {
+            showDialog<String>(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text('ERROR!!!'),
+                    content:
+                        const Text('You have already completed the Milestone'),
+                    actions: [
+                      TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('Ok')),
+                    ],
+                  );
+                });
+          } else {
+            // complete milestone functionality
+            await completeMilestone(milestoneID);
+            // update UI after press
+            // setState(() {});
+          }
+        },
+        child: const Text('Finish'));
   }
 
   Widget _listMilestones(AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
@@ -107,7 +133,7 @@ class _MilestoneListPageState extends State<MilestoneListPage> {
         final milestoneID = milestoneData['id'].toString();
 
         return FutureBuilder<String?>(
-          // wait for the current group ID so we can acess the specific milestone live
+          // wait for the current group ID so we can access the specific milestone live
           future: getCurrentGroupID(),
           builder: (context, groupIDSnapshot) {
             // get the groupID from the snapshot
@@ -119,12 +145,7 @@ class _MilestoneListPageState extends State<MilestoneListPage> {
                     .collection('users/$userEmail/completedMilestones')
                     .snapshots(),
                 builder: (context, completedSnapshot) {
-                  if (completedSnapshot.connectionState ==
-                      ConnectionState.waiting)
-                    return CircularProgressIndicator();
-                  else if (completedSnapshot.hasError)
-                    return Text('${completedSnapshot.error}');
-                  else if (completedSnapshot.hasData) {
+                  if (completedSnapshot.hasData) {
                     // assuming the user has not completed the milestone
                     bool userCompleted = false;
 
@@ -140,10 +161,6 @@ class _MilestoneListPageState extends State<MilestoneListPage> {
                         break;
                       }
                     }
-
-                    // if the user has NOT completed the milestone, show
-                    // this _progressBar widget
-
                     // streamBuilder to get milestone ratio
                     return StreamBuilder<DocumentSnapshot>(
                       stream: FirebaseFirestore.instance
@@ -151,26 +168,19 @@ class _MilestoneListPageState extends State<MilestoneListPage> {
                           .doc(milestoneID)
                           .snapshots(),
                       builder: (context, milestoneSnapshot) {
-                        if (milestoneSnapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const CircularProgressIndicator();
-                        } else if (milestoneSnapshot.hasError) {
-                          return Text('Error: ${milestoneSnapshot.error}');
-                        } else if (milestoneSnapshot.hasData &&
+                        if (milestoneSnapshot.hasData &&
                             milestoneSnapshot.data!.exists) {
                           // fetch the ratio and update/create the progress widget
                           final updatedRatio = milestoneSnapshot.data!['ratio'];
                           return _progressBar(updatedRatio, 20, 200,
                               milestoneID, userCompleted);
-                        } else {
-                          // Handle the case when the document doesn't exist
-                          return Container();
                         }
+                        // return nothing if no data is loaded
+                        return Container();
                       },
                     );
                   }
-
-                  // if the user has completed the milestone, dont show
+                  // show something if it hasn't loaded yet
                   return Container();
                 });
           },
@@ -179,6 +189,7 @@ class _MilestoneListPageState extends State<MilestoneListPage> {
     );
   }
 
+  // the main of flutter, all widgets called here will show up on the screen
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -188,11 +199,7 @@ class _MilestoneListPageState extends State<MilestoneListPage> {
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: fetchMilestonesData(),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else {
+          if (snapshot.hasData) {
             // Check the number of documents in the collection
             final milestoneList = snapshot.data;
 
@@ -217,6 +224,7 @@ class _MilestoneListPageState extends State<MilestoneListPage> {
               ],
             );
           }
+          return Container();
         },
       ),
     );
