@@ -16,16 +16,16 @@ Future<void> initNotifications() async {
 }
 
 Future<void> sendNotification(String title, String body, bool media) async {
-  AndroidNotificationDetails androidPlatformChannel = const AndroidNotificationDetails(
-    'notification_service',
-    'notification service',
-    playSound: true, 
-    importance: Importance.max, 
-    priority: Priority.max
-  );
+  AndroidNotificationDetails androidPlatformChannel =
+      const AndroidNotificationDetails(
+          'notification_service', 'notification service',
+          playSound: true, importance: Importance.max, priority: Priority.max);
   final details = NotificationDetails(android: androidPlatformChannel);
-  if (media) { await FlutterLocalNotificationsPlugin().show(0, title, 'image', details); }
-  else { await FlutterLocalNotificationsPlugin().show(0, title, body, details); }
+  if (media) {
+    await FlutterLocalNotificationsPlugin().show(0, title, 'image', details);
+  } else {
+    await FlutterLocalNotificationsPlugin().show(0, title, body, details);
+  }
 }
 
 Future<String?> getCurrentGroupID() async {
@@ -60,12 +60,17 @@ Future<void> checkForNewMessages() async {
         messages.add(doc.data());
       }
 
-      if (messages.last['timeStamp'] != null && (messages.last['timeStamp']).toDate().isAfter(appstartTime)) {
+      if (messages.last['timeStamp'] != null &&
+          (messages.last['timeStamp']).toDate().isAfter(appstartTime)) {
         if (messages.last['timeStamp'] != newMessage['timeStamp']) {
           newMessage = messages.last;
-          if (newMessage['mediaURL'] != '') { media = true; }
-          else { media = false; }
-          print('New message from ${newMessage['senderID']}: ${newMessage['text']}, media: $media');
+          if (newMessage['mediaURL'] != '') {
+            media = true;
+          } else {
+            media = false;
+          }
+          print(
+              'New message from ${newMessage['senderID']}: ${newMessage['text']}, media: $media');
           sendNotification(newMessage['senderID'], newMessage['text'], media);
         }
       }
@@ -89,11 +94,13 @@ Future<void> checkForNewMilestone() async {
         milestones.add(doc.data());
       }
 
-      if (milestones.last['startTime'] != null && (milestones.last['startTime']).toDate().isAfter(appstartTime)) {
+      if (milestones.last['startTime'] != null &&
+          (milestones.last['startTime']).toDate().isAfter(appstartTime)) {
         if (milestones.last['startTime'] != newMilestone['startTime']) {
           newMilestone = milestones.last;
           print('New milestone has been created ${newMilestone['goal']}');
-          sendNotification('$currentGroupID has a new Milestone!', newMilestone['goal'], false);
+          sendNotification('$currentGroupID has a new Milestone!',
+              newMilestone['goal'], false);
         }
       }
     });
@@ -107,16 +114,23 @@ Future<void> checkForCompletedMilestone() async {
     final snapshot = await FirebaseFirestore.instance
         .collection('groups')
         .doc(currentGroupID)
-        .collection('Milestone').get();
+        .collection('Milestone')
+        .get();
 
-    final milestoneCollection = snapshot.docs; 
+    final milestoneCollection = snapshot.docs;
     for (var data in milestoneCollection) {
       final milestoneData = data.data();
-      if (milestoneData['completeTime'] != null && (milestoneData['completeTime']).toDate().isAfter(appstartTime)) {
+      if (milestoneData['completeTime'] != null &&
+          (milestoneData['completeTime']).toDate().isAfter(appstartTime)) {
         if (!completedMilestones.contains(milestoneData['id'])) {
           completedMilestones.add(milestoneData['id']);
           print('Milestone ${milestoneData['goal']} has been completed');
-          sendNotification('$currentGroupID Milestone completed!', '${milestoneData['goal']}', false);
+          sendNotification('$currentGroupID Milestone completed!',
+              '${milestoneData['goal']}', false);
+          await FirebaseFirestore.instance
+              .collection("groups/$currentGroupID/Milestone")
+              .doc(milestoneData['id'])
+              .delete();
         }
       }
     }
