@@ -54,6 +54,7 @@ dependencies:
   path: ^1.8.3
   path_provider: ^2.1.1
   flutter_verification_code: ^1.1.7
+  agora_rtc_engine: ^6.2.4
 
 dev_dependencies:
   flutter_test:
