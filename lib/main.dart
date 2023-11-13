@@ -10,6 +10,10 @@ import 'package:bookmates_app/widget_tree.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:bookmates_app/GroupChat/group_main.dart';
+import 'package:bookmates_app/Group%20Operations/create_group_screen.dart';
+import 'package:bookmates_app/Group%20Operations/join_group_screen.dart';
+import 'package:bookmates_app/GroupChat/chat_screen.dart';
 
 AppLifecycleState state = AppLifecycleState.detached;
 
@@ -30,7 +34,7 @@ Future<void> main() async {
     },
   );
   await initBackgroundService();
-  runApp(const MyApp());
+  runApp(const CreateGroupScreen());
 }
 
 class MyApp extends StatelessWidget {
@@ -51,7 +55,8 @@ class MyApp extends StatelessWidget {
       },
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.cyan,
+        primarySwatch: Colors.green,
+        fontFamily: 'LeagueSpartan', // Add this line to set the theme font
       ),
       home: const WidgetTree(),
     );
