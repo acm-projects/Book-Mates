@@ -65,7 +65,7 @@ class _CreateGroupState extends State<CreateGroupScreen> {
                             groupID,
                           );
                           //send to the homepage after
-                          Navigator.of(context).popAndPushNamed('/homePage');
+                          Navigator.of(context).popAndPushNamed('/listGroups');
                         },
                         child: const Text('Ok')),
                   ],
@@ -153,7 +153,15 @@ class _CreateGroupState extends State<CreateGroupScreen> {
                   ),
                 ),
                 // where user puts the info of the group prior to creation
-                child: _userForm(),
+                child: Column(
+                  children: [
+                    _userForm(),
+                    TextButton(
+                        onPressed: () =>
+                            Navigator.of(context).pushNamed('/joinGroup'),
+                        child: const Text('Join a Group Instead?'))
+                  ],
+                ),
               ),
             ),
             Positioned(

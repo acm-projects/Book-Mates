@@ -1,3 +1,5 @@
+import 'package:bookmates_app/PDF%20Upload/pdf_screen.dart';
+import 'package:bookmates_app/User%20Implementation/profile_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -157,30 +159,35 @@ class MyBottomAppBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
+          // IconButton(
+          //   icon: Icon(Icons.home),
+          //   onPressed: () {
+          //     // Add functionality for the homepage button
+          //   },
+          // ),
           IconButton(
-            icon: Icon(Icons.home),
+            icon: const Icon(Icons.group),
+            // navigates to users profile
             onPressed: () {
-              // Add functionality for the homepage button
+              // navigate to the users profile page
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const ProfilePage()));
             },
           ),
           IconButton(
-            icon: Icon(Icons.group),
+            icon: const Icon(Icons.library_books),
             onPressed: () {
-              // Add functionality for the group chat button
+              // navigate to users personal library collection
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: ((context) => const PDFReaderApp())));
             },
           ),
-          IconButton(
-            icon: Icon(Icons.library_books),
-            onPressed: () {
-              // Add functionality for the library button
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () {
-              // Add functionality for the search button
-            },
-          ),
+          // IconButton(
+          //   icon: Icon(Icons.search),
+          //   onPressed: () {
+          //     // Add functionality for the search button
+          //   },
+          // ),
         ],
       ),
     );

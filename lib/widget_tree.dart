@@ -1,3 +1,4 @@
+import 'package:bookmates_app/Group%20Operations/group_list.dart';
 import 'package:bookmates_app/auth.dart';
 import 'package:bookmates_app/home_page.dart';
 import 'package:bookmates_app/login_screen.dart';
@@ -24,7 +25,7 @@ class _WidgetTreeState extends State<WidgetTree> {
         stream: Auth().authStateChanges,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return const HomePage();
+            return const Groups();
           } else {
             return const LoginPage();
           }

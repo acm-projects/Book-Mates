@@ -1,3 +1,4 @@
+import 'package:bookmates_app/Group%20Operations/group_repo.dart';
 import 'package:bookmates_app/library.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -70,6 +71,25 @@ class _GroupsState extends State<Groups> {
         // navigate them to the group Home page
         Navigator.of(context).pushNamed('/groupWidgetTree');
       },
+      onLongPress: () {
+        showDialog<String>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Leave Group'),
+                content: const Text('Are you sure you want to leave?'),
+                actions: [
+                  TextButton(
+                      onPressed: () async {
+                        await loseMember(
+                            userEmail!, 'groups/$groupID/Members', groupID);
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('Ok')),
+                ],
+              );
+            });
+      },
 
       child: Container(
         margin: const EdgeInsets.symmetric(
@@ -109,6 +129,17 @@ class _GroupsState extends State<Groups> {
     );
   }
 
+  // button user presses create a group
+  Widget _createGroupButton() {
+    return ElevatedButton(
+      onPressed: () => Navigator.of(context).pushNamed('/createGroup'),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xFF75A10F),
+      ),
+      child: const Icon(Icons.add, color: Colors.white),
+    );
+  }
+
   // the 'main' of flutter, where are widgets shown are actually put on the screen
   @override
   Widget build(BuildContext context) {
@@ -122,7 +153,11 @@ class _GroupsState extends State<Groups> {
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           // widgets
-          children: [MySearchBarWidget(), Expanded(child: _listGroups())],
+          children: [
+            MySearchBarWidget(),
+            Expanded(child: _listGroups()),
+            _createGroupButton()
+          ],
         ),
         backgroundColor: const Color.fromARGB(255, 117, 161, 15),
         bottomNavigationBar: MyBottomAppBar(),

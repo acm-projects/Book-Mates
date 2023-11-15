@@ -1,11 +1,14 @@
 import 'package:bookmates_app/Group%20Operations/create_group.dart';
 import 'package:bookmates_app/Group%20Operations/delete_page.dart';
 import 'package:bookmates_app/Group%20Operations/group_home.dart';
+import 'package:bookmates_app/Group%20Operations/group_list.dart';
 import 'package:bookmates_app/Group%20Operations/group_widget_tree.dart';
+import 'package:bookmates_app/Group%20Operations/join_group.dart';
 import 'package:bookmates_app/GroupChat/chat_page.dart';
 import 'package:bookmates_app/Milestone/milestone_page.dart';
 import 'package:bookmates_app/Notification/notification_service.dart';
 import 'package:bookmates_app/PDF%20Upload/pdf_screen.dart';
+import 'package:bookmates_app/User%20Implementation/profile_page.dart';
 import 'package:bookmates_app/home_page.dart';
 import 'package:bookmates_app/login_screen.dart';
 import 'package:bookmates_app/widget_tree.dart';
@@ -52,6 +55,9 @@ class MyApp extends StatelessWidget {
         '/pdfScreen': (context) => const PDFReaderApp(),
         '/homePage': (context) => const HomePage(),
         '/loginPage': (context) => const LoginPage(),
+        '/joinGroup': (context) => const JoinGroup(),
+        '/listGroups': (context) => const Groups(),
+        '/profilePage': (context) => const ProfilePage(),
       },
       debugShowCheckedModeBanner: false,
       theme: ThemeData(

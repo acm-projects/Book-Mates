@@ -20,8 +20,8 @@ class _JoinGroupState extends State<JoinGroup> {
   Widget _submitButton() {
     return ElevatedButton(
       onPressed: () async {
-        // navigate to homepage after joining a group
-        Navigator.of(context).popAndPushNamed('/homePage');
+        // navigate to groupPages after joining a group
+        Navigator.of(context).popAndPushNamed('/listGroups');
         // check group existence before joining
         await checkGroupExists(_controllerVerificationCode.text, 1);
       },

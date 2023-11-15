@@ -26,7 +26,11 @@ Future<String?> getCurrentGroupID() async {
 Future<List<Map<String, dynamic>>?> getListOfGroupMembers() async {
   String? currentGroupID = await getCurrentGroupID();
   List<Map<String, dynamic>> groupMembersList = [];
-  final snapshot = await FirebaseFirestore.instance.collection('groups').doc(currentGroupID).collection('Members').get();
+  final snapshot = await FirebaseFirestore.instance
+      .collection('groups')
+      .doc(currentGroupID)
+      .collection('Members')
+      .get();
   final groupMembers = snapshot.docs;
   for (var member in groupMembers) {
     final data = member.data();
@@ -36,22 +40,21 @@ Future<List<Map<String, dynamic>>?> getListOfGroupMembers() async {
 }
 
 Widget getProfileData(Map<String, dynamic> user) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row (
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                image: DecorationImage(image: NetworkImage(user['profPicURL'])),
-              ),
+  return Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: Row(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              image: DecorationImage(image: NetworkImage(user['profPicURL'])),
             ),
           ),
-          Text(
-            "User: ${user['userName']}",
+        ),
+        Text("User: ${user['userName']}",
             style: const TextStyle(
               fontSize: 15,
               fontFamily: 'LeagueSpartan',
@@ -64,34 +67,35 @@ Widget getProfileData(Map<String, dynamic> user) {
                   offset: Offset(0, 2),
                 ),
               ],
-            )
-          ),
-        ],
-      ),
-    );
+            )),
+      ],
+    ),
+  );
 }
 
 Widget listOfGroupMembers() {
   return FutureBuilder<List<Map<String, dynamic>>?>(
-    future: getListOfGroupMembers(), 
-    builder: (context, list) {
-      if (list.hasData) {
-        return ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: list.data!.length,
-          itemBuilder: (BuildContext context, int index) {
-            return getProfileData(list.data![index]);
-          }
-        );
-      }
-      return Container();
-    }
-  );
+      future: getListOfGroupMembers(),
+      builder: (context, list) {
+        if (list.hasData) {
+          return ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: list.data!.length,
+              itemBuilder: (BuildContext context, int index) {
+                return getProfileData(list.data![index]);
+              });
+        }
+        return Container();
+      });
 }
 
 Future<Map<String, dynamic>> getCurrentMilestone() async {
   final currentGroupID = await getCurrentGroupID();
-  final snapshot = await FirebaseFirestore.instance.collection('groups').doc(currentGroupID).collection('Milestone').get();
+  final snapshot = await FirebaseFirestore.instance
+      .collection('groups')
+      .doc(currentGroupID)
+      .collection('Milestone')
+      .get();
   final milestone = (snapshot.docs)[0].data();
   return milestone;
 }
@@ -101,7 +105,11 @@ Future<bool> checkIfUserCompleted() async {
   final milestone = await getCurrentMilestone();
 
   List<String> userMilestoneList = [];
-  final snapshot2 = await FirebaseFirestore.instance.collection('users').doc(userEmail).collection('completedMilestones').get();
+  final snapshot2 = await FirebaseFirestore.instance
+      .collection('users')
+      .doc(userEmail)
+      .collection('completedMilestones')
+      .get();
   final userMilestones = snapshot2.docs.toList();
   for (var data in userMilestones) {
     userMilestoneList.add(data.data()['id']);
@@ -109,8 +117,7 @@ Future<bool> checkIfUserCompleted() async {
   // print(userMilestoneList);
   if (userMilestoneList.contains(milestone['id'])) {
     return true;
-  }
-  else {
+  } else {
     return false;
   }
 }
@@ -121,25 +128,28 @@ Widget loadingBar() {
     builder: (context, currentGroup) {
       final currentGroupID = currentGroup.data;
       return StreamBuilder(
-        stream: FirebaseFirestore.instance.collection('groups').doc(currentGroupID).collection('Milestone').snapshots(),
+        stream: FirebaseFirestore.instance
+            .collection('groups')
+            .doc(currentGroupID)
+            .collection('Milestone')
+            .snapshots(),
         builder: (context, groupMilestone) {
           if (groupMilestone.hasData) {
             final milestoneList = ((groupMilestone.data)!.docs);
             if (milestoneList.isNotEmpty) {
-            final milestone = milestoneList[0].data();
-            return Column(
-              children: [
+              final milestone = milestoneList[0].data();
+              return Column(children: [
                 SizedBox(
-                  height: 30,
-                  width: MediaQuery.of(context).size.width,
-                  child: const Text(
-                    "Current milestone", 
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontFamily: 'LeagueSpartan',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                    height: 30,
+                    width: MediaQuery.of(context).size.width,
+                    child: const Text(
+                      "Current milestone",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontFamily: 'LeagueSpartan',
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
                         shadows: [
                           BoxShadow(
                             color: Color.fromRGBO(70, 70, 70, 0.918),
@@ -147,19 +157,19 @@ Widget loadingBar() {
                             offset: Offset(0, 2),
                           ),
                         ],
-                  ),)
-                ),
+                      ),
+                    )),
                 SizedBox(
-                  height: 50,
-                  width: MediaQuery.of(context).size.width,
-                  child: Text(
-                    "${milestone['goal']}", 
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 21,
-                      fontFamily: 'LeagueSpartan',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                    height: 50,
+                    width: MediaQuery.of(context).size.width,
+                    child: Text(
+                      "${milestone['goal']}",
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 21,
+                        fontFamily: 'LeagueSpartan',
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
                         shadows: [
                           BoxShadow(
                             color: Color.fromRGBO(70, 70, 70, 0.918),
@@ -167,19 +177,19 @@ Widget loadingBar() {
                             offset: Offset(0, 2),
                           ),
                         ],
-                  ),)
-                ),
+                      ),
+                    )),
                 SizedBox(
-                  height: 35,
-                  width: MediaQuery.of(context).size.width,
-                  child: Text(
-                    "Progress ${milestone['ratio'].round()}%", 
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontFamily: 'LeagueSpartan',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                    height: 35,
+                    width: MediaQuery.of(context).size.width,
+                    child: Text(
+                      "Progress ${milestone['ratio'].round()}%",
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontFamily: 'LeagueSpartan',
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
                         shadows: [
                           BoxShadow(
                             color: Color.fromRGBO(70, 70, 70, 0.918),
@@ -187,57 +197,55 @@ Widget loadingBar() {
                             offset: Offset(0, 2),
                           ),
                         ],
-                  ),)
-                ),
+                      ),
+                    )),
                 SizedBox(
                   height: 20,
                   width: 300,
                   child: LinearProgressIndicator(
-                    value: milestone['ratio']/100,
+                    value: milestone['ratio'] / 100,
                     backgroundColor: Colors.amber,
                     color: const Color(0xFF75A10F),
-                    ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: submitButton(context),
-                  ),
-              ]
-            );
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: submitButton(context),
+                ),
+              ]);
             }
           }
           return SizedBox(
-            width: MediaQuery.of(context).size.width,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:const Color(0xFF75A10F),
-                  ),
-                  onPressed: () {
-                    Navigator.of(context).pushNamed('/milestonePage');
-                  }, 
-                  child: const Text(
-                  "Create a milestone",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontFamily: 'LeagueSpartan',
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                      shadows: [
-                        BoxShadow(
-                          color: Color.fromRGBO(70, 70, 70, 0.918),
-                          blurRadius: 12,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
+              width: MediaQuery.of(context).size.width,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF75A10F),
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pushNamed('/milestonePage');
+                    },
+                    child: const Text(
+                      "Create a milestone",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontFamily: 'LeagueSpartan',
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                        shadows: [
+                          BoxShadow(
+                            color: Color.fromRGBO(70, 70, 70, 0.918),
+                            blurRadius: 12,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
-            )
-            );
+                ],
+              ));
         },
       );
     },
@@ -247,144 +255,140 @@ Widget loadingBar() {
 Widget submitButton(BuildContext context) {
   return ElevatedButton(
     style: ElevatedButton.styleFrom(
-      backgroundColor:const Color(0xFF75A10F),
+      backgroundColor: const Color(0xFF75A10F),
     ),
     onPressed: () async {
-    if (await checkIfUserCompleted()) {
-      // ignore: use_build_context_synchronously
-      showDialog<String>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('ERROR!!!'),
-            content: const Text('You have already completed the Milestone'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Ok')),
-            ],
-          );        
-        });
-    }
-    else {
-      final milestone = await getCurrentMilestone();
-      completeMilestone(milestone['id']);
-    }
-  }, child: const Text(
+      if (await checkIfUserCompleted()) {
+        // ignore: use_build_context_synchronously
+        showDialog<String>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('ERROR!!!'),
+                content: const Text('You have already completed the Milestone'),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('Ok')),
+                ],
+              );
+            });
+      } else {
+        final milestone = await getCurrentMilestone();
+        completeMilestone(milestone['id']);
+      }
+    },
+    child: const Text(
       'Complete',
       style: TextStyle(
-        fontFamily: 'LeagueSpartan',
-        fontSize: 18,
-        color: Colors.white
-      ),
+          fontFamily: 'LeagueSpartan', fontSize: 18, color: Colors.white),
     ),
   );
 }
 
 Future<Map<String, dynamic>?> getGroupData() async {
   final currentGroupID = await getCurrentGroupID();
-  final snapshot = await FirebaseFirestore.instance.collection('groups').doc(currentGroupID).get();
-  final groupData = snapshot.data();  
+  final snapshot = await FirebaseFirestore.instance
+      .collection('groups')
+      .doc(currentGroupID)
+      .get();
+  final groupData = snapshot.data();
   return groupData;
 }
 
 Widget groupData() {
   return FutureBuilder(
-    future: getGroupData(), 
-    builder: (context, groupSnapshot) {
-      final groupData = groupSnapshot.data;
-      if (groupData != null) {
-        return SizedBox(
-          width: 200,
-          height: 100,
-          child: Column(
-            // crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  "Name: ${groupData['groupName']}",
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontFamily: 'LeagueSpartan',
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                      shadows: [
-                        BoxShadow(
-                          color: Color.fromRGBO(70, 70, 70, 0.918),
-                          blurRadius: 12,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
-                )),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  "Bio: ${groupData['groupBio']}",
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontFamily: 'LeagueSpartan',
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                      shadows: [
-                        BoxShadow(
-                          color: Color.fromRGBO(70, 70, 70, 0.918),
-                          blurRadius: 12,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
-                )),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  "Book: ${groupData['bookName']}",
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontFamily: 'LeagueSpartan',
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                      shadows: [
-                        BoxShadow(
-                          color: Color.fromRGBO(70, 70, 70, 0.918),
-                          blurRadius: 12,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
-                )),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  "ID: ${groupData['groupID']}",
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontFamily: 'LeagueSpartan',
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                      shadows: [
-                        BoxShadow(
-                          color: Color.fromRGBO(70, 70, 70, 0.918),
-                          blurRadius: 12,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
-                )),
-              ),
-            ],
-          ),
-        );
-      }
-    return Container(); 
-  });
+      future: getGroupData(),
+      builder: (context, groupSnapshot) {
+        final groupData = groupSnapshot.data;
+        if (groupData != null) {
+          return SizedBox(
+            width: 200,
+            height: 100,
+            child: Column(
+              // crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text("Name: ${groupData['groupName']}",
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontFamily: 'LeagueSpartan',
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                        shadows: [
+                          BoxShadow(
+                            color: Color.fromRGBO(70, 70, 70, 0.918),
+                            blurRadius: 12,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      )),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text("Bio: ${groupData['groupBio']}",
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontFamily: 'LeagueSpartan',
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                        shadows: [
+                          BoxShadow(
+                            color: Color.fromRGBO(70, 70, 70, 0.918),
+                            blurRadius: 12,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      )),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text("Book: ${groupData['bookName']}",
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontFamily: 'LeagueSpartan',
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                        shadows: [
+                          BoxShadow(
+                            color: Color.fromRGBO(70, 70, 70, 0.918),
+                            blurRadius: 12,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      )),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text("ID: ${groupData['groupID']}",
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontFamily: 'LeagueSpartan',
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                        shadows: [
+                          BoxShadow(
+                            color: Color.fromRGBO(70, 70, 70, 0.918),
+                            blurRadius: 12,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      )),
+                ),
+              ],
+            ),
+          );
+        }
+        return Container();
+      });
 }
 
 class _GroupHomeState extends State<GroupHome> {
- @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
@@ -405,25 +409,18 @@ class _GroupHomeState extends State<GroupHome> {
               ),
             ),
           ),
-          SizedBox(
-            height: 320,
-            child: listOfGroupMembers()
-          ),
-
+          SizedBox(height: 320, child: listOfGroupMembers()),
           Positioned(
-            top: 250,
-            child: SizedBox(
-              height: 350,
-              width: MediaQuery.of(context).size.width,
-              child: groupData(),
-            )
-          ),
-
+              top: 250,
+              child: SizedBox(
+                height: 350,
+                width: MediaQuery.of(context).size.width,
+                child: groupData(),
+              )),
           Positioned(
             top: 600,
             child: loadingBar(),
           ),
-
           Positioned(
             top: 0,
             left: 0,
@@ -436,95 +433,41 @@ class _GroupHomeState extends State<GroupHome> {
   }
 }
 
-  // backgroud color of the join group page
-  Widget _backgroundContainer() {
-    return Container(
-      color: const Color(0xFF75A10F),
-      height: double.infinity,
-    );
-  }
+// backgroud color of the join group page
+Widget _backgroundContainer() {
+  return Container(
+    color: const Color(0xFF75A10F),
+    height: double.infinity,
+  );
+}
 
 // the title of the page
-  Widget _appBarWidget() {
-    return AppBar(
-      automaticallyImplyLeading: false,
-      title: Container(
-        padding: const EdgeInsets.only(
-          top: 25,
-        ),
-        child: const Text(
-          "Group Home",
-          style: TextStyle(
-            fontSize: 24,
-            fontFamily: 'LeagueSpartan',
-            fontWeight: FontWeight.w600,
-            color: Colors.white, // Text color
-            shadows: [
-              BoxShadow(
-                color: Color.fromRGBO(70, 70, 70, 0.918),
-                blurRadius: 12,
-                offset: Offset(0, 2),
-              ),
-            ],
-          ),
+Widget _appBarWidget() {
+  return AppBar(
+    automaticallyImplyLeading: false,
+    title: Container(
+      padding: const EdgeInsets.only(
+        top: 25,
+      ),
+      child: const Text(
+        "Group Home",
+        style: TextStyle(
+          fontSize: 24,
+          fontFamily: 'LeagueSpartan',
+          fontWeight: FontWeight.w600,
+          color: Colors.white, // Text color
+          shadows: [
+            BoxShadow(
+              color: Color.fromRGBO(70, 70, 70, 0.918),
+              blurRadius: 12,
+              offset: Offset(0, 2),
+            ),
+          ],
         ),
       ),
-      backgroundColor: Colors.transparent,
-      centerTitle: true,
-      elevation: 0,
-    );
-  }
-
-// class _GroupHomeState extends State<GroupHome> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         backgroundColor: Colors.green, 
-//         title: const Text ('Group Home'),
-//       ),
-//       body: Padding(
-//         padding: const EdgeInsets.all(8.0),
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.start,
-//           crossAxisAlignment: CrossAxisAlignment.center,
-//           children: [
-//             SizedBox(
-//               height: MediaQuery.of(context).size.height/10,
-//               width: MediaQuery.of(context).size.width,
-//               child: listOfGroupMembers()
-//             ),
-//             Container(
-//               color: Colors.redAccent,
-//               child: SizedBox(
-//                 height: MediaQuery.of(context).size.height - 300,
-//                 width: MediaQuery.of(context).size.width,
-//                 child: Column(
-//                   children: [
-//                     Container(
-//                       color: Colors.greenAccent,
-//                       child: SizedBox(
-//                         height: 300,
-//                         width: MediaQuery.of(context).size.width,
-//                         child: const Text("This is stuff", textAlign: TextAlign.center,),
-//                       )
-//                     ),
-//                     Container(
-//                       color: Colors.yellow,
-//                       child: SizedBox(
-//                         height: 50,
-//                         width: MediaQuery.of(context).size.width,
-//                         child: loadingBar()           
-//                       ),
-//                     ),
-//                     submitButton(),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//         ],
-//         ),
-//       ) 
-//     );
-//   }
-
+    ),
+    backgroundColor: Colors.transparent,
+    centerTitle: true,
+    elevation: 0,
+  );
+}
