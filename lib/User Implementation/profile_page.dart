@@ -3,10 +3,16 @@ import 'dart:io';
 import 'package:bookmates_app/User%20Implementation/user_repo.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:restart_app/restart_app.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
 // the desc text describing user's elements in the profile page
   Widget _userDesc(String userField, userData) {
     return Row(
@@ -82,8 +88,14 @@ class ProfilePage extends StatelessWidget {
           radius: 50,
           backgroundColor: Colors.grey,
         ),
-        const ElevatedButton(
-            onPressed: uploadProfPic, child: Text('Add profPic')),
+        ElevatedButton(
+          onPressed: () async {
+            await uploadProfPic();
+            setState(() {});
+          },
+          child: const Text("Upload picture"),
+        ),
+            // onPressed: uploadProfPic, child: Text('Add profPic')),
         const SizedBox(height: 10), // For spacing
         Text(
           userName,
@@ -96,9 +108,9 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.lightGreen,
+      backgroundColor: const Color(0xFF75A10F),
       appBar: AppBar(
-        backgroundColor: Colors.lightGreen,
+        backgroundColor: const Color(0xFF75A10F),
         elevation: 0,
         title: const Text(
           'Profile',

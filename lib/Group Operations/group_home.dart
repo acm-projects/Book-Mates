@@ -49,12 +49,14 @@ Widget getProfileData(Map<String, dynamic> user) {
           child: Container(
             width: 50,
             height: 50,
-            decoration: BoxDecoration(
-              image: DecorationImage(image: NetworkImage(user['profPicURL'])),
+            child: CircleAvatar(
+              backgroundImage: NetworkImage(user['profPicURL']),
+              radius: 50,
+              backgroundColor: Colors.grey,
+            ),
             ),
           ),
-        ),
-        Text("User: ${user['userName']}",
+          Text("User: ${user['userName']}",
             style: const TextStyle(
               fontSize: 15,
               fontFamily: 'LeagueSpartan',
@@ -134,6 +136,9 @@ Widget loadingBar() {
             .collection('Milestone')
             .snapshots(),
         builder: (context, groupMilestone) {
+          if (groupMilestone.connectionState == ConnectionState.waiting) {
+            return Container();
+          }
           if (groupMilestone.hasData) {
             final milestoneList = ((groupMilestone.data)!.docs);
             if (milestoneList.isNotEmpty) {
@@ -264,7 +269,7 @@ Widget submitButton(BuildContext context) {
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
-                title: const Text('ERROR!!!'),
+                title: const Text('Congrats!'),
                 content: const Text('You have already completed the Milestone'),
                 actions: [
                   TextButton(
@@ -278,8 +283,8 @@ Widget submitButton(BuildContext context) {
       } else {
         final milestone = await getCurrentMilestone();
         completeMilestone(milestone['id']);
-      }
-    },
+        }
+      },
     child: const Text(
       'Complete',
       style: TextStyle(

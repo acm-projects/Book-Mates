@@ -60,24 +60,27 @@ Future<void> checkForNewMessages() async {
         messages.add(doc.data());
       }
 
-      Timestamp? timeStamp = messages.last['timeStamp'];
-      final message = messages.last;
+      if (messages.isNotEmpty) {
+        Timestamp? timeStamp = messages.last['timeStamp'];
+        final message = messages.last;
 
-      if (timeStamp != null && timeStamp.toDate().isAfter(appstartTime)) {
-        if (!newMessages.contains(timeStamp)) {
-          newMessages.add(timeStamp);
-          if (message['mediaURL'] != '') { media = true; } 
-          else { media = false; }
+        if (timeStamp != null && timeStamp.toDate().isAfter(appstartTime)) {
+          if (!newMessages.contains(timeStamp)) {
+            newMessages.add(timeStamp);
+            if (message['mediaURL'] != '') { media = true; } 
+            else { media = false; }
 
-          print('New message.last from ${message['senderID']}: ${message['text']}, media: $media');
-          sendNotification(message['senderID'], message['text'], media);
+            print('New message.last from ${message['senderID']}: ${message['text']}, media: $media');
+            sendNotification(message['senderID'], message['text'], media);
+          }
         }
+
       }
     });
   }
 }
 
-Map<String, dynamic> newMilestone = {};
+List<Timestamp> newMilestone = [];
 Future<void> checkForNewMilestone() async {
   String? currentGroupID = await getCurrentGroupID();
   if (currentGroupID != null) {
@@ -93,16 +96,20 @@ Future<void> checkForNewMilestone() async {
         milestones.add(doc.data());
       }
 
-      if (milestones.last['startTime'] != null &&
-          (milestones.last['startTime']).toDate().isAfter(appstartTime)) {
-        if (milestones.last['startTime'] != newMilestone['startTime']) {
-          newMilestone = milestones.last;
-          print('New milestone has been created ${newMilestone['goal']}');
-          sendNotification('$currentGroupID has a new Milestone!',
-              newMilestone['goal'], false);
+      if (milestones.isNotEmpty) {
+        Timestamp? timeStamp = milestones.last['startTime'];
+        final milestone = milestones.last;
+
+        if (timeStamp != null && timeStamp.toDate().isAfter(appstartTime)) {
+            if (!newMilestone.contains(timeStamp)) {
+              newMilestone.add(timeStamp);
+              print('New milestone has been created ${milestone['goal']}');
+              sendNotification('$currentGroupID has a new Milestone!', milestone['goal'], false);
+            }
+          }
         }
       }
-    });
+    );
   }
 }
 

@@ -3,6 +3,7 @@ import 'package:bookmates_app/API/screens/book_search_screen.dart';
 import 'package:bookmates_app/Group%20Operations/group_home.dart';
 import 'package:bookmates_app/Group%20Operations/group_list.dart';
 import 'package:bookmates_app/Milestone/milestone_page.dart';
+import 'package:bookmates_app/demo_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'PDF Upload/pdf_screen.dart';
 import 'package:bookmates_app/Group Operations/create_group.dart';
@@ -73,7 +74,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           builder:
               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if (!snapshot.hasData) {
-              return const CircularProgressIndicator();
+              return const DemoPage();
             }
             return ListView(
               children: snapshot.data!.docs.map((document) {

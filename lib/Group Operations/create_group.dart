@@ -65,7 +65,9 @@ class _CreateGroupState extends State<CreateGroupScreen> {
                             groupID,
                           );
                           //send to the homepage after
-                          Navigator.of(context).popAndPushNamed('/listGroups');
+                          // Navigator.of(context).popAndPushNamed('/listGroups');
+                          Navigator.of(context).pop();
+                          Navigator.of(context).pop();
                         },
                         child: const Text('Ok')),
                   ],

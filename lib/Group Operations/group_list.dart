@@ -1,4 +1,5 @@
 import 'package:bookmates_app/Group%20Operations/group_repo.dart';
+import 'package:bookmates_app/demo_page.dart';
 import 'package:bookmates_app/library.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -50,7 +51,7 @@ class _GroupsState extends State<Groups> {
             children: groupCards,
           );
         } else {
-          return const CircularProgressIndicator();
+          return const DemoPage();
         }
       },
     );

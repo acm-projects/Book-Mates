@@ -11,6 +11,14 @@ class GroupWidgetTree extends StatefulWidget {
   State<GroupWidgetTree> createState() => _GroupWidgetTreeState();
 }
 
+Future<int> getNumberOfGroupMembers () async {
+  final currentGroupID = await getCurrentGroupID();
+  final snapshot = await FirebaseFirestore.instance.collection('groups').doc(currentGroupID).get();
+  final groupData = snapshot.data();
+  int count = groupData?['memberCount'];
+  return count;
+}
+
 class _GroupWidgetTreeState extends State<GroupWidgetTree> {
   @override
   Widget build(BuildContext context) {
@@ -30,18 +38,25 @@ class _GroupWidgetTreeState extends State<GroupWidgetTree> {
                   return FutureBuilder(
                       future: checkIfUserCompleted(),
                       builder: (context, check) {
-                        // user completed the milestone
-                        if (check.data == true) {
-                          return const ChatHome();
-                        }
-                        // user didnt complete the milestone
-                        else if (check.data == false) {
-                          return const GroupHome();
-                        }
-                        // there's no milestone to begin with
-                        else {
-                          return const GroupHome();
-                        }
+                        return FutureBuilder(
+                          future: getCurrentMilestone(),
+                          builder: (context, milestone) {
+                            return FutureBuilder(future: getNumberOfGroupMembers(), builder: (context, count) {
+                              if (count.data != 1 && check.data == true && milestone.data != null) {
+                                return const ChatHome();
+                              }
+                              if (count.data != 1 && check.data == false && milestone.data != null) {
+                                return const GroupHome();
+                              }
+                              else if (count.data == 1 || milestone.data == null) {
+                                return const GroupHome();
+                              }
+                              else {
+                                return const DemoPage();
+                              }
+                            });
+                          },
+                        );
                       });
                 }
                 // used as the 'loading skeleton' of the widget tree, more seamless transition
