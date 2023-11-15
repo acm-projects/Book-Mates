@@ -58,6 +58,8 @@ Future<void> checkGroupExists(String userGroupInput, int leaveOrJoin) async {
 
 Future addMember(String path, userEmail, groupID, int admin) async {
   bool validAdd = true; // assume they not in group
+  final snapshot = await FirebaseFirestore.instance.collection('users').doc(userEmail).get();
+  Map<String, dynamic>? userData = snapshot.data();
 
   final userGroups = await FirebaseFirestore.instance
       .collection('users/$userEmail/Groups')
@@ -72,11 +74,15 @@ Future addMember(String path, userEmail, groupID, int admin) async {
 
   if (validAdd) {
     //add group to user's subcollection
-    await joinGroup(userEmail, groupID);
+    final groupRef = await FirebaseFirestore.instance.collection('groups').doc(groupID).get();
+    final groupName = groupRef.data()!['groupName'];
+    await joinGroup(userEmail, groupID, groupName);
 
     // update the member subcollection
     await FirebaseFirestore.instance.collection(path).doc(userEmail).set({
       "Member": userEmail,
+      "userName": userData?['userName'],
+      "profPicURL": userData?['profPicURL'],
       "isAdmin": admin == 1 ? true : false,
     });
 
@@ -154,7 +160,7 @@ Future createOrUpdate(
   // add the user who created the group as a member
   await addMember('groups/$groupID/Members', userEmail, groupID, 1);
   // update the users subcollection upon joining
-  await joinGroup(userEmail, groupID);
+  await joinGroup(userEmail, groupID, groupName);
 }
 
 Future subDelete(String path) async {

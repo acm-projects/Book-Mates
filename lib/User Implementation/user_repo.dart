@@ -11,10 +11,11 @@ Future<void> createUser(String userName, password, String? email) async {
     'userName': userName,
     'Email': email,
     'Password': password,
+    'profPicURL': "https://firebasestorage.googleapis.com/v0/b/bookma-d79ce.appspot.com/o/question.jpg?alt=media&token=f62ba153-6a1f-40d1-8db5-5e6cc6394a62",
   });
 }
 
-Future<void> joinGroup(String userEmail, groupID) async {
+Future<void> joinGroup(String userEmail, groupID, groupName) async {
   //CRUD the subcollection 'Groups
   final userDocRef =
       FirebaseFirestore.instance.collection('users').doc(userEmail);
@@ -30,6 +31,7 @@ Future<void> joinGroup(String userEmail, groupID) async {
 
   await groupRef.doc(groupID).set({
     'groupID': groupID,
+    'groupName': groupName,
   });
 }
 

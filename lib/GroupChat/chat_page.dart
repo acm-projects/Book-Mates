@@ -125,7 +125,7 @@ class _ChatHomeState extends State<ChatHome> {
       body: Stack(
         children: [
           Container(
-            color: Colors.lightGreen, // Background color
+            color: const Color(0xFF75A10F), // Background color
             height: double.infinity,
           ),
           Positioned(

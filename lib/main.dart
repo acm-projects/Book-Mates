@@ -1,5 +1,7 @@
 import 'package:bookmates_app/Group%20Operations/create_group.dart';
 import 'package:bookmates_app/Group%20Operations/delete_page.dart';
+import 'package:bookmates_app/Group%20Operations/group_home.dart';
+import 'package:bookmates_app/Group%20Operations/group_widget_tree.dart';
 import 'package:bookmates_app/GroupChat/chat_page.dart';
 import 'package:bookmates_app/Milestone/milestone_page.dart';
 import 'package:bookmates_app/Notification/notification_service.dart';
@@ -42,7 +44,9 @@ class MyApp extends StatelessWidget {
       routes: {
         // routes to easily navigate from one page to another
         '/milestonePage': (context) => const MilestoneListPage(),
-        '/createGroup': (context) => const CreateOrDeleteGroup(),
+        '/groupWidgetTree': (context) => const GroupWidgetTree(),
+        '/groupPage': (context) => const GroupHome(),
+        '/createGroup': (context) => const CreateGroupScreen(),
         '/deletePage': (context) => const DeletePage(),
         '/chatPage': (context) => const ChatHome(),
         '/pdfScreen': (context) => const PDFReaderApp(),

@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-cclass Call {
+class Call {
   String callId;
   String groupId;
   List<String> participants; // List of user IDs

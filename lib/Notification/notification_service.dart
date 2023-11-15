@@ -43,7 +43,7 @@ Future<String?> getCurrentGroupID() async {
 
 DateTime appstartTime = DateTime.now();
 
-Map<String, dynamic> newMessage = {};
+List<Timestamp> newMessages = [];
 Future<void> checkForNewMessages() async {
   String? currentGroupID = await getCurrentGroupID();
   bool media = false;
@@ -60,18 +60,17 @@ Future<void> checkForNewMessages() async {
         messages.add(doc.data());
       }
 
-      if (messages.last['timeStamp'] != null &&
-          (messages.last['timeStamp']).toDate().isAfter(appstartTime)) {
-        if (messages.last['timeStamp'] != newMessage['timeStamp']) {
-          newMessage = messages.last;
-          if (newMessage['mediaURL'] != '') {
-            media = true;
-          } else {
-            media = false;
-          }
-          print(
-              'New message from ${newMessage['senderID']}: ${newMessage['text']}, media: $media');
-          sendNotification(newMessage['senderID'], newMessage['text'], media);
+      Timestamp? timeStamp = messages.last['timeStamp'];
+      final message = messages.last;
+
+      if (timeStamp != null && timeStamp.toDate().isAfter(appstartTime)) {
+        if (!newMessages.contains(timeStamp)) {
+          newMessages.add(timeStamp);
+          if (message['mediaURL'] != '') { media = true; } 
+          else { media = false; }
+
+          print('New message.last from ${message['senderID']}: ${message['text']}, media: $media');
+          sendNotification(message['senderID'], message['text'], media);
         }
       }
     });
