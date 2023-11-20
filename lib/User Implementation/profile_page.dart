@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:bookmates_app/User%20Implementation/user_repo.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:restart_app/restart_app.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -13,19 +12,49 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-// the desc text describing user's elements in the profile page
-  Widget _userDesc(String userField, userData) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget _userDesc(String userPassword, String userEmail) {
+    return Container(
+      height: 350,
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          _userDetail('Email', 'Pasword'),
+          const SizedBox(
+              width: 20), // Adjust for spacing between email and password
+          _userDetail(userEmail, userPassword),
+          // TODO: add how many groups a user is in
+        ],
+      ),
+    );
+  }
+
+  Widget _userDetail(String userField, String userData) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text(
           userField,
-          style: const TextStyle(fontFamily: 'LeagueSpartan'),
+          style: const TextStyle(
+              fontFamily: 'LeagueSpartan',
+              fontSize: 25,
+              color: Color.fromARGB(255, 159, 199, 65),
+              fontWeight: FontWeight.bold),
         ),
+        const SizedBox(height: 4), // Adjust for spacing
         Text(
           userData,
-          style: const TextStyle(fontFamily: 'LeagueSpartan'),
-        )
+          style: const TextStyle(
+              fontFamily: 'LeagueSpartan',
+              fontSize: 25,
+              color: Color.fromARGB(255, 159, 199, 65),
+              fontWeight: FontWeight.bold),
+        ),
       ],
     );
   }
@@ -46,7 +75,11 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       child: const Text(
         'Sign Out',
-        style: TextStyle(fontFamily: 'League Spartan'),
+        style: TextStyle(
+            fontFamily: 'LeagueSpartan',
+            fontSize: 20,
+            color: Color.fromARGB(255, 159, 199, 65),
+            fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -93,13 +126,27 @@ class _ProfilePageState extends State<ProfilePage> {
             await uploadProfPic();
             setState(() {});
           },
-          child: const Text("Upload picture"),
+          style: ButtonStyle(
+            backgroundColor: MaterialStatePropertyAll(Colors.white),
+            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            )),
+          ),
+          child: const Text(
+            "Add pic",
+            style: TextStyle(color: Color(0xFF75A10F)),
+          ),
         ),
-            // onPressed: uploadProfPic, child: Text('Add profPic')),
+        // onPressed: uploadProfPic, child: Text('Add profPic')),
         const SizedBox(height: 10), // For spacing
         Text(
           userName,
-          style: const TextStyle(fontSize: 24, fontFamily: 'LeagueSpartan'),
+          style: const TextStyle(
+              fontSize: 24,
+              fontFamily: 'LeagueSpartan',
+              fontWeight: FontWeight.bold,
+              color: Colors.white),
         ),
       ],
     );
@@ -108,13 +155,16 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF75A10F),
+      backgroundColor: Color.fromARGB(255, 159, 199, 65),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF75A10F),
+        backgroundColor: Color.fromARGB(255, 159, 199, 65),
         elevation: 0,
         title: const Text(
-          'Profile',
-          style: TextStyle(color: Colors.black, fontFamily: 'LeagueSpartan'),
+          'Your Profile',
+          style: TextStyle(
+              color: Colors.white,
+              fontFamily: 'LeagueSpartan',
+              fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
@@ -133,8 +183,9 @@ class _ProfilePageState extends State<ProfilePage> {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Column(
                       children: <Widget>[
-                        _userDesc('Email', snapshot.data!['Email']),
-                        _userDesc('Password', snapshot.data!['Password']),
+                        _userDesc(snapshot.data!['Password'],
+                            snapshot.data!['Email']),
+                        // _userDesc('Password', snapshot.data!['Password']),
                       ],
                     ),
                   ),
@@ -149,7 +200,6 @@ class _ProfilePageState extends State<ProfilePage> {
         },
       ),
       bottomNavigationBar: _bottomButton(),
-      // You can manage the state of BottomNavigationBar as needed
     );
   }
 }
