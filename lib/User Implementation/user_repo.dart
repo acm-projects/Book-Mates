@@ -131,3 +131,22 @@ Future<Map<String, dynamic>?> getUserData() async {
 
   return userRef.data();
 }
+
+// to return the length of a subcollection in user
+Future<int> getSubcollectionCount(String path) async {
+  final subPathRef = await FirebaseFirestore.instance.collection(path).get();
+  return subPathRef.docs.length;
+}
+
+Future<List<int>> getCountSub() async {
+  final email = FirebaseAuth.instance.currentUser?.email;
+  final userGroupRef =
+      await FirebaseFirestore.instance.collection('users/$email/Groups').get();
+  final userBookRef = await FirebaseFirestore.instance
+      .collection('users/$email/BookPDFs')
+      .get();
+  return [
+    userGroupRef.docs.length,
+    userBookRef.docs.length,
+  ];
+}
