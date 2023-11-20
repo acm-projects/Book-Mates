@@ -1,7 +1,7 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables
 import 'package:flutter/material.dart';
 
-class GroupMainPage extends StatelessWidget {
+class GroupMainPage extends StatefulWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,21 +40,21 @@ class GroupMainPage extends StatelessWidget {
                   ListTile(
                     title: Text(
                       'Book',
-                      style: TextStyle(fontFamily: 'League Spartan'),
+                      style: TextStyle(fontFamily: 'LeagueSpartan'),
                     ),
                     subtitle: Text(
                       '-',
-                      style: TextStyle(fontFamily: 'League Spartan'),
+                      style: TextStyle(fontFamily: 'LeagueSpartan'),
                     ),
                   ),
                   ListTile(
                     title: Text(
                       'ID',
-                      style: TextStyle(fontFamily: 'League Spartan'),
+                      style: TextStyle(fontFamily: 'LeagueSpartan'),
                     ),
                     subtitle: Text(
                       '-',
-                      style: TextStyle(fontFamily: 'League Spartan'),
+                      style: TextStyle(fontFamily: 'LeagueSpartan'),
                     ),
                   ),
                   // Add more ListTiles or custom widgets as needed
@@ -86,5 +86,11 @@ class GroupMainPage extends StatelessWidget {
         // Bottom navigation bar options
       ),
     );
+  }
+
+  @override
+  State<StatefulWidget> createState() {
+    // TODO: implement createState
+    throw UnimplementedError();
   }
 }

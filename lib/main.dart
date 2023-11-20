@@ -11,9 +11,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:bookmates_app/GroupChat/group_main.dart';
+import 'package:bookmates_app/GroupChat/chat_main_page.dart';
 import 'package:bookmates_app/Group%20Operations/create_group_screen.dart';
 import 'package:bookmates_app/Group%20Operations/join_group_screen.dart';
-import 'package:bookmates_app/GroupChat/chat_screen.dart';
 
 AppLifecycleState state = AppLifecycleState.detached;
 
@@ -34,7 +34,7 @@ Future<void> main() async {
     },
   );
   await initBackgroundService();
-  runApp(const CreateGroupScreen());
+  runApp(ChatApp());
 }
 
 class MyApp extends StatelessWidget {
