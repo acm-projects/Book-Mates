@@ -1,7 +1,4 @@
 // ignore_for_file: curly_braces_in_flow_control_structures
-
-import 'dart:io';
-
 import 'package:bookmates_app/User%20Implementation/user_repo.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -39,10 +36,10 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             child: Text(
               (countType == "Groups")
-                  ? "You Are in: ${snapshot.data![0]} Group(s)"
-                  : "You have: ${snapshot.data![1]} book(s) in your collection",
+                  ? "Groups: \n         ${snapshot.data![0]}"
+                  : "Books: \n          ${snapshot.data![1]}",
               style: const TextStyle(
-                  fontSize: 15,
+                  fontSize: 25,
                   fontWeight: FontWeight.bold,
                   color: Colors.black),
             ),
@@ -62,7 +59,7 @@ class _ProfilePageState extends State<ProfilePage> {
           margin: const EdgeInsets.symmetric(vertical: 4),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Color.fromARGB(255, 209, 238, 142),
+            color: Color.fromARGB(255, 199, 231, 125),
             borderRadius: BorderRadius.circular(10),
             boxShadow: [
               BoxShadow(
@@ -87,12 +84,6 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(
                 height: 100,
               ),
-              // const Image(
-              //   image: AssetImage('icons/worm.png'),
-              //   width: 120,
-              //   height: 120,
-              //   // alignment: Alignment.topCenter,
-              // ),
             ],
           ),
         );
@@ -130,7 +121,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return ElevatedButton(
       onPressed: () async {
         await FirebaseAuth.instance.signOut();
-        sleep(const Duration(milliseconds: 200));
+        // sleep(const Duration(milliseconds: 200));
 
         // Restart.restartApp();
         Navigator.of(context).popAndPushNamed('/loginPage');
@@ -150,34 +141,6 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
     );
   }
-
-// // the bottom buttons of the page
-//   Widget _bottomButton() {
-//     return BottomNavigationBar(
-//       items: const <BottomNavigationBarItem>[
-//         BottomNavigationBarItem(
-//           icon: Icon(Icons.person_outline),
-//           label: 'ID',
-//         ),
-//         BottomNavigationBarItem(
-//           icon: Icon(Icons.group_outlined),
-//           label: 'Groups',
-//         ),
-//         BottomNavigationBarItem(
-//           icon: Icon(Icons.home_outlined),
-//           label: 'Home',
-//         ),
-//         BottomNavigationBarItem(
-//           icon: Icon(Icons.search_outlined),
-//           label: 'Search',
-//         ),
-//         BottomNavigationBarItem(
-//           icon: Icon(Icons.chat_bubble_outline),
-//           label: 'Chat',
-//         ),
-//       ],
-//     );
-//   }
 
 // the top part of the page, where user can upload a profile pic and display userName
   Widget _userHeading(String userName, imgURL) {
@@ -224,9 +187,9 @@ class _ProfilePageState extends State<ProfilePage> {
     return Padding(
       padding: const EdgeInsets.only(top: 20),
       child: Scaffold(
-        backgroundColor: Color.fromARGB(255, 156, 196, 64),
+        backgroundColor: Color.fromARGB(255, 140, 192, 18),
         appBar: AppBar(
-          backgroundColor: Color.fromARGB(255, 159, 199, 65),
+          backgroundColor: Color.fromARGB(255, 140, 192, 18),
           elevation: 0,
           title: const Text(
             'Your Profile',
@@ -284,7 +247,6 @@ class _ProfilePageState extends State<ProfilePage> {
             }
           },
         ),
-        // bottomNavigationBar: _bottomButton(),
       ),
     );
   }
