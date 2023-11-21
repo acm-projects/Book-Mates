@@ -156,7 +156,7 @@ class _GroupsState extends State<Groups> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           // widgets
           children: [
-            MySearchBarWidget(),
+            // MySearchBarWidget(),
             Expanded(child: _listGroups()),
             _createGroupButton()
           ],

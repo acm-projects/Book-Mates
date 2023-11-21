@@ -1,4 +1,4 @@
-import 'package:bookmates_app/Group%20Operations/group_repo.dart';
+import 'package:bookmates_app/User%20Implementation/user_repo.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -18,7 +18,7 @@ Future<void> createMilestone(String goal, int days) async {
   };
 
   // put the milstone in firestore
-  String currentGroupID = await getCurrentGroupID();
+  String? currentGroupID = await getCurrentGroupID();
   final milestoneDB = FirebaseFirestore.instance
       .collection('groups')
       .doc(currentGroupID)
@@ -31,7 +31,7 @@ Future<void> createMilestone(String goal, int days) async {
 
 Future<void> completeMilestone(String milestoneID) async {
   // to complete a milestone
-  String currentGroupID = await getCurrentGroupID();
+  String? currentGroupID = await getCurrentGroupID();
   final milestoneDB = FirebaseFirestore.instance
       .collection('groups')
       .doc(currentGroupID)
@@ -71,7 +71,7 @@ Future<void> completeMilestone(String milestoneID) async {
 Future<List<Map<String, dynamic>>> fetchMilestonesData() async {
   // returning the single milestone, can only have one at a time
 
-  String currentGroupID = await getCurrentGroupID();
+  String? currentGroupID = await getCurrentGroupID();
 
   final milestoneSnapshot = await FirebaseFirestore.instance
       .collection('groups')
@@ -86,7 +86,7 @@ Future<List<Map<String, dynamic>>> fetchMilestonesData() async {
 
 Future<bool> checkAdmin() async {
   // optional functionality, can only admins make milestones?
-  String currentGroupID = await getCurrentGroupID();
+  String? currentGroupID = await getCurrentGroupID();
   String? userEmail = FirebaseAuth.instance.currentUser?.email;
   final snapshot = await FirebaseFirestore.instance
       .collection('groups')

@@ -22,20 +22,6 @@ String generateGroupID() {
   return (random.nextInt(900000) + 100000).toString();
 }
 
-Future<String> getCurrentGroupID() async {
-  // return the group a user is currently in
-  String? userEmail = FirebaseAuth.instance.currentUser?.email;
-  final userData =
-      FirebaseFirestore.instance.collection('users').doc(userEmail);
-  final snapshot = await userData.get();
-  Map<String, dynamic>? data = snapshot.data();
-  if (data != null && data.containsKey('currentGroupID')) {
-    return data['currentGroupID'];
-  } else {
-    return "";
-  }
-}
-
 Future<void> checkGroupExists(String userGroupInput, int leaveOrJoin) async {
   //if the groups the user types exists, then join or leave
 
@@ -58,7 +44,8 @@ Future<void> checkGroupExists(String userGroupInput, int leaveOrJoin) async {
 
 Future addMember(String path, userEmail, groupID, int admin) async {
   bool validAdd = true; // assume they not in group
-  final snapshot = await FirebaseFirestore.instance.collection('users').doc(userEmail).get();
+  final snapshot =
+      await FirebaseFirestore.instance.collection('users').doc(userEmail).get();
   Map<String, dynamic>? userData = snapshot.data();
 
   final userGroups = await FirebaseFirestore.instance
@@ -74,7 +61,10 @@ Future addMember(String path, userEmail, groupID, int admin) async {
 
   if (validAdd) {
     //add group to user's subcollection
-    final groupRef = await FirebaseFirestore.instance.collection('groups').doc(groupID).get();
+    final groupRef = await FirebaseFirestore.instance
+        .collection('groups')
+        .doc(groupID)
+        .get();
     final groupName = groupRef.data()!['groupName'];
     await joinGroup(userEmail, groupID, groupName);
 
@@ -142,8 +132,7 @@ Future<void> loseMember(String userEmail, groupPath, groupID) async {
   }
 }
 
-Future createOrUpdate(
-    String bookName, groupBio, groupName, userEmail, groupID) async {
+Future createOrUpdate(String bookName, groupName, userEmail, groupID) async {
   // create a group document and its data fields
   // create random groupID number
   final docRef = FirebaseFirestore.instance.collection('groups').doc(
@@ -151,7 +140,7 @@ Future createOrUpdate(
 
   await docRef.set({
     'bookName': bookName,
-    'groupBio': groupBio,
+    'groupBio': "groupBio",
     'groupName': groupName,
     'groupID': groupID,
     'memberCount': 0,
@@ -201,4 +190,55 @@ Future deleteGroup(String groupID, userEmail) async {
   // delete actual group
   await FirebaseFirestore.instance.collection('groups').doc(groupID).delete();
   // kick admin to homepage
+}
+
+Future<List<Map<String, dynamic>>?> getListOfGroupMembers() async {
+  String? currentGroupID = await getCurrentGroupID();
+  List<Map<String, dynamic>> groupMembersList = [];
+  final snapshot = await FirebaseFirestore.instance
+      .collection('groups')
+      .doc(currentGroupID)
+      .collection('Members')
+      .get();
+  final groupMembers = snapshot.docs;
+  for (var member in groupMembers) {
+    final data = member.data();
+    groupMembersList.add(data);
+  }
+  return groupMembersList;
+}
+
+// to the get the current milestone of a group
+Future<Map<String, dynamic>> getCurrentMilestone() async {
+  final currentGroupID = await getCurrentGroupID();
+  final snapshot = await FirebaseFirestore.instance
+      .collection('groups')
+      .doc(currentGroupID)
+      .collection('Milestone')
+      .get();
+  final milestone = (snapshot.docs)[0].data();
+  return milestone;
+}
+
+// to check if a user has completed  the current groups milestone
+Future<bool> checkIfUserCompleted() async {
+  final userEmail = FirebaseAuth.instance.currentUser?.email;
+  final milestone = await getCurrentMilestone();
+
+  List<String> userMilestoneList = [];
+  final snapshot2 = await FirebaseFirestore.instance
+      .collection('users')
+      .doc(userEmail)
+      .collection('completedMilestones')
+      .get();
+  final userMilestones = snapshot2.docs.toList();
+  for (var data in userMilestones) {
+    userMilestoneList.add(data.data()['id']);
+  }
+  // print(userMilestoneList);
+  if (userMilestoneList.contains(milestone['id'])) {
+    return true;
+  } else {
+    return false;
+  }
 }

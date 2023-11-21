@@ -12,7 +12,6 @@ class CreateGroupScreen extends StatefulWidget {
 class _CreateGroupState extends State<CreateGroupScreen> {
   // vars to hold user input
   final TextEditingController _controllerGroupName = TextEditingController();
-  final TextEditingController _controllerGroupBio = TextEditingController();
   final TextEditingController _controllerBookName = TextEditingController();
 
   // the email of the current user
@@ -43,7 +42,7 @@ class _CreateGroupState extends State<CreateGroupScreen> {
       onPressed: () async {
         // prevent group creation if all fields are not filled out
         if (_controllerBookName.text.isNotEmpty &&
-            _controllerGroupBio.text.isNotEmpty &&
+            // _controllerGroupBio.text.isNotEmpty &&
             _controllerGroupName.text.isNotEmpty) {
           showDialog<String>(
               context: context,
@@ -59,7 +58,6 @@ class _CreateGroupState extends State<CreateGroupScreen> {
                           // create the group in Firestore
                           createOrUpdate(
                             _controllerBookName.text,
-                            _controllerGroupBio.text,
                             _controllerGroupName.text,
                             email,
                             groupID,
@@ -96,7 +94,7 @@ class _CreateGroupState extends State<CreateGroupScreen> {
         const SizedBox(height: 100),
         _entryField('Book Name', _controllerBookName),
         const SizedBox(height: 16),
-        _entryField("Group Bio", _controllerGroupBio),
+        // _entryField("Group Bio", _controllerGroupBio),
         const SizedBox(height: 16),
         _entryField('Group Name', _controllerGroupName),
         const SizedBox(height: 16),
