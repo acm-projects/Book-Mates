@@ -1,9 +1,7 @@
-import 'dart:io';
-
+// ignore_for_file: curly_braces_in_flow_control_structures
 import 'package:bookmates_app/User%20Implementation/user_repo.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:restart_app/restart_app.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -13,19 +11,107 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-// the desc text describing user's elements in the profile page
-  Widget _userDesc(String userField, userData) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  final email = FirebaseAuth.instance.currentUser?.email;
+
+  Widget _userStats(String countType) {
+    return FutureBuilder(
+      future: getCountSub(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return Container(
+            height: 100,
+            width: 175,
+            margin: const EdgeInsets.symmetric(vertical: 4),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Color.fromARGB(255, 204, 238, 124),
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.black.withOpacity(0.5),
+                    spreadRadius: 3,
+                    blurRadius: 7,
+                    offset: const Offset(0, 3))
+              ],
+            ),
+            child: Text(
+              (countType == "Groups")
+                  ? "Groups: \n         ${snapshot.data![0]}"
+                  : "Books: \n          ${snapshot.data![1]}",
+              style: const TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black),
+            ),
+          );
+        } else
+          return const CircularProgressIndicator();
+      },
+    );
+  }
+
+  Widget _userDesc(String userPassword, String userEmail) {
+    return FutureBuilder(
+      future: getSubcollectionCount('users/$email/Groups'),
+      builder: (context, snapshot) {
+        return Container(
+          height: 200,
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Color.fromARGB(255, 199, 231, 125),
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.black.withOpacity(0.5),
+                  spreadRadius: 3,
+                  blurRadius: 7,
+                  offset: const Offset(0, 3))
+            ],
+          ),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  _userDetail('Email', 'Pasword', false),
+                  const SizedBox(
+                      width:
+                          20), // Adjust for spacing between email and password
+                  _userDetail(userEmail, userPassword, true),
+                ],
+              ),
+              const SizedBox(
+                height: 100,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _userDetail(String userField, String userData, bool hidden) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text(
           userField,
-          style: const TextStyle(fontFamily: 'LeagueSpartan'),
+          style: const TextStyle(
+              fontFamily: 'LeagueSpartan',
+              fontSize: 25,
+              color: Colors.black,
+              fontWeight: FontWeight.bold),
         ),
+        const SizedBox(height: 4), // Adjust for spacing
         Text(
-          userData,
-          style: const TextStyle(fontFamily: 'LeagueSpartan'),
-        )
+          hidden ? '               ******' : userData,
+          style: const TextStyle(
+              fontFamily: 'LeagueSpartan',
+              fontSize: 25,
+              color: Colors.black,
+              fontWeight: FontWeight.bold),
+        ),
       ],
     );
   }
@@ -35,9 +121,10 @@ class _ProfilePageState extends State<ProfilePage> {
     return ElevatedButton(
       onPressed: () async {
         await FirebaseAuth.instance.signOut();
-        sleep(const Duration(milliseconds: 200));
+        // sleep(const Duration(milliseconds: 200));
+
         // Restart.restartApp();
-        // Navigator.of(context).popAndPushNamed('/homePage');
+        Navigator.of(context).popAndPushNamed('/loginPage');
       },
       style: ElevatedButton.styleFrom(
         primary: Colors.white,
@@ -46,36 +133,12 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       child: const Text(
         'Sign Out',
-        style: TextStyle(fontFamily: 'League Spartan'),
+        style: TextStyle(
+            fontFamily: 'LeagueSpartan',
+            fontSize: 20,
+            color: Colors.black,
+            fontWeight: FontWeight.bold),
       ),
-    );
-  }
-
-// the bottom buttons of the page
-  Widget _bottomButton() {
-    return BottomNavigationBar(
-      items: const <BottomNavigationBarItem>[
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person_outline),
-          label: 'ID',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.group_outlined),
-          label: 'Groups',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home_outlined),
-          label: 'Home',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.search_outlined),
-          label: 'Search',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.chat_bubble_outline),
-          label: 'Chat',
-        ),
-      ],
     );
   }
 
@@ -93,13 +156,27 @@ class _ProfilePageState extends State<ProfilePage> {
             await uploadProfPic();
             setState(() {});
           },
-          child: const Text("Upload picture"),
+          style: ButtonStyle(
+            backgroundColor: MaterialStatePropertyAll(Colors.white),
+            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            )),
+          ),
+          child: const Text(
+            "Add pic",
+            style: TextStyle(color: Color(0xFF75A10F)),
+          ),
         ),
-            // onPressed: uploadProfPic, child: Text('Add profPic')),
+        // onPressed: uploadProfPic, child: Text('Add profPic')),
         const SizedBox(height: 10), // For spacing
         Text(
           userName,
-          style: const TextStyle(fontSize: 24, fontFamily: 'LeagueSpartan'),
+          style: const TextStyle(
+              fontSize: 40,
+              fontFamily: 'LeagueSpartan',
+              fontWeight: FontWeight.bold,
+              color: Colors.white),
         ),
       ],
     );
@@ -107,49 +184,70 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF75A10F),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF75A10F),
-        elevation: 0,
-        title: const Text(
-          'Profile',
-          style: TextStyle(color: Colors.black, fontFamily: 'LeagueSpartan'),
+    return Padding(
+      padding: const EdgeInsets.only(top: 20),
+      child: Scaffold(
+        backgroundColor: Color.fromARGB(255, 140, 192, 18),
+        appBar: AppBar(
+          backgroundColor: Color.fromARGB(255, 140, 192, 18),
+          elevation: 0,
+          title: const Text(
+            'Your Profile',
+            style: TextStyle(
+                color: Colors.white,
+                fontFamily: 'LeagueSpartan',
+                fontWeight: FontWeight.bold),
+          ),
+          centerTitle: true,
         ),
-        centerTitle: true,
-      ),
-      body: FutureBuilder(
-        future: getUserData(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  _userHeading(
-                      snapshot.data!['userName'], snapshot.data!['profPicURL']),
-                  const SizedBox(height: 20), // For spacing
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      children: <Widget>[
-                        _userDesc('Email', snapshot.data!['Email']),
-                        _userDesc('Password', snapshot.data!['Password']),
+        body: FutureBuilder(
+          future: getUserData(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    _userHeading(snapshot.data!['userName'],
+                        snapshot.data!['profPicURL']),
+                    const SizedBox(height: 20), // For spacing
+
+                    Row(
+                      children: [
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        _userStats("Groups"),
+                        const SizedBox(
+                          width: 35,
+                        ),
+                        _userStats("Books"),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 20), // For spacing
-                  _signOutButton(),
-                ],
-              ),
-            );
-          } else {
-            return const CircularProgressIndicator();
-          }
-        },
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        children: <Widget>[
+                          _userDesc(snapshot.data!['Password'],
+                              snapshot.data!['Email']),
+                          // _userDesc('Password', snapshot.data!['Password']),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 70), // For spacing
+                    _signOutButton(),
+                  ],
+                ),
+              );
+            } else {
+              return const CircularProgressIndicator();
+            }
+          },
+        ),
       ),
-      bottomNavigationBar: _bottomButton(),
-      // You can manage the state of BottomNavigationBar as needed
     );
   }
 }

@@ -1,6 +1,7 @@
+import 'package:bookmates_app/Group%20Operations/group_repo.dart';
 import 'package:bookmates_app/Milestone/milestone_service.dart';
+import 'package:bookmates_app/User%20Implementation/user_repo.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class GroupHome extends StatefulWidget {
@@ -10,53 +11,29 @@ class GroupHome extends StatefulWidget {
   State<GroupHome> createState() => _GroupHomeState();
 }
 
-Future<String?> getCurrentGroupID() async {
-  String? userEmail = FirebaseAuth.instance.currentUser?.email;
-  final userData =
-      FirebaseFirestore.instance.collection('users').doc(userEmail);
-  final snapshot = await userData.get();
-  Map<String, dynamic>? data = snapshot.data();
-  if (data != null && data.containsKey('currentGroupID')) {
-    return data['currentGroupID'];
-  } else {
-    return null;
-  }
-}
-
-Future<List<Map<String, dynamic>>?> getListOfGroupMembers() async {
-  String? currentGroupID = await getCurrentGroupID();
-  List<Map<String, dynamic>> groupMembersList = [];
-  final snapshot = await FirebaseFirestore.instance
-      .collection('groups')
-      .doc(currentGroupID)
-      .collection('Members')
-      .get();
-  final groupMembers = snapshot.docs;
-  for (var member in groupMembers) {
-    final data = member.data();
-    groupMembersList.add(data);
-  }
-  return groupMembersList;
-}
-
+// the anatomy of a single profile pic and its username
 Widget getProfileData(Map<String, dynamic> user) {
   return Padding(
     padding: const EdgeInsets.all(8.0),
     child: Row(
       children: [
         Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Container(
-            width: 50,
-            height: 50,
-            child: CircleAvatar(
-              backgroundImage: NetworkImage(user['profPicURL']),
-              radius: 50,
-              backgroundColor: Colors.grey,
-            ),
-            ),
+          padding: const EdgeInsets.only(top: 15, bottom: 8, left: 8, right: 8),
+          child: Row(
+            children: [
+              Container(
+                width: 50,
+                height: 50,
+                child: CircleAvatar(
+                  backgroundImage: NetworkImage(user['profPicURL']),
+                  radius: 50,
+                  backgroundColor: Colors.grey,
+                ),
+              ),
+            ],
           ),
-          Text("User: ${user['userName']}",
+        ),
+        Text(user['userName'],
             style: const TextStyle(
               fontSize: 15,
               fontFamily: 'LeagueSpartan',
@@ -75,6 +52,7 @@ Widget getProfileData(Map<String, dynamic> user) {
   );
 }
 
+// the output of all users with prof pics and usernames
 Widget listOfGroupMembers() {
   return FutureBuilder<List<Map<String, dynamic>>?>(
       future: getListOfGroupMembers(),
@@ -91,168 +69,146 @@ Widget listOfGroupMembers() {
       });
 }
 
-Future<Map<String, dynamic>> getCurrentMilestone() async {
-  final currentGroupID = await getCurrentGroupID();
-  final snapshot = await FirebaseFirestore.instance
-      .collection('groups')
-      .doc(currentGroupID)
-      .collection('Milestone')
-      .get();
-  final milestone = (snapshot.docs)[0].data();
-  return milestone;
-}
-
-Future<bool> checkIfUserCompleted() async {
-  final userEmail = FirebaseAuth.instance.currentUser?.email;
-  final milestone = await getCurrentMilestone();
-
-  List<String> userMilestoneList = [];
-  final snapshot2 = await FirebaseFirestore.instance
-      .collection('users')
-      .doc(userEmail)
-      .collection('completedMilestones')
-      .get();
-  final userMilestones = snapshot2.docs.toList();
-  for (var data in userMilestones) {
-    userMilestoneList.add(data.data()['id']);
-  }
-  // print(userMilestoneList);
-  if (userMilestoneList.contains(milestone['id'])) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
+// the progress bar, the title of the milestone with the actual bar
 Widget loadingBar() {
   return FutureBuilder(
     future: getCurrentGroupID(),
     builder: (context, currentGroup) {
-      final currentGroupID = currentGroup.data;
-      return StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection('groups')
-            .doc(currentGroupID)
-            .collection('Milestone')
-            .snapshots(),
-        builder: (context, groupMilestone) {
-          if (groupMilestone.connectionState == ConnectionState.waiting) {
-            return Container();
-          }
-          if (groupMilestone.hasData) {
-            final milestoneList = ((groupMilestone.data)!.docs);
-            if (milestoneList.isNotEmpty) {
-              final milestone = milestoneList[0].data();
-              return Column(children: [
-                SizedBox(
-                    height: 30,
-                    width: MediaQuery.of(context).size.width,
-                    child: const Text(
-                      "Current milestone",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontFamily: 'LeagueSpartan',
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                        shadows: [
-                          BoxShadow(
-                            color: Color.fromRGBO(70, 70, 70, 0.918),
-                            blurRadius: 12,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                    )),
-                SizedBox(
-                    height: 50,
-                    width: MediaQuery.of(context).size.width,
-                    child: Text(
-                      "${milestone['goal']}",
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 21,
-                        fontFamily: 'LeagueSpartan',
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                        shadows: [
-                          BoxShadow(
-                            color: Color.fromRGBO(70, 70, 70, 0.918),
-                            blurRadius: 12,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                    )),
-                SizedBox(
-                    height: 35,
-                    width: MediaQuery.of(context).size.width,
-                    child: Text(
-                      "Progress ${milestone['ratio'].round()}%",
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontFamily: 'LeagueSpartan',
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                        shadows: [
-                          BoxShadow(
-                            color: Color.fromRGBO(70, 70, 70, 0.918),
-                            blurRadius: 12,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                    )),
-                SizedBox(
-                  height: 20,
-                  width: 300,
-                  child: LinearProgressIndicator(
-                    value: milestone['ratio'] / 100,
-                    backgroundColor: Colors.amber,
-                    color: const Color(0xFF75A10F),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: submitButton(context),
-                ),
-              ]);
+      if (currentGroup.hasData) {
+        final currentGroupID = currentGroup.data;
+        return StreamBuilder(
+          stream: FirebaseFirestore.instance
+              .collection('groups')
+              .doc(currentGroupID)
+              .collection('Milestone')
+              .snapshots(),
+          builder: (context, groupMilestone) {
+            if (groupMilestone.connectionState == ConnectionState.waiting) {
+              return Container();
             }
-          }
-          return SizedBox(
-              width: MediaQuery.of(context).size.width,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF75A10F),
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).pushNamed('/milestonePage');
-                    },
-                    child: const Text(
-                      "Create a milestone",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontFamily: 'LeagueSpartan',
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                        shadows: [
-                          BoxShadow(
-                            color: Color.fromRGBO(70, 70, 70, 0.918),
-                            blurRadius: 12,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      ),
+            if (groupMilestone.hasData) {
+              final milestoneList = ((groupMilestone.data)!.docs);
+              if (milestoneList.isNotEmpty) {
+                final milestone = milestoneList[0].data();
+                return Column(children: [
+                  // the title of the milestone interface
+                  SizedBox(
+                      height: 30,
+                      width: MediaQuery.of(context).size.width,
+                      child: const Text(
+                        "Current Milestone",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontFamily: 'LeagueSpartan',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                          shadows: [
+                            BoxShadow(
+                              color: Color.fromRGBO(70, 70, 70, 0.918),
+                              blurRadius: 12,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                      )),
+                  // the milestone name
+                  SizedBox(
+                      height: 50,
+                      width: MediaQuery.of(context).size.width,
+                      child: Text(
+                        "${milestone['goal']}",
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 21,
+                          fontFamily: 'LeagueSpartan',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                          shadows: [
+                            BoxShadow(
+                              color: Color.fromRGBO(70, 70, 70, 0.918),
+                              blurRadius: 12,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                      )),
+
+                  // the loading bar
+                  SizedBox(
+                      height: 35,
+                      width: MediaQuery.of(context).size.width,
+                      child: Text(
+                        "Progress ${milestone['ratio'].round()}%",
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontFamily: 'LeagueSpartan',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                          shadows: [
+                            BoxShadow(
+                              color: Color.fromRGBO(70, 70, 70, 0.918),
+                              blurRadius: 12,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                      )),
+                  SizedBox(
+                    height: 40,
+                    width: 300,
+                    child: LinearProgressIndicator(
+                      value: milestone['ratio'] / 100,
+                      backgroundColor: Colors.amber,
+                      color: const Color(0xFF75A10F),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                ],
-              ));
-        },
-      );
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: submitButton(context),
+                  ),
+                ]);
+              }
+            }
+            // button to create a milestone
+            return SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF75A10F),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pushNamed('/milestonePage');
+                      },
+                      child: const Text(
+                        "Create a milestone",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontFamily: 'LeagueSpartan',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                          shadows: [
+                            BoxShadow(
+                              color: Color.fromRGBO(70, 70, 70, 0.918),
+                              blurRadius: 12,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ));
+          },
+        );
+      } else {
+        return Container();
+      }
     },
   );
 }
@@ -283,8 +239,8 @@ Widget submitButton(BuildContext context) {
       } else {
         final milestone = await getCurrentMilestone();
         completeMilestone(milestone['id']);
-        }
-      },
+      }
+    },
     child: const Text(
       'Complete',
       style: TextStyle(
@@ -317,59 +273,9 @@ Widget groupData() {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text("Name: ${groupData['groupName']}",
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontFamily: 'LeagueSpartan',
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                        shadows: [
-                          BoxShadow(
-                            color: Color.fromRGBO(70, 70, 70, 0.918),
-                            blurRadius: 12,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      )),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text("Bio: ${groupData['groupBio']}",
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontFamily: 'LeagueSpartan',
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                        shadows: [
-                          BoxShadow(
-                            color: Color.fromRGBO(70, 70, 70, 0.918),
-                            blurRadius: 12,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      )),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.only(
+                      bottom: 16.0, right: 16, left: 16, top: 0),
                   child: Text("Book: ${groupData['bookName']}",
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontFamily: 'LeagueSpartan',
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                        shadows: [
-                          BoxShadow(
-                            color: Color.fromRGBO(70, 70, 70, 0.918),
-                            blurRadius: 12,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      )),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text("ID: ${groupData['groupID']}",
                       style: const TextStyle(
                         fontSize: 24,
                         fontFamily: 'LeagueSpartan',
@@ -400,7 +306,7 @@ class _GroupHomeState extends State<GroupHome> {
         children: [
           _backgroundContainer(),
           Positioned(
-            top: 100,
+            top: 180,
             left: 0,
             right: 0,
             bottom: 0,
@@ -414,16 +320,17 @@ class _GroupHomeState extends State<GroupHome> {
               ),
             ),
           ),
-          SizedBox(height: 320, child: listOfGroupMembers()),
+          SizedBox(height: 250, child: listOfGroupMembers()),
           Positioned(
-              top: 250,
+              top: 75,
               child: SizedBox(
                 height: 350,
                 width: MediaQuery.of(context).size.width,
                 child: groupData(),
               )),
+          Positioned(top: 300, left: 60, child: _bookCover()),
           Positioned(
-            top: 600,
+            top: 650,
             child: loadingBar(),
           ),
           Positioned(
@@ -446,33 +353,52 @@ Widget _backgroundContainer() {
   );
 }
 
+// where the book cover will be located
+Widget _bookCover() {
+  return Container(
+      height: 300,
+      width: 300,
+      decoration: const BoxDecoration(color: Colors.white),
+      child: const Text('Book Cover HERE'));
+}
+
 // the title of the page
 Widget _appBarWidget() {
-  return AppBar(
-    automaticallyImplyLeading: false,
-    title: Container(
-      padding: const EdgeInsets.only(
-        top: 25,
-      ),
-      child: const Text(
-        "Group Home",
-        style: TextStyle(
-          fontSize: 24,
-          fontFamily: 'LeagueSpartan',
-          fontWeight: FontWeight.w600,
-          color: Colors.white, // Text color
-          shadows: [
-            BoxShadow(
-              color: Color.fromRGBO(70, 70, 70, 0.918),
-              blurRadius: 12,
-              offset: Offset(0, 2),
+  return FutureBuilder(
+    future: getGroupData(),
+    builder: (context, snapshot) {
+      if (snapshot.hasData) {
+        return AppBar(
+          automaticallyImplyLeading: false,
+          title: Container(
+            padding: const EdgeInsets.only(
+              top: 25,
+              bottom: 30,
             ),
-          ],
-        ),
-      ),
-    ),
-    backgroundColor: Colors.transparent,
-    centerTitle: true,
-    elevation: 0,
+            child: Text(
+              // output the name of the group
+              snapshot.data!['groupName'],
+              style: const TextStyle(
+                fontSize: 24,
+                fontFamily: 'LeagueSpartan',
+                fontWeight: FontWeight.w600,
+                color: Colors.white, // Text color
+                shadows: [
+                  BoxShadow(
+                    color: Color.fromRGBO(70, 70, 70, 0.918),
+                    blurRadius: 12,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          backgroundColor: Colors.transparent,
+          centerTitle: true,
+          elevation: 0,
+        );
+      } else
+        return const CircularProgressIndicator();
+    },
   );
 }

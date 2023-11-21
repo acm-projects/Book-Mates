@@ -1,6 +1,4 @@
 import 'dart:io';
-
-import 'package:bookmates_app/Notification/notification_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -70,7 +68,6 @@ Future<File?> pickProfPic() async {
 Future<void> uploadProfPic() async {
   final mediaFile = await pickProfPic();
   final email = FirebaseAuth.instance.currentUser?.email;
-  String? groupID = await getCurrentGroupID();
   // need to get the file extension type 'pdf, jpg, etc'
   String fileExtension = mediaFile!.path.split('.').last;
   String filePath =
@@ -86,13 +83,6 @@ Future<void> uploadProfPic() async {
     await FirebaseFirestore.instance.collection('users').doc(email).set({
       'profPicURL': downloadUrl,
     }, SetOptions(merge: true));
-
-    // await FirebaseFirestore.instance
-    //     .collection('groups/$groupID/Members')
-    //     .doc(email)
-    //     .set({'profPicURL': downloadUrl}, SetOptions(merge: true));
-
-    // Update profPicURL for each group a user is in
 
     // get the reference of the groups subcollection of a user
     final userGroupsRef =
@@ -123,6 +113,21 @@ Future<void> uploadProfPic() async {
   });
 }
 
+// to return the ID of the current group a users in
+
+Future<String?> getCurrentGroupID() async {
+  String? userEmail = FirebaseAuth.instance.currentUser?.email;
+  final userData =
+      FirebaseFirestore.instance.collection('users').doc(userEmail);
+  final snapshot = await userData.get();
+  Map<String, dynamic>? data = snapshot.data();
+  if (data != null && data.containsKey('currentGroupID')) {
+    return data['currentGroupID'];
+  } else {
+    return null;
+  }
+}
+
 // to return the data fields of a user in Firestore
 Future<Map<String, dynamic>?> getUserData() async {
   final email = FirebaseAuth.instance.currentUser?.email;
@@ -130,4 +135,23 @@ Future<Map<String, dynamic>?> getUserData() async {
       await FirebaseFirestore.instance.collection('users').doc(email).get();
 
   return userRef.data();
+}
+
+// to return the length of a subcollection in user
+Future<int> getSubcollectionCount(String path) async {
+  final subPathRef = await FirebaseFirestore.instance.collection(path).get();
+  return subPathRef.docs.length;
+}
+
+Future<List<int>> getCountSub() async {
+  final email = FirebaseAuth.instance.currentUser?.email;
+  final userGroupRef =
+      await FirebaseFirestore.instance.collection('users/$email/Groups').get();
+  final userBookRef = await FirebaseFirestore.instance
+      .collection('users/$email/BookPDFs')
+      .get();
+  return [
+    userGroupRef.docs.length,
+    userBookRef.docs.length,
+  ];
 }

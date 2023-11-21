@@ -145,6 +145,7 @@ class _GroupsState extends State<Groups> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
           backgroundColor: const Color.fromARGB(255, 250, 241, 213),
@@ -155,7 +156,7 @@ class _GroupsState extends State<Groups> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           // widgets
           children: [
-            MySearchBarWidget(),
+            // MySearchBarWidget(),
             Expanded(child: _listGroups()),
             _createGroupButton()
           ],

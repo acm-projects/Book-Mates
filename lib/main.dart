@@ -1,5 +1,4 @@
 import 'package:bookmates_app/Group%20Operations/create_group.dart';
-import 'package:bookmates_app/Group%20Operations/delete_page.dart';
 import 'package:bookmates_app/Group%20Operations/group_home.dart';
 import 'package:bookmates_app/Group%20Operations/group_list.dart';
 import 'package:bookmates_app/Group%20Operations/group_widget_tree.dart';
@@ -50,7 +49,6 @@ class MyApp extends StatelessWidget {
         '/groupWidgetTree': (context) => const GroupWidgetTree(),
         '/groupPage': (context) => const GroupHome(),
         '/createGroup': (context) => const CreateGroupScreen(),
-        '/deletePage': (context) => const DeletePage(),
         '/chatPage': (context) => const ChatHome(),
         '/pdfScreen': (context) => const PDFReaderApp(),
         '/homePage': (context) => const HomePage(),

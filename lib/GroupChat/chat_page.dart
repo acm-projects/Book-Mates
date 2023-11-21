@@ -1,23 +1,16 @@
+import 'package:bookmates_app/Notification/notification_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'chat_service.dart';
-import 'chat_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
-import 'package:bookmates_app/Group Operations/group_repo.dart';
 
 class ChatHome extends StatefulWidget {
   const ChatHome({Key? key}) : super(key: key);
 
   @override
   State<ChatHome> createState() => _ChatHomeState();
-}
-
-// Example function to show delete functionality - can be expanded upon
-void deleteMessageFunctionality(BuildContext context, ChatMessage message) {
-  // Implement the functionality to delete the message.
-  // This can involve showing a dialog to confirm the deletion, then calling deleteMessage.
 }
 
 class _ChatHomeState extends State<ChatHome> {
@@ -148,8 +141,7 @@ class _ChatHomeState extends State<ChatHome> {
                     FutureBuilder(
                       future: getCurrentGroupID(),
                       initialData: 'Loading messages...',
-                      builder:
-                          (BuildContext context, AsyncSnapshot<String> text) {
+                      builder: (context, text) {
                         return _messageList(text.data);
                       },
                     ),
