@@ -1,9 +1,12 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:bookmates_app/Milestone/milestone_service.dart';
 import 'package:bookmates_app/User%20Implementation/user_repo.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 // manages functionality all group operations in Firestore
 
@@ -144,6 +147,8 @@ Future createOrUpdate(String bookName, groupName, userEmail, groupID) async {
     'groupName': groupName,
     'groupID': groupID,
     'memberCount': 0,
+    'profPicURL':
+        "https://firebasestorage.googleapis.com/v0/b/bookma-d79ce.appspot.com/o/question.jpg?alt=media&token=f62ba153-6a1f-40d1-8db5-5e6cc6394a62",
   });
 
   // add the user who created the group as a member
@@ -241,4 +246,36 @@ Future<bool> checkIfUserCompleted() async {
   } else {
     return false;
   }
+}
+
+Future<File?> pickProfPic() async {
+  FilePickerResult? mediaUp =
+      await FilePicker.platform.pickFiles(type: FileType.media);
+  if (mediaUp != null && mediaUp.files.isNotEmpty) {
+    File selectedFile = File(mediaUp.files.single.path!);
+    return selectedFile;
+  }
+}
+
+Future<void> uploadGroupProfPic() async {
+  final mediaFile = await pickProfPic();
+  final groupID = await getCurrentGroupID();
+  // need to get the file extension type 'pdf, jpg, etc'
+  String fileExtension = mediaFile!.path.split('.').last;
+  String filePath =
+      'groups/$groupID/${DateTime.now().millisecondsSinceEpoch}.$fileExtension';
+
+  Reference storageReference = FirebaseStorage.instance.ref().child(filePath);
+  UploadTask uploadTask = storageReference.putFile(mediaFile);
+
+  //wait for upload to finish to download url
+  await uploadTask.whenComplete(() async {
+    String downloadUrl = await storageReference.getDownloadURL();
+
+    await FirebaseFirestore.instance.collection('groups').doc(groupID).set({
+      'profPicURL': downloadUrl,
+    }, SetOptions(merge: true));
+
+    // get the reference of the groups subcollection of a user
+  });
 }

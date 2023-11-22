@@ -1,6 +1,5 @@
 import 'package:bookmates_app/Group%20Operations/group_list.dart';
 import 'package:bookmates_app/auth.dart';
-import 'package:bookmates_app/home_page.dart';
 import 'package:bookmates_app/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

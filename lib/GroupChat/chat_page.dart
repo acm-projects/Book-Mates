@@ -1,3 +1,7 @@
+// ignore_for_file: curly_braces_in_flow_control_structures
+
+import 'package:bookmates_app/Group%20Operations/group_home.dart';
+import 'package:bookmates_app/Group%20Operations/group_repo.dart';
 import 'package:bookmates_app/Notification/notification_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -14,65 +18,103 @@ class ChatHome extends StatefulWidget {
 }
 
 class _ChatHomeState extends State<ChatHome> {
+  // holding user message input
   final _messageController = TextEditingController();
+  // users email
+  final email = FirebaseAuth.instance.currentUser?.email;
+  // for scrolling
+  final ScrollController _scrollController = ScrollController();
 
+  // where user inputs message or sends an image
   Widget _entryField() {
-    // the entry field where user inputs text and or media
     return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: _messageController,
-              decoration: const InputDecoration(hintText: "Message..."),
+      padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFFFAF1D5), // Changed color of the bottom app bar
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        child: Row(
+          children: <Widget>[
+            // where you choose to send an image
+            IconButton(
+              icon: const Icon(Icons.upload_file),
+              onPressed: () async {
+                FilePickerResult? mediaUp =
+                    await FilePicker.platform.pickFiles(type: FileType.media);
+                if (mediaUp != null && mediaUp.files.isNotEmpty) {
+                  File selectedFile = File(mediaUp.files.single.path!);
+                  // upload the file you chose to FirebaseStoreage and Firestore
+                  await uploadMedia(selectedFile);
+                }
+              },
             ),
-          ),
-          IconButton(
-            // icon user presses to send a message
-            icon: const Icon(Icons.send),
-            onPressed: () async {
-              if (_messageController.text.isNotEmpty) {
-                await sendMessage(_messageController.text, 'text');
+            // where user types in thier message
+            Expanded(
+              child: TextField(
+                controller: _messageController,
+                decoration: const InputDecoration(
+                  hintText: "Type a message here",
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                ),
+                style: const TextStyle(fontFamily: 'LeagueSpartan'),
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.send),
+              // to send a message in firestore
+              onPressed: () async {
+                await sendMessage(_messageController.text);
+                // clear the entryField
                 _messageController.clear();
-              }
-            },
-          ),
-          IconButton(
-            // button that lets you choose an img to upload
-            icon: const Icon(Icons.upload_file),
-            onPressed: () async {
-              FilePickerResult? mediaUp =
-                  await FilePicker.platform.pickFiles(type: FileType.media);
-              if (mediaUp != null && mediaUp.files.isNotEmpty) {
-                File selectedFile = File(mediaUp.files.single.path!);
-                await uploadMedia(selectedFile);
-              }
-            },
-          ),
-        ],
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget getImage(QueryDocumentSnapshot<Object?> o, bool isUser) {
-    // checking wether a text or an image was sent
-    if (o['mediaURL'] != '') {
-      return Image.network(
-        o['mediaURL'],
-        width: 200,
-        height: 200,
-      );
-    } else {
-      return Text(
-        o['text'],
-        style: TextStyle(color: isUser ? Colors.blue : Colors.grey),
-      );
-    }
+  // the individual chat message
+  Widget _chatBubble(String message, bool isUser) {
+    return Align(
+      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+        margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * 0.8,
+        ),
+        decoration: BoxDecoration(
+          color: isUser
+              ? const Color.fromARGB(255, 255, 241, 199)
+              : const Color.fromARGB(255, 7, 7, 7),
+          borderRadius: isUser
+              ? const BorderRadius.only(
+                  topLeft: Radius.circular(16.0),
+                  bottomLeft: Radius.circular(16.0),
+                  topRight: Radius.circular(16.0),
+                )
+              : const BorderRadius.only(
+                  bottomRight: Radius.circular(16.0),
+                  topRight: Radius.circular(16.0),
+                  topLeft: Radius.circular(16.0),
+                ),
+        ),
+        child: Text(
+          message,
+          style: TextStyle(
+            color: isUser ? Colors.black87 : Colors.white,
+            fontSize: 16.0,
+          ),
+        ),
+      ),
+    );
   }
 
+  // listing all messages/images in the cloud
   Widget _messageList(String? text) {
-    // listing all messages/images in the cloud
     return SizedBox(
       height: MediaQuery.of(context).size.height - 202.0,
       child: StreamBuilder(
@@ -86,98 +128,102 @@ class _ChatHomeState extends State<ChatHome> {
           if (!snapshot.hasData) {
             return const CircularProgressIndicator();
           }
-          return ListView(
-            children: snapshot.data!.docs.map((document) {
-              //changing the alingment id you were the one to send the message
-              bool isUser = (document['senderID'] ==
-                  FirebaseAuth.instance.currentUser?.email);
-              Alignment alignment =
-                  isUser ? Alignment.centerRight : Alignment.centerLeft;
-              return Column(
-                children: [
-                  Align(
-                    alignment: alignment, // Apply the alignment here
-                    child: SizedBox(
-                      // output will either be a text msg or img based on
-                      // the existence of the 'mediaUrl' data field
-                      child: getImage(document, isUser),
-                    ),
-                  ),
-                ],
-              );
-            }).toList(),
+          return Align(
+            alignment: Alignment.bottomCenter,
+            child: ListView(
+              controller: _scrollController,
+              children: snapshot.data!.docs.map((document) {
+                // flag determinng if you were the one to send the message or not
+                bool isUser = (document['senderID'] == email);
+                Widget messageType = (document['mediaURL'] == '')
+                    ? _chatBubble(document['text'], isUser)
+                    : Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 10.0),
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 4.0, horizontal: 8.0),
+                        child: Align(
+                          alignment: isUser
+                              ? Alignment.centerRight
+                              : Alignment.centerLeft,
+                          child: Image.network(document['mediaURL']),
+                        ),
+                      );
+                return messageType;
+              }).toList(),
+            ),
           );
         },
       ),
     );
   }
 
+  Widget _title() {
+    return FutureBuilder(
+      future: getGroupData(),
+      builder: (context, groupData) {
+        if (groupData.hasData) {
+          return Row(children: [
+            InkWell(
+              onTap: () async {
+                await uploadGroupProfPic();
+                // referesh UI
+                setState(() {});
+              },
+              // the profile pic of the group
+              child: SizedBox(
+                width: 70,
+                height: 70,
+                child: CircleAvatar(
+                  backgroundImage: NetworkImage(groupData.data!['profPicURL']),
+                ),
+              ),
+            ),
+            const SizedBox(
+              width: 30,
+            ),
+            // the title, the name of the group
+            Text(
+              groupData.data!['groupName'],
+              style: const TextStyle(
+                fontFamily: 'LeagueSpartan',
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+                fontSize: 24,
+              ),
+            ),
+          ]);
+        }
+        return Container();
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          Container(
-            color: const Color(0xFF75A10F), // Background color
-            height: double.infinity,
-          ),
-          Positioned(
-            top: 100,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Color.fromARGB(255, 240, 223, 173), // Tan color
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(35.0),
-                  topRight: Radius.circular(35.0),
-                ),
-              ),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    // Replace this section with your FutureBuilder
-                    FutureBuilder(
-                      future: getCurrentGroupID(),
-                      initialData: 'Loading messages...',
-                      builder: (context, text) {
-                        return _messageList(text.data);
-                      },
-                    ),
-                    // where user inputs text or an img
-                    _entryField(),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: AppBar(
-              backgroundColor: Colors.transparent,
-              title: const Text(
-                'Messaging',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontFamily: 'LeagueSpartan',
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white, // Text color
-                  shadows: [
-                    BoxShadow(
-                      color: Color.fromRGBO(70, 70, 70, 0.918),
-                      blurRadius: 12,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                ),
-              ),
-              centerTitle: true,
-              elevation: 0,
-            ),
-          ),
+      appBar: AppBar(
+        title: _title(),
+        backgroundColor: const Color(0xFFFAF1D5),
+        centerTitle: true,
+        elevation: 0,
+        toolbarHeight: 80,
+      ),
+      backgroundColor: const Color(0xFF75A10F),
+      body: Column(
+        children: <Widget>[
+          const SizedBox(
+              height: 10), // Adds space between the AppBar and messages
+          Expanded(
+              child: FutureBuilder(
+                  future: getCurrentGroupID(),
+                  builder: (context, groupID) {
+                    if (groupID.hasData)
+                      return _messageList(groupID.data);
+                    else
+                      return Container();
+                  })),
+          _entryField(),
         ],
       ),
     );
