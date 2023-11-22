@@ -14,14 +14,14 @@ class GroupHome extends StatefulWidget {
 // the anatomy of a single profile pic and its username
 Widget getProfileData(Map<String, dynamic> user) {
   return Padding(
-    padding: const EdgeInsets.all(8.0),
-    child: Row(
+    padding: const EdgeInsets.all(10.0),
+    child: Column(
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 15, bottom: 8, left: 8, right: 8),
+          padding: const EdgeInsets.only(top: 80, bottom: 8, left: 8, right: 8),
           child: Row(
             children: [
-              Container(
+              SizedBox(
                 width: 50,
                 height: 50,
                 child: CircleAvatar(
@@ -324,7 +324,7 @@ class _GroupHomeState extends State<GroupHome> {
           Positioned(
               top: 75,
               child: SizedBox(
-                height: 350,
+                height: 300,
                 width: MediaQuery.of(context).size.width,
                 child: groupData(),
               )),

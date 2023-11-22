@@ -52,7 +52,7 @@ class _GroupWidgetTreeState extends State<GroupWidgetTree> {
                                   if (count.data != 1 &&
                                       check.data == true &&
                                       milestone.data != null) {
-                                    return const ChatHome();
+                                    return ChatHome();
                                   }
                                   if (count.data != 1 &&
                                       check.data == false &&

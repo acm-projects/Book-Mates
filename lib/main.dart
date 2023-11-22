@@ -49,7 +49,7 @@ class MyApp extends StatelessWidget {
         '/groupWidgetTree': (context) => const GroupWidgetTree(),
         '/groupPage': (context) => const GroupHome(),
         '/createGroup': (context) => const CreateGroupScreen(),
-        '/chatPage': (context) => const ChatHome(),
+        '/chatPage': (context) => ChatHome(),
         '/pdfScreen': (context) => const PDFReaderApp(),
         '/homePage': (context) => const HomePage(),
         '/loginPage': (context) => const LoginPage(),

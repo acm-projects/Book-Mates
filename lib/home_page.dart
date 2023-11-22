@@ -59,8 +59,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               _betterButton(context, const GroupHome(), 'Group Home Page'),
               _betterButton(context, const Groups(), 'Group list'),
               _betterButton(context, const JoinGroup(), 'Join Group'),
-              _betterButton(context, const CreateGroupScreen(), 'Create/Delete Group'),
-              _betterButton(context, const ChatHome(), 'Messaging'),
+              _betterButton(
+                  context, const CreateGroupScreen(), 'Create/Delete Group'),
+              _betterButton(context, ChatHome(), 'Messaging'),
               _betterButton(context, const PDFReaderApp(), 'pdf-stuff'),
               _betterButton(context, const MilestoneListPage(), 'Milestones'),
               _betterButton(context, BookSearchScreen(), 'Api-stuff'),
