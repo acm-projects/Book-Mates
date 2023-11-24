@@ -14,6 +14,9 @@ import 'package:bookmates_app/GroupChat/group_main.dart';
 import 'package:bookmates_app/GroupChat/chat_main_page.dart';
 import 'package:bookmates_app/Group%20Operations/create_group_screen.dart';
 import 'package:bookmates_app/Group%20Operations/join_group_screen.dart';
+import 'library.dart';
+import 'library.dart';
+import 'journal_screen.dart';
 
 AppLifecycleState state = AppLifecycleState.detached;
 
@@ -34,7 +37,9 @@ Future<void> main() async {
     },
   );
   await initBackgroundService();
-  runApp(ChatApp());
+  runApp(JournalPage(
+    bookTitle: 'The Great Gatsby',
+  ));
 }
 
 class MyApp extends StatelessWidget {
