@@ -7,6 +7,7 @@ import 'package:bookmates_app/GroupChat/chat_page.dart';
 import 'package:bookmates_app/Milestone/milestone_page.dart';
 import 'package:bookmates_app/Notification/notification_service.dart';
 import 'package:bookmates_app/PDF%20Upload/pdf_screen.dart';
+import 'package:bookmates_app/User%20Implementation/journal_screen.dart.dart';
 import 'package:bookmates_app/User%20Implementation/profile_page.dart';
 import 'package:bookmates_app/home_page.dart';
 import 'package:bookmates_app/login_screen.dart';

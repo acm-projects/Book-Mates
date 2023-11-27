@@ -1,4 +1,3 @@
-// ignore_for_file: curly_braces_in_flow_control_structures
 import 'package:bookmates_app/User%20Implementation/user_repo.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +18,7 @@ class _ProfilePageState extends State<ProfilePage> {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           return Container(
-            height: 100,
+            height: 75,
             width: 175,
             margin: const EdgeInsets.symmetric(vertical: 4),
             padding: const EdgeInsets.all(12),
@@ -36,8 +35,8 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             child: Text(
               (countType == "Groups")
-                  ? "Groups: \n         ${snapshot.data![0]}"
-                  : "Books: \n          ${snapshot.data![1]}",
+                  ? "Groups:  ${snapshot.data![0]}"
+                  : "Books:   ${snapshot.data![1]}",
               style: const TextStyle(
                   fontSize: 25,
                   fontWeight: FontWeight.bold,
@@ -105,7 +104,7 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         const SizedBox(height: 4), // Adjust for spacing
         Text(
-          hidden ? '               ******' : userData,
+          hidden ? '                 ******' : userData,
           style: const TextStyle(
               fontFamily: 'LeagueSpartan',
               fontSize: 25,
@@ -119,12 +118,12 @@ class _ProfilePageState extends State<ProfilePage> {
 // sign out button
   Widget _signOutButton() {
     return ElevatedButton(
-      onPressed: () async {
-        await FirebaseAuth.instance.signOut();
+      onPressed: () {
+        FirebaseAuth.instance.signOut();
+        Navigator.of(context).pushNamed('/loginPage');
         // sleep(const Duration(milliseconds: 200));
 
         // Restart.restartApp();
-        Navigator.of(context).popAndPushNamed('/loginPage');
       },
       style: ElevatedButton.styleFrom(
         primary: Colors.white,
@@ -194,6 +193,7 @@ class _ProfilePageState extends State<ProfilePage> {
           title: const Text(
             'Your Profile',
             style: TextStyle(
+                fontSize: 40,
                 color: Colors.white,
                 fontFamily: 'LeagueSpartan',
                 fontWeight: FontWeight.bold),
