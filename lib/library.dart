@@ -2,24 +2,23 @@ import 'package:bookmates_app/PDF%20Upload/pdf_screen.dart';
 import 'package:bookmates_app/User%20Implementation/profile_page.dart';
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(MyHomePage());
-}
-
 class Library extends StatelessWidget {
   const Library({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(fontFamily: 'LeagueSpartan'),
       home: Scaffold(
         appBar: AppBar(
           backgroundColor: Color.fromARGB(255, 250, 241, 213),
-          title: Text('Your Library',
-              style: TextStyle(color: Colors.black87, fontFamily: 'Spartan')),
+          foregroundColor: Colors.black,
+          title: Text('Your Library'),
         ),
         body: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [MySearchBarWidget(), MyCard()]),
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [MySearchBarWidget(), MyCard()],
+        ),
         backgroundColor: Color.fromARGB(255, 117, 161, 15),
         bottomNavigationBar: MyBottomAppBar(),
       ),
@@ -39,34 +38,29 @@ class MyCard extends StatelessWidget {
             child: Card(
               elevation: 5.0,
               margin: EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  SizedBox.fromSize(
-                    size: Size(48, 48), // button width and height
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(15),
-                      child: Material(
-                        color:
-                            Color.fromARGB(255, 144, 84, 188), // button color
-                        child: InkWell(
-                          // splash color
-                          onTap: () {}, // button pressed
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: <Widget>[
-                              Icon(Icons.star), // icon
-                              Text("4.0",
-                                  style:
-                                      TextStyle(fontFamily: 'Spartan')), // text
-                            ],
-                          ),
+              child: Padding(
+                padding: EdgeInsets.all(20.0),
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: Material(
+                    color: Color.fromARGB(255, 184, 254, 21),
+                    borderRadius: BorderRadius.circular(15),
+                    child: InkWell(
+                      onTap: () {},
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Icon(Icons.star),
+                            Text("4.0",
+                                style: TextStyle(fontFamily: 'LeagueSpartan')),
+                          ],
                         ),
                       ),
                     ),
-                  )
-                ],
+                  ),
+                ),
               ),
             ),
           )
@@ -76,53 +70,67 @@ class MyCard extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatefulWidget {
+class homePage extends StatefulWidget {
   @override
   home_page createState() => home_page();
 }
 
-class home_page extends State<MyHomePage> {
+class home_page extends State<homePage> {
   @override
   Widget build(BuildContext context) {
-    Color _iconColor = Colors.grey;
     return MaterialApp(
-        home: Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        backgroundColor: Color.fromARGB(255, 117, 161, 15),
-        title: Text('Your Library',
-            style: TextStyle(
-              color: Colors.black87,
-              fontFamily: 'Spartan',
-            )),
+      theme: ThemeData(fontFamily: 'LeagueSpartan'),
+      home: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          backgroundColor: Color.fromARGB(255, 117, 161, 15),
+          foregroundColor: Colors.black,
+          title: Text('Your Library'),
+        ),
+        body: Column(
+          children: [
+            SizedBox(height: 100),
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: List.generate(
+                    10,
+                    (index) => Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                      child: Column(
+                        children: [
+                          Card(
+                            child: Container(
+                              width: 75,
+                              height: 200,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Icon(Icons.check, color: Colors.green),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 16),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Color.fromARGB(255, 117, 161, 15),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20.0)),
+              ),
+              onPressed: () {},
+              child: Text('Join Group'),
+            ),
+          ],
+        ),
+        backgroundColor: Color.fromARGB(255, 250, 241, 213),
+        bottomNavigationBar: MyBottomAppBar(),
       ),
-      body: Column(children: [
-        Row(children: [
-          Container(
-              width: 200,
-              height: 300,
-              child: Card(
-                //elevation: 5.0,
-                margin: EdgeInsets.all(16.0),
-              ))
-        ]),
-        Row(children: [
-          Align(alignment: Alignment(200, 500)),
-          IconButton(
-              alignment: Alignment.center,
-              color: _iconColor,
-              iconSize: 30,
-              icon: Icon(Icons.check_box),
-              onPressed: () {
-                setState(() {
-                  _iconColor = Colors.green;
-                });
-              })
-        ])
-      ]),
-      backgroundColor: Color.fromARGB(255, 250, 241, 213),
-      bottomNavigationBar: MyBottomAppBar(),
-    ));
+    );
   }
 }
 
@@ -132,20 +140,21 @@ class MySearchBarWidget extends StatelessWidget {
     return Column(
       children: <Widget>[
         Container(
-            padding: EdgeInsets.all(16.0),
-            child: Container(
-              decoration: BoxDecoration(
-                  borderRadius:
-                      BorderRadius.circular(16.0), // Set the corner radius
-                  border: Border.all()),
-              child: TextFormField(
-                decoration: const InputDecoration(
-                    labelText: 'Search for your books..',
-                    prefixIcon: Icon(Icons.search),
-                    //border: OutlineInputBorder(),
-                    border: InputBorder.none),
+          padding: EdgeInsets.all(16.0),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16.0),
+              border: Border.all(),
+            ),
+            child: TextFormField(
+              decoration: InputDecoration(
+                labelText: 'Search for your books..',
+                prefixIcon: Icon(Icons.search),
+                border: InputBorder.none,
               ),
-            )),
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -182,12 +191,13 @@ class MyBottomAppBar extends StatelessWidget {
                   builder: ((context) => const PDFReaderApp())));
             },
           ),
-          // IconButton(
-          //   icon: Icon(Icons.search),
-          //   onPressed: () {
-          //     // Add functionality for the search button
-          //   },
-          // ),
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: ((context) => const Library())));
+            },
+          ),
         ],
       ),
     );

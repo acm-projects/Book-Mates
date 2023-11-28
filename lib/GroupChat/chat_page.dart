@@ -137,15 +137,34 @@ class _ChatHomeState extends State<ChatHome> {
                 bool isUser = (document['senderID'] == email);
                 Widget messageType = (document['mediaURL'] == '')
                     ? _chatBubble(document['text'], isUser)
-                    : Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0, vertical: 10.0),
-                        margin: const EdgeInsets.symmetric(
-                            vertical: 4.0, horizontal: 8.0),
-                        child: Align(
-                          alignment: isUser
-                              ? Alignment.centerRight
-                              : Alignment.centerLeft,
+                    : Align(
+                        alignment: isUser
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0, vertical: 10.0),
+                          margin: const EdgeInsets.symmetric(
+                              vertical: 4.0, horizontal: 8.0),
+                          constraints: BoxConstraints(
+                            maxWidth: MediaQuery.of(context).size.width * 0.8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isUser
+                                ? const Color.fromARGB(255, 255, 241, 199)
+                                : const Color.fromARGB(255, 7, 7, 7),
+                            borderRadius: isUser
+                                ? const BorderRadius.only(
+                                    topLeft: Radius.circular(16.0),
+                                    bottomLeft: Radius.circular(16.0),
+                                    topRight: Radius.circular(16.0),
+                                  )
+                                : const BorderRadius.only(
+                                    bottomRight: Radius.circular(16.0),
+                                    topRight: Radius.circular(16.0),
+                                    topLeft: Radius.circular(16.0),
+                                  ),
+                          ),
                           child: Image.network(document['mediaURL']),
                         ),
                       );

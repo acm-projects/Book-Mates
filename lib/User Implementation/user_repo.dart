@@ -20,7 +20,7 @@ Future<void> createUser(String userName, password, String? email) async {
   });
 }
 
-Future<void> joinGroup(String userEmail, groupID, groupName) async {
+Future<void> joinGroup(String userEmail, groupID, groupName, profPic) async {
   //CRUD the subcollection 'Groups
   final userDocRef =
       FirebaseFirestore.instance.collection('users').doc(userEmail);
@@ -37,6 +37,7 @@ Future<void> joinGroup(String userEmail, groupID, groupName) async {
   await groupRef.doc(groupID).set({
     'groupID': groupID,
     'groupName': groupName,
+    'profPic': profPic,
   });
 }
 
