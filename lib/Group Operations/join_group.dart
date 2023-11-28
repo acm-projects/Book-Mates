@@ -21,7 +21,7 @@ class _JoinGroupState extends State<JoinGroup> {
     return ElevatedButton(
       onPressed: () async {
         // navigate to groupPages after joining a group
-        Navigator.of(context).pop();
+        // Navigator.of(context).pop();
         Navigator.of(context).pop();
         // check group existence before joining
         await checkGroupExists(_controllerVerificationCode.text, 1);

@@ -69,7 +69,8 @@ Future addMember(String path, userEmail, groupID, int admin) async {
         .doc(groupID)
         .get();
     final groupName = groupRef.data()!['groupName'];
-    await joinGroup(userEmail, groupID, groupName);
+    await joinGroup(
+        userEmail, groupID, groupName, groupRef.data()!['profPicURL']);
 
     // update the member subcollection
     await FirebaseFirestore.instance.collection(path).doc(userEmail).set({
@@ -154,7 +155,8 @@ Future createOrUpdate(String bookName, groupName, userEmail, groupID) async {
   // add the user who created the group as a member
   await addMember('groups/$groupID/Members', userEmail, groupID, 1);
   // update the users subcollection upon joining
-  await joinGroup(userEmail, groupID, groupName);
+  await joinGroup(userEmail, groupID, groupName,
+      "https://firebasestorage.googleapis.com/v0/b/bookma-d79ce.appspot.com/o/question.jpg?alt=media&token=f62ba153-6a1f-40d1-8db5-5e6cc6394a62");
 }
 
 Future subDelete(String path) async {

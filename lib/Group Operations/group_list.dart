@@ -1,9 +1,11 @@
 import 'package:bookmates_app/Group%20Operations/group_repo.dart';
 import 'package:bookmates_app/demo_page.dart';
 import 'package:bookmates_app/library.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/utils.dart';
 
 class Groups extends StatefulWidget {
   const Groups({super.key});
@@ -15,6 +17,19 @@ class Groups extends StatefulWidget {
 class _GroupsState extends State<Groups> {
   final userEmail = FirebaseAuth.instance.currentUser?.email;
 
+  @override
+  void initState() {
+    setState(() {});
+  }
+
+  Future<String?> getProfURL(String groupID) async {
+    final groupRef = await FirebaseFirestore.instance
+        .collection('groups')
+        .doc(groupID)
+        .get();
+    return groupRef.data()!['profPicURL'];
+  }
+
   // to dynamically render every group a user's in
   Widget _listGroups() {
     return StreamBuilder(
@@ -23,33 +38,38 @@ class _GroupsState extends State<Groups> {
           .snapshots(),
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.hasData) {
-          List<Widget> groupCards = [];
-          // make it where is shows two groups per row
-          for (int i = 0; i < snapshot.data!.docs.length; i += 2) {
-            final groupDocData1 = snapshot.data!.docs[i];
-            final groupName1 = groupDocData1['groupName'];
-            final groupID1 = groupDocData1['groupID'];
+          // make a list of cards of the groups that a user is in
+          List<Widget> carouselItems = snapshot.data!.docs.map((document) {
+            // make object view of each group a user is in
+            Map<String, dynamic> groupData =
+                document.data() as Map<String, dynamic>;
 
-            // assigning the 2 cards to the groups the users in
-            Widget card1 = _groupCard(groupName1, groupID1);
-            Widget card2 = Container();
-            if (i + 1 < snapshot.data!.docs.length) {
-              final groupDocData2 = snapshot.data!.docs[i + 1];
-              final groupName2 = groupDocData2['groupName'];
-              final groupID2 = groupDocData2['groupID'];
-              card2 = _groupCard(groupName2, groupID2);
-            }
+            return FutureBuilder(
+                future: getProfURL(document.id),
+                builder: (context, urlSnapShot) {
+                  if (urlSnapShot.hasData) {
+                    return Container(
+                        child: _groupCard(groupData['groupName'],
+                            groupData['groupID'], urlSnapShot.data));
+                  } else {
+                    return Container();
+                  }
+                });
+          }).toList();
 
-            // now this widget has 2 cards in the flex layout 'Row'
-            groupCards.add(Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [card1, card2].where((card) => card != null).toList(),
-            ));
-          }
+          // return CarouselSlider()
 
-          return Column(
-            children: groupCards,
+          // with those cards, make a carousel
+          return CarouselSlider(
+            items: carouselItems,
+            options: CarouselOptions(
+              height: 400,
+              enlargeCenterPage: true,
+              autoPlay: false,
+              // autoPlayInterval: Duration(seconds: 5),
+            ),
           );
+          // );
         } else {
           return const DemoPage();
         }
@@ -58,7 +78,7 @@ class _GroupsState extends State<Groups> {
   }
 
   // the card representing a group a users in
-  Widget _groupCard(String groupName, groupID) {
+  Widget _groupCard(String groupName, groupID, profPic) {
     return GestureDetector(
       // when a user presses a button, change their currentgroup and navigate to group home page
       onTap: () async {
@@ -96,10 +116,12 @@ class _GroupsState extends State<Groups> {
         margin: const EdgeInsets.symmetric(
             vertical: 10), // Adjust vertical padding as needed
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(width: 20),
             Container(
-              width: 150,
+              width: 250,
               decoration: BoxDecoration(
                 shape: BoxShape.rectangle,
                 borderRadius: BorderRadius.circular(25),
@@ -111,15 +133,15 @@ class _GroupsState extends State<Groups> {
                   const SizedBox(height: 15),
                   Text(
                     groupName,
-                    style: const TextStyle(fontFamily: 'Spartan', fontSize: 20),
+                    style: const TextStyle(fontFamily: 'Spartan', fontSize: 45),
                   ),
-                  Container(
-                    height: 100,
-                    width: 80,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Color.fromARGB(255, 145, 179, 206),
-                    ),
+                  const SizedBox(
+                    height: 50,
+                  ),
+                  CircleAvatar(
+                    backgroundImage: NetworkImage(profPic),
+                    radius: 75,
+                    backgroundColor: Colors.grey,
                   ),
                 ],
               ),
@@ -130,14 +152,43 @@ class _GroupsState extends State<Groups> {
     );
   }
 
+  Widget _joinGroupButton() {
+    return Align(
+      alignment: Alignment.center,
+      child: ElevatedButton(
+        onPressed: () {
+          Navigator.of(context).pushNamed('/joinGroup');
+        },
+        style: ElevatedButton.styleFrom(
+          primary: Colors.white,
+          onPrimary: Colors.black,
+          shape: const StadiumBorder(),
+        ),
+        child: const Padding(
+          padding: EdgeInsets.symmetric(
+              horizontal: 20.0), // Adjust horizontal padding
+          child: Text(
+            'Join Group',
+            style: TextStyle(
+              fontFamily: 'LeagueSpartan',
+              fontSize: 20,
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   // button user presses create a group
   Widget _createGroupButton() {
     return ElevatedButton(
       onPressed: () => Navigator.of(context).pushNamed('/createGroup'),
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF75A10F),
+        backgroundColor: const Color.fromARGB(255, 117, 161, 15),
       ),
-      child: const Icon(Icons.add, color: Colors.white),
+      child: const Icon(Icons.add, color: Colors.white, size: 50),
     );
   }
 
@@ -149,7 +200,7 @@ class _GroupsState extends State<Groups> {
       home: Scaffold(
         appBar: AppBar(
           backgroundColor: const Color.fromARGB(255, 250, 241, 213),
-          title: const Text('Your Groups',
+          title: const Text('                      Your Groups',
               style: TextStyle(color: Colors.black87, fontFamily: 'Spartan')),
         ),
         body: Column(
@@ -158,6 +209,13 @@ class _GroupsState extends State<Groups> {
           children: [
             // MySearchBarWidget(),
             Expanded(child: _listGroups()),
+            Container(
+              width: 20,
+              child: _joinGroupButton(),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
             _createGroupButton()
           ],
         ),
