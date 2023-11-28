@@ -9,6 +9,7 @@ import 'chat_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
+import 'package:bookmates_app/VideoCall/screens/call_screen.dart';
 
 class ChatHome extends StatefulWidget {
   const ChatHome({Key? key}) : super(key: key);
@@ -24,6 +25,23 @@ class _ChatHomeState extends State<ChatHome> {
   final email = FirebaseAuth.instance.currentUser?.email;
   // for scrolling
   final ScrollController _scrollController = ScrollController();
+
+  //this will navigate the user to the video call page
+  void _navigateToVideoCall() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const VideoCallPage(
+          appId:
+              'ae7172a89fe046ae97b177a9513b2d02', // Replace with your actual App ID
+          token:
+              '007eJxTYFC5tFNl5ZZiHbEsJwfBbzdf3vi45dT1tOnCJ0rm/ntRvq1dgSEx1dzQ3CjRwjIt1cDELDHV0jzJ0Nw80dLU0DjJKMXAyPhBSmpDICPDlioNBkYoBPHZGdwzE/PyMosZGABpBCK4', // Replace with your actual token
+          channelName: 'testChannel', // Replace with your actual channel name
+          isMicEnabled: true, // Set as per your requirement
+          isVideoEnabled: true, // Set as per your requirement
+        ),
+      ),
+    );
+  }
 
   // where user inputs message or sends an image
   Widget _entryField() {
@@ -204,6 +222,12 @@ class _ChatHomeState extends State<ChatHome> {
     return Scaffold(
       appBar: AppBar(
         title: _title(),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.video_call),
+            onPressed: _navigateToVideoCall,
+          ),
+        ], // Added the missing closing bracket here
         backgroundColor: const Color(0xFFFAF1D5),
         centerTitle: true,
         elevation: 0,
