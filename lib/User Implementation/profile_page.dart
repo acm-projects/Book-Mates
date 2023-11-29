@@ -23,7 +23,7 @@ class _ProfilePageState extends State<ProfilePage> {
             margin: const EdgeInsets.symmetric(vertical: 4),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Color.fromARGB(255, 204, 238, 124),
+              color: Color.fromARGB(255, 240, 223, 173),
               borderRadius: BorderRadius.circular(10),
               boxShadow: [
                 BoxShadow(
@@ -38,6 +38,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ? "Groups:  ${snapshot.data![0]}"
                   : "Books:   ${snapshot.data![1]}",
               style: const TextStyle(
+                  fontFamily: "LeagueSpartan",
                   fontSize: 25,
                   fontWeight: FontWeight.bold,
                   color: Colors.black),
@@ -58,7 +59,7 @@ class _ProfilePageState extends State<ProfilePage> {
           margin: const EdgeInsets.symmetric(vertical: 4),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Color.fromARGB(255, 199, 231, 125),
+            color: Color.fromARGB(255, 240, 223, 173),
             borderRadius: BorderRadius.circular(10),
             boxShadow: [
               BoxShadow(
@@ -126,7 +127,7 @@ class _ProfilePageState extends State<ProfilePage> {
         // Restart.restartApp();
       },
       style: ElevatedButton.styleFrom(
-        primary: Colors.white,
+        primary: Color.fromARGB(255, 240, 223, 173),
         onPrimary: Colors.black,
         shape: const StadiumBorder(),
       ),
@@ -134,7 +135,7 @@ class _ProfilePageState extends State<ProfilePage> {
         'Sign Out',
         style: TextStyle(
             fontFamily: 'LeagueSpartan',
-            fontSize: 20,
+            fontSize: 15,
             color: Colors.black,
             fontWeight: FontWeight.bold),
       ),
@@ -156,15 +157,15 @@ class _ProfilePageState extends State<ProfilePage> {
             setState(() {});
           },
           style: ButtonStyle(
-            backgroundColor: MaterialStatePropertyAll(Colors.white),
+            backgroundColor: MaterialStatePropertyAll(Color.fromARGB(255, 240, 223, 173)),
             shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             )),
           ),
           child: const Text(
-            "Add pic",
-            style: TextStyle(color: Color(0xFF75A10F)),
+            "Change Pic",
+            style: TextStyle(color: Colors.black, fontFamily: "LeagueSpartan", fontWeight: FontWeight.bold, fontSize: 15),
           ),
         ),
         // onPressed: uploadProfPic, child: Text('Add profPic')),
@@ -186,9 +187,9 @@ class _ProfilePageState extends State<ProfilePage> {
     return Padding(
       padding: const EdgeInsets.only(top: 20),
       child: Scaffold(
-        backgroundColor: Color.fromARGB(255, 140, 192, 18),
+        backgroundColor: const Color.fromARGB(255, 117, 161, 15),
         appBar: AppBar(
-          backgroundColor: Color.fromARGB(255, 140, 192, 18),
+          backgroundColor: const Color.fromARGB(255, 117, 161, 15),
           elevation: 0,
           title: const Text(
             'Your Profile',

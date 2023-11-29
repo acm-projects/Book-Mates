@@ -50,6 +50,7 @@ class _PDFReaderAppState extends State<PDFReaderApp> {
             title: Text(
               displayName,
               style: const TextStyle(
+                fontFamily: "LeagueSpartan",
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
@@ -107,25 +108,20 @@ class _PDFReaderAppState extends State<PDFReaderApp> {
   Widget _title() {
     return AppBar(
       automaticallyImplyLeading: false,
-      title: Container(
-        padding: const EdgeInsets.only(
-          top: 25,
-        ),
-        child: const Text(
-          "Your Library",
-          style: TextStyle(
-            fontSize: 24,
-            fontFamily: 'LeagueSpartan',
-            fontWeight: FontWeight.w600,
-            color: Colors.white, // Text color
-            shadows: [
-              BoxShadow(
-                color: Color.fromRGBO(70, 70, 70, 0.918),
-                blurRadius: 12,
-                offset: Offset(0, 2),
-              ),
-            ],
-          ),
+      title: const Text(
+        "Your Library",
+        style: TextStyle(
+          fontSize: 24,
+          fontFamily: 'LeagueSpartan',
+          fontWeight: FontWeight.w600,
+          color: Colors.white, // Text color
+          shadows: [
+            BoxShadow(
+              color: Color.fromRGBO(70, 70, 70, 0.918),
+              blurRadius: 12,
+              offset: Offset(0, 2),
+            ),
+          ],
         ),
       ),
       backgroundColor: Colors.transparent,

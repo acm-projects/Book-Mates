@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/utils.dart';
+import 'package:scaled_list/scaled_list.dart';
 
 class Groups extends StatefulWidget {
   const Groups({super.key});
@@ -30,6 +31,10 @@ class _GroupsState extends State<Groups> {
     return groupRef.data()!['profPicURL'];
   }
 
+ final List<Color> kMixedColors = [
+  const Color.fromARGB(255, 250, 241, 213)
+  ];
+
   // to dynamically render every group a user's in
   Widget _listGroups() {
     return StreamBuilder(
@@ -39,37 +44,42 @@ class _GroupsState extends State<Groups> {
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.hasData) {
           // make a list of cards of the groups that a user is in
-          List<Widget> carouselItems = snapshot.data!.docs.map((document) {
+          List<Map<String, dynamic>> carouselItems = snapshot.data!.docs.map((document) {
             // make object view of each group a user is in
             Map<String, dynamic> groupData =
                 document.data() as Map<String, dynamic>;
-
-            return FutureBuilder(
-                future: getProfURL(document.id),
-                builder: (context, urlSnapShot) {
-                  if (urlSnapShot.hasData) {
-                    return Container(
-                        child: _groupCard(groupData['groupName'],
-                            groupData['groupID'], urlSnapShot.data));
-                  } else {
-                    return Container();
-                  }
-                });
+                return groupData;
           }).toList();
 
-          // return CarouselSlider()
-
           // with those cards, make a carousel
-          return CarouselSlider(
-            items: carouselItems,
-            options: CarouselOptions(
-              height: 400,
-              enlargeCenterPage: true,
-              autoPlay: false,
-              // autoPlayInterval: Duration(seconds: 5),
-            ),
-          );
-          // );
+          return ScaledList(
+            selectedCardHeightRatio: 1,
+            unSelectedCardHeightRatio: 0.4,
+            // unSelectedCardHeightRatio: 0.35,
+            marginWidthRatio: 0.1,
+            cardWidthRatio: 0.7,
+          itemCount: carouselItems.length,
+          itemColor: (index) {
+                  return kMixedColors[0];
+                },
+          itemBuilder: (index, selectedIndex) {
+            final carousel = carouselItems[index];
+
+            return FutureBuilder(
+                future: getProfURL(carousel['groupID']),
+                builder: (context, urlSnapShot) {
+                  if (urlSnapShot.hasData) {
+                    return _groupCard(carousel["groupName"], carousel["groupID"], urlSnapShot.data, selectedIndex == index || (carouselItems.length == 1 && index == 0));
+                  }
+                  else {
+                    return Container();
+                  }
+                },
+            );
+          },
+          // scaleExtent: 0.8, // Adjust the scale extent as needed
+          // horizontalScrollBar: true, // Enable horizontal scrollbar if required
+        );
         } else {
           return const DemoPage();
         }
@@ -77,8 +87,51 @@ class _GroupsState extends State<Groups> {
     );
   }
 
+  //         .collection('users/$userEmail/Groups')
+  //         .snapshots(),
+  //     builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+  //       if (snapshot.hasData) {
+  //         // make a list of cards of the groups that a user is in
+  //         List<Widget> carouselItems = snapshot.data!.docs.map((document) {
+  //           // make object view of each group a user is in
+  //           Map<String, dynamic> groupData =
+  //               document.data() as Map<String, dynamic>;
+
+  //           return FutureBuilder(
+  //               future: getProfURL(document.id),
+  //               builder: (context, urlSnapShot) {
+  //                 if (urlSnapShot.hasData) {
+  //                   return Container(
+  //                       child: _groupCard(groupData['groupName'],
+  //                           groupData['groupID'], urlSnapShot.data));
+  //                 } else {
+  //                   return Container();
+  //                 }
+  //               });
+  //         }).toList();
+
+  //         // return CarouselSlider()
+
+  //         // with those cards, make a carousel
+  //         return CarouselSlider(
+  //           items: carouselItems,
+  //           options: CarouselOptions(
+  //             height: 400,
+  //             enlargeCenterPage: true,
+  //             autoPlay: false,
+  //             // autoPlayInterval: Duration(seconds: 5),
+  //           ),
+  //         );
+  //         // );
+  //       } else {
+  //         return const DemoPage();
+  //       }
+  //     },
+  //   );
+  // }
+
   // the card representing a group a users in
-  Widget _groupCard(String groupName, groupID, profPic) {
+  Widget _groupCard(String groupName, groupID, profPic, bool focused) {
     return GestureDetector(
       // when a user presses a button, change their currentgroup and navigate to group home page
       onTap: () async {
@@ -119,37 +172,35 @@ class _GroupsState extends State<Groups> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const SizedBox(width: 20),
+            //const SizedBox(width: 50),
             Container(
               width: 250,
+              height: 500,
               decoration: BoxDecoration(
                 shape: BoxShape.rectangle,
-                borderRadius: BorderRadius.circular(25),
-                color: const Color.fromARGB(255, 205, 201, 201),
-                border: Border.all(width: 2),
+                //borderRadius: BorderRadius.circular(25),
+                //color: const Color.fromARGB(255, 205, 201, 201),
+                //border: Border.all(width: 2),
               ),
-              child: Column(
+      child: Column(
                 children: [
                   const SizedBox(height: 15),
                   Text(
                     groupName,
-                    style: const TextStyle(fontFamily: 'Spartan', fontSize: 45),
+                    style: const TextStyle(fontFamily: 'LeagueSpartan', fontSize: 30, fontWeight: FontWeight.bold,
+),
                   ),
                   const SizedBox(
-                    height: 50,
+                    height: 20,
                   ),
                   CircleAvatar(
                     backgroundImage: NetworkImage(profPic),
-                    radius: 75,
+                    radius: focused ? 70 : 20,
                     backgroundColor: Colors.grey,
                   ),
                 ],
               ),
-            ),
-          ],
-        ),
-      ),
-    );
+          )])));
   }
 
   Widget _joinGroupButton() {
@@ -183,12 +234,15 @@ class _GroupsState extends State<Groups> {
 
   // button user presses create a group
   Widget _createGroupButton() {
-    return ElevatedButton(
-      onPressed: () => Navigator.of(context).pushNamed('/createGroup'),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color.fromARGB(255, 117, 161, 15),
+    return Align(
+      alignment: Alignment.center,
+      child: ElevatedButton(
+        onPressed: () => Navigator.of(context).pushNamed('/createGroup'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color.fromARGB(255, 117, 161, 15),
+        ),
+        child: const Icon(Icons.add, color: Colors.white, size: 50),
       ),
-      child: const Icon(Icons.add, color: Colors.white, size: 50),
     );
   }
 
@@ -200,8 +254,8 @@ class _GroupsState extends State<Groups> {
       home: Scaffold(
         appBar: AppBar(
           backgroundColor: const Color.fromARGB(255, 250, 241, 213),
-          title: const Text('                      Your Groups',
-              style: TextStyle(color: Colors.black87, fontFamily: 'Spartan')),
+          title: const Text('                     Your Groups',
+              style: TextStyle(color: Colors.black87, fontFamily: 'LeagueSpartan', fontSize: 25, fontWeight: FontWeight.bold)),
         ),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

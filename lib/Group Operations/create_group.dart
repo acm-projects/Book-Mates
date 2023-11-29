@@ -108,10 +108,10 @@ class _CreateGroupState extends State<CreateGroupScreen> {
   Widget _title() {
     return Container(
       padding: const EdgeInsets.only(
-        top: 25,
+        top: 8,
       ),
       child: const Text(
-        "Create your group",
+        "Create Your Group",
         style: TextStyle(
           fontSize: 24,
           fontFamily: 'LeagueSpartan',
@@ -132,6 +132,7 @@ class _CreateGroupState extends State<CreateGroupScreen> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         body: Stack(
           children: [
@@ -156,10 +157,10 @@ class _CreateGroupState extends State<CreateGroupScreen> {
                 child: Column(
                   children: [
                     _userForm(),
-                    TextButton(
-                        onPressed: () =>
-                            Navigator.of(context).pushNamed('/joinGroup'),
-                        child: const Text('Join a Group Instead?'))
+                    // TextButton(
+                    //     onPressed: () =>
+                    //         Navigator.of(context).pushNamed('/joinGroup'),
+                    //     child: const Text('Join a Group Instead?'))
                   ],
                 ),
               ),

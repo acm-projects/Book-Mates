@@ -85,20 +85,26 @@ class _JoinGroupState extends State<JoinGroup> {
         padding: const EdgeInsets.only(
           top: 25,
         ),
-        child: const Text(
-          "Join a Group",
-          style: TextStyle(
-            fontSize: 24,
-            fontFamily: 'LeagueSpartan',
-            fontWeight: FontWeight.w600,
-            color: Colors.white, // Text color
-            shadows: [
-              BoxShadow(
-                color: Color.fromRGBO(70, 70, 70, 0.918),
-                blurRadius: 12,
-                offset: Offset(0, 2),
-              ),
-            ],
+        child: Container(
+ padding: const EdgeInsets.only(
+        // top: 2,
+        bottom: 12,
+      ),
+          child: const Text(
+            "Join A Group",
+            style: TextStyle(
+              fontSize: 24,
+              fontFamily: 'LeagueSpartan',
+              fontWeight: FontWeight.w600,
+              color: Colors.white, // Text color
+              shadows: [
+                BoxShadow(
+                  color: Color.fromRGBO(70, 70, 70, 0.918),
+                  blurRadius: 12,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
           ),
         ),
       ),

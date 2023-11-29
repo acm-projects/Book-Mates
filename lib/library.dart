@@ -8,12 +8,18 @@ class Library extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(fontFamily: 'LeagueSpartan'),
       home: Scaffold(
         appBar: AppBar(
           backgroundColor: Color.fromARGB(255, 250, 241, 213),
           foregroundColor: Colors.black,
-          title: Text('Your Library'),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Your Library'),
+            ],
+          ),
         ),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

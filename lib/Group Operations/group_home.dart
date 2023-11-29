@@ -275,7 +275,7 @@ Widget groupData() {
                 Padding(
                   padding: const EdgeInsets.only(
                       bottom: 16.0, right: 16, left: 16, top: 0),
-                  child: Text("Book: ${groupData['bookName']}",
+                  child: Text(groupData['bookName'],
                       style: const TextStyle(
                         fontSize: 24,
                         fontFamily: 'LeagueSpartan',
