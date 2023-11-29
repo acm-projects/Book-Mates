@@ -1,3 +1,287 @@
+// import 'dart:io';
+// import 'dart:math';
+
+// import 'package:bookmates_app/Milestone/milestone_service.dart';
+// import 'package:bookmates_app/User%20Implementation/user_repo.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:file_picker/file_picker.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_storage/firebase_storage.dart';
+
+// // manages functionality all group operations in Firestore
+
+// Future<int> getMemberCount(String groupID) async {
+//   // return the current amount of members in a group
+//   final snapshot =
+//       await FirebaseFirestore.instance.collection('groups').doc(groupID).get();
+//   final data = snapshot.data();
+
+//   return data!['memberCount'];
+// }
+
+// String generateGroupID() {
+//   // creates a random 6-digit number that'll b the group's ID
+//   final random = Random();
+//   return (random.nextInt(900000) + 100000).toString();
+// }
+
+// Future<void> checkGroupExists(String userGroupInput, int leaveOrJoin) async {
+//   //if the groups the user types exists, then join or leave
+
+//   final userEmail = FirebaseAuth.instance.currentUser?.email;
+//   final groupCollection =
+//       await FirebaseFirestore.instance.collection('groups').get();
+
+//   for (final groupDoc in groupCollection.docs) {
+//     // checks if the id that the user inputted exists, if it does, then add that user
+//     final groupID = groupDoc.id;
+//     if (userGroupInput == groupID && leaveOrJoin == 1) {
+//       await addMember(
+//           'groups/$userGroupInput/Members', userEmail, userGroupInput, 0);
+//     }
+//     if (userGroupInput == groupID && leaveOrJoin == 0) {
+//       await loseMember(userEmail!, 'groups/$userGroupInput/Members', groupID);
+//     }
+//   }
+// }
+
+// Future addMember(String path, userEmail, groupID, int admin) async {
+//   bool validAdd = true; // assume they not in group
+//   final snapshot =
+//       await FirebaseFirestore.instance.collection('users').doc(userEmail).get();
+//   Map<String, dynamic>? userData = snapshot.data();
+
+//   final userGroups = await FirebaseFirestore.instance
+//       .collection('users/$userEmail/Groups')
+//       .get();
+
+//   final userGroupsDocs = userGroups.docs;
+
+//   for (final groupDoc in userGroupsDocs) {
+//     final userGroupID = groupDoc.id;
+//     if (userGroupID == groupID) validAdd = false; // if they are, stop operation
+//   }
+
+//   if (validAdd) {
+//     //add group to user's subcollection
+//     final groupRef = await FirebaseFirestore.instance
+//         .collection('groups')
+//         .doc(groupID)
+//         .get();
+//     final groupName = groupRef.data()!['groupName'];
+//     await joinGroup(
+//         userEmail, groupID, groupName, groupRef.data()!['profPicURL']);
+
+//     // update the member subcollection
+//     await FirebaseFirestore.instance.collection(path).doc(userEmail).set({
+//       "Member": userEmail,
+//       "userName": userData?['userName'],
+//       "profPicURL": userData?['profPicURL'],
+//       "isAdmin": admin == 1 ? true : false,
+//     });
+
+//     // get the new count and update the group data field
+//     int newCount = await getMemberCount(groupID) + 1;
+//     await FirebaseFirestore.instance.collection('groups').doc(groupID).update({
+//       'memberCount': newCount,
+//     });
+
+//     //update the ratio for every milestone
+//     await updateAllRatio(groupID, newCount);
+//   }
+// }
+
+// Future<void> loseMember(String userEmail, groupPath, groupID) async {
+//   // how a user leaves a group
+
+//   bool validLeave = false;
+//   // assume they aren't in the group, have to check in order to leave
+
+//   final userGroups = await FirebaseFirestore.instance
+//       .collection('users/$userEmail/Groups')
+//       .get();
+
+//   final userGroupsDocs = userGroups.docs;
+
+//   for (final groupDoc in userGroupsDocs) {
+//     final userGroupID = groupDoc.id;
+//     if (userGroupID == groupID) {
+//       validLeave = true; // if they are, change flag
+//     }
+//   }
+
+//   if (validLeave) {
+//     // delete group from user's subcollection
+//     await leaveGroup(userEmail, groupID);
+
+//     //delete user from 'Members' subcollection in a group
+//     final groupDocRef =
+//         FirebaseFirestore.instance.collection(groupPath).doc(userEmail);
+//     await groupDocRef.delete();
+
+//     // get the new member count and update the groups data field
+//     int newCount = await getMemberCount(groupID) - 1;
+//     await FirebaseFirestore.instance.collection('groups').doc(groupID).update({
+//       'memberCount': newCount,
+//     });
+
+//     // if there are no more memebers, just delete the group from existence
+//     if (newCount == 0) {
+//       await deleteGroup(groupID, userEmail);
+//       return;
+//     }
+
+//     //update the ratio for every milestone
+//     await updateAllRatio(groupID, newCount);
+//   }
+// }
+
+// Future createOrUpdate(String bookName, groupName, userEmail, groupID) async {
+//   // create a group document and its data fields
+//   // create random groupID number
+//   final docRef = FirebaseFirestore.instance.collection('groups').doc(
+//       groupID); // refrence of the specific document we want to put data into
+
+//   await docRef.set({
+//     'bookName': bookName,
+//     'groupBio': "groupBio",
+//     'groupName': groupName,
+//     'groupID': groupID,
+//     'memberCount': 0,
+//     'profPicURL':
+//         "https://firebasestorage.googleapis.com/v0/b/bookma-d79ce.appspot.com/o/question.jpg?alt=media&token=f62ba153-6a1f-40d1-8db5-5e6cc6394a62",
+//   });
+
+//   // add the user who created the group as a member
+//   await addMember('groups/$groupID/Members', userEmail, groupID, 1);
+//   // update the users subcollection upon joining
+//   await joinGroup(userEmail, groupID, groupName,
+//       "https://firebasestorage.googleapis.com/v0/b/bookma-d79ce.appspot.com/o/question.jpg?alt=media&token=f62ba153-6a1f-40d1-8db5-5e6cc6394a62");
+// }
+
+// Future subDelete(String path) async {
+//   // to delete all documents in a collection
+//   final db = FirebaseFirestore.instance;
+
+//   await db
+//       .collection(path)
+//       .get()
+//       .then((snapshot) => snapshot.docs.forEach((docuemnt) async {
+//             await docuemnt.reference.delete();
+//           }));
+// }
+
+// Future clearUsers(String docPath, String userEmail) async {
+//   // removes a group from all users subcollection of groups, deletes their
+//   // current group aswell, just in case they have that group as their current one
+
+//   final db = FirebaseFirestore.instance;
+//   final memberQuery = await db.collection('groups/$docPath/Members').get();
+
+//   for (final memberDoc in memberQuery.docs) {
+//     final memberEmail = memberDoc.id;
+//     final userGroupCollection = db.collection('users/$memberEmail/Groups');
+//     await userGroupCollection.doc(docPath).delete();
+//     final updates = <String, dynamic>{"currentGroupID": FieldValue.delete()};
+//     await db.collection('users').doc(userEmail).update(updates);
+//   }
+// }
+
+// Future deleteGroup(String groupID, userEmail) async {
+//   // have to remove all users
+//   clearUsers(groupID, userEmail);
+//   // in Firestore, you have to delete all documents in a subcollection b4 u delete
+//   subDelete('groups/$groupID/Members');
+//   subDelete('groups/$groupID/Milestone');
+//   subDelete('groups/$groupID/Messages');
+//   // delete actual group
+//   await FirebaseFirestore.instance.collection('groups').doc(groupID).delete();
+//   // kick admin to homepage
+// }
+
+// Future<List<Map<String, dynamic>>?> getListOfGroupMembers() async {
+//   String? currentGroupID = await getCurrentGroupID();
+//   List<Map<String, dynamic>> groupMembersList = [];
+//   final snapshot = await FirebaseFirestore.instance
+//       .collection('groups')
+//       .doc(currentGroupID)
+//       .collection('Members')
+//       .get();
+//   final groupMembers = snapshot.docs;
+//   for (var member in groupMembers) {
+//     final data = member.data();
+//     groupMembersList.add(data);
+//   }
+//   return groupMembersList;
+// }
+
+// // to the get the current milestone of a group
+// Future<Map<String, dynamic>> getCurrentMilestone() async {
+//   final currentGroupID = await getCurrentGroupID();
+//   final snapshot = await FirebaseFirestore.instance
+//       .collection('groups')
+//       .doc(currentGroupID)
+//       .collection('Milestone')
+//       .get();
+//   final milestone = (snapshot.docs)[0].data();
+//   return milestone;
+// }
+
+// // to check if a user has completed  the current groups milestone
+// Future<bool> checkIfUserCompleted() async {
+//   final userEmail = FirebaseAuth.instance.currentUser?.email;
+//   final milestone = await getCurrentMilestone();
+
+//   List<String> userMilestoneList = [];
+//   final snapshot2 = await FirebaseFirestore.instance
+//       .collection('users')
+//       .doc(userEmail)
+//       .collection('completedMilestones')
+//       .get();
+//   final userMilestones = snapshot2.docs.toList();
+//   for (var data in userMilestones) {
+//     userMilestoneList.add(data.data()['id']);
+//   }
+//   // print(userMilestoneList);
+//   if (userMilestoneList.contains(milestone['id'])) {
+//     return true;
+//   } else {
+//     return false;
+//   }
+// }
+
+// Future<File?> pickProfPic() async {
+//   FilePickerResult? mediaUp =
+//       await FilePicker.platform.pickFiles(type: FileType.media);
+//   if (mediaUp != null && mediaUp.files.isNotEmpty) {
+//     File selectedFile = File(mediaUp.files.single.path!);
+//     return selectedFile;
+//   }
+// }
+
+// Future<void> uploadGroupProfPic() async {
+//   final mediaFile = await pickProfPic();
+//   final groupID = await getCurrentGroupID();
+//   // need to get the file extension type 'pdf, jpg, etc'
+//   String fileExtension = mediaFile!.path.split('.').last;
+//   String filePath =
+//       'groups/$groupID/${DateTime.now().millisecondsSinceEpoch}.$fileExtension';
+
+//   Reference storageReference = FirebaseStorage.instance.ref().child(filePath);
+//   UploadTask uploadTask = storageReference.putFile(mediaFile);
+
+//   //wait for upload to finish to download url
+//   await uploadTask.whenComplete(() async {
+//     String downloadUrl = await storageReference.getDownloadURL();
+
+//     await FirebaseFirestore.instance.collection('groups').doc(groupID).set({
+//       'profPicURL': downloadUrl,
+//     }, SetOptions(merge: true));
+
+//     // get the reference of the groups subcollection of a user
+//   });
+// }
+
 import 'dart:io';
 import 'dart:math';
 
@@ -136,27 +420,26 @@ Future<void> loseMember(String userEmail, groupPath, groupID) async {
   }
 }
 
-Future createOrUpdate(String bookName, groupName, userEmail, groupID) async {
+Future createOrUpdate(String bookName, String groupName, String userEmail,
+    String groupID, String bookCoverUrl) async {
   // create a group document and its data fields
-  // create random groupID number
-  final docRef = FirebaseFirestore.instance.collection('groups').doc(
-      groupID); // refrence of the specific document we want to put data into
+  final docRef = FirebaseFirestore.instance.collection('groups').doc(groupID);
 
   await docRef.set({
     'bookName': bookName,
-    'groupBio': "groupBio",
+    'groupBio':
+        "groupBio", // You might want to update this to be dynamic as well
     'groupName': groupName,
     'groupID': groupID,
     'memberCount': 0,
-    'profPicURL':
-        "https://firebasestorage.googleapis.com/v0/b/bookma-d79ce.appspot.com/o/question.jpg?alt=media&token=f62ba153-6a1f-40d1-8db5-5e6cc6394a62",
+    'profPicURL': bookCoverUrl, // Store the book cover URL here
   });
 
-  // add the user who created the group as a member
+  // Add the user who created the group as a member
   await addMember('groups/$groupID/Members', userEmail, groupID, 1);
-  // update the users subcollection upon joining
-  await joinGroup(userEmail, groupID, groupName,
-      "https://firebasestorage.googleapis.com/v0/b/bookma-d79ce.appspot.com/o/question.jpg?alt=media&token=f62ba153-6a1f-40d1-8db5-5e6cc6394a62");
+
+  // Update the users subcollection upon joining
+  await joinGroup(userEmail, groupID, groupName, bookCoverUrl);
 }
 
 Future subDelete(String path) async {
