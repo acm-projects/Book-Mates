@@ -3,6 +3,7 @@
 import 'package:bookmates_app/Group%20Operations/group_home.dart';
 import 'package:bookmates_app/Group%20Operations/group_repo.dart';
 import 'package:bookmates_app/Notification/notification_service.dart';
+import 'package:bookmates_app/VideoCall/widgets/pre_join_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'chat_service.dart';
@@ -27,20 +28,49 @@ class _ChatHomeState extends State<ChatHome> {
   final ScrollController _scrollController = ScrollController();
 
   //this will navigate the user to the video call page
-  void _navigateToVideoCall() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const VideoCallPage(
-          appId:
-              'ae7172a89fe046ae97b177a9513b2d02', // Replace with your actual App ID
-          token:
-              '007eJxTYFC5tFNl5ZZiHbEsJwfBbzdf3vi45dT1tOnCJ0rm/ntRvq1dgSEx1dzQ3CjRwjIt1cDELDHV0jzJ0Nw80dLU0DjJKMXAyPhBSmpDICPDlioNBkYoBPHZGdwzE/PyMosZGABpBCK4', // Replace with your actual token
-          channelName: 'testChannel', // Replace with your actual channel name
-          isMicEnabled: true, // Set as per your requirement
-          isVideoEnabled: true, // Set as per your requirement
-        ),
+  // void _navigateToVideoCall() {
+  //   Navigator.of(context).push(
+  //     MaterialPageRoute(
+  //       builder: (context) => const VideoCallPage(
+  //         appId:
+  //             'ae7172a89fe046ae97b177a9513b2d02', // Replace with your actual App ID
+  //         token:
+  //             '007eJxTYFC5tFNl5ZZiHbEsJwfBbzdf3vi45dT1tOnCJ0rm/ntRvq1dgSEx1dzQ3CjRwjIt1cDELDHV0jzJ0Nw80dLU0DjJKMXAyPhBSmpDICPDlioNBkYoBPHZGdwzE/PyMosZGABpBCK4', // Replace with your actual token
+  //         channelName: 'testChannel', // Replace with your actual channel name
+  //         isMicEnabled: true, // Set as per your requirement
+  //         isVideoEnabled: true, // Set as per your requirement
+  //       ),
+  //     ),
+  //   );
+  // }
+  void _navigateToVideoCall() async {
+    // Show the PreJoiningDialog
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => PreJoiningDialog(
+        token:
+            '007eJxTYJhx6p3uixWPv2RWaVfWJB/cnyb8yorpvHJ+/DmDg5c4EvIUGIxTEw2TUk1MTZLNEk0skhMTk81TEi2MzJONLE2TzEzTwl+mpTYEMjLw/5JmYIRCEJ+bISQjVSEoNTEltaiYgQEAvZgjCQ==',
+        channelName: 'The Readers', // Replace with your actual channel name
       ),
     );
+
+    // Check if the dialog was closed with the 'Join' button
+    if (result == true) {
+      // Now navigate to the VideoCallPage
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => VideoCallPage(
+            appId:
+                '3ea1be454c6a48caac7da827c295b65f', // Replace with your actual App ID
+            token:
+                '007eJxTYJhx6p3uixWPv2RWaVfWJB/cnyb8yorpvHJ+/DmDg5c4EvIUGIxTEw2TUk1MTZLNEk0skhMTk81TEi2MzJONLE2TzEzTwl+mpTYEMjLw/5JmYIRCEJ+bISQjVSEoNTEltaiYgQEAvZgjCQ==', // Replace with your actual token
+            channelName: 'The Readers', // Replace with your actual channel name
+            isMicEnabled: true, // Set as per your requirement
+            isVideoEnabled: true, // Set as per your requirement
+          ),
+        ),
+      );
+    }
   }
 
   // where user inputs message or sends an image
@@ -154,7 +184,7 @@ class _ChatHomeState extends State<ChatHome> {
                 // flag determinng if you were the one to send the message or not
                 bool isUser = (document['senderID'] == email);
                 Widget messageType = (document['mediaURL'] == '')
-                ? _chatBubble(document['text'], isUser)
+                    ? _chatBubble(document['text'], isUser)
                     : Align(
                         alignment: isUser
                             ? Alignment.centerRight
@@ -186,7 +216,7 @@ class _ChatHomeState extends State<ChatHome> {
                           child: Image.network(document['mediaURL']),
                         ),
                       );
-                      return messageType;
+                return messageType;
               }).toList(),
             ),
           );

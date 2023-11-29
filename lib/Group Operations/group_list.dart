@@ -31,9 +31,7 @@ class _GroupsState extends State<Groups> {
     return groupRef.data()!['profPicURL'];
   }
 
- final List<Color> kMixedColors = [
-  const Color.fromARGB(255, 250, 241, 213)
-  ];
+  final List<Color> kMixedColors = [const Color.fromARGB(255, 250, 241, 213)];
 
   // to dynamically render every group a user's in
   Widget _listGroups() {
@@ -44,11 +42,12 @@ class _GroupsState extends State<Groups> {
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.hasData) {
           // make a list of cards of the groups that a user is in
-          List<Map<String, dynamic>> carouselItems = snapshot.data!.docs.map((document) {
+          List<Map<String, dynamic>> carouselItems =
+              snapshot.data!.docs.map((document) {
             // make object view of each group a user is in
             Map<String, dynamic> groupData =
                 document.data() as Map<String, dynamic>;
-                return groupData;
+            return groupData;
           }).toList();
 
           // with those cards, make a carousel
@@ -58,28 +57,32 @@ class _GroupsState extends State<Groups> {
             // unSelectedCardHeightRatio: 0.35,
             marginWidthRatio: 0.1,
             cardWidthRatio: 0.7,
-          itemCount: carouselItems.length,
-          itemColor: (index) {
-                  return kMixedColors[0];
-                },
-          itemBuilder: (index, selectedIndex) {
-            final carousel = carouselItems[index];
+            itemCount: carouselItems.length,
+            itemColor: (index) {
+              return kMixedColors[0];
+            },
+            itemBuilder: (index, selectedIndex) {
+              final carousel = carouselItems[index];
 
-            return FutureBuilder(
+              return FutureBuilder(
                 future: getProfURL(carousel['groupID']),
                 builder: (context, urlSnapShot) {
                   if (urlSnapShot.hasData) {
-                    return _groupCard(carousel["groupName"], carousel["groupID"], urlSnapShot.data, selectedIndex == index || (carouselItems.length == 1 && index == 0));
-                  }
-                  else {
+                    return _groupCard(
+                        carousel["groupName"],
+                        carousel["groupID"],
+                        urlSnapShot.data,
+                        selectedIndex == index ||
+                            (carouselItems.length == 1 && index == 0));
+                  } else {
                     return Container();
                   }
                 },
-            );
-          },
-          // scaleExtent: 0.8, // Adjust the scale extent as needed
-          // horizontalScrollBar: true, // Enable horizontal scrollbar if required
-        );
+              );
+            },
+            // scaleExtent: 0.8, // Adjust the scale extent as needed
+            // horizontalScrollBar: true, // Enable horizontal scrollbar if required
+          );
         } else {
           return const DemoPage();
         }
@@ -133,74 +136,77 @@ class _GroupsState extends State<Groups> {
   // the card representing a group a users in
   Widget _groupCard(String groupName, groupID, profPic, bool focused) {
     return GestureDetector(
-      // when a user presses a button, change their currentgroup and navigate to group home page
-      onTap: () async {
-        // change the users currentGroup to the card they've pressed
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(userEmail)
-            .set({
-          'currentGroupID': groupID,
-        }, SetOptions(merge: true));
-        // navigate them to the group Home page
-        Navigator.of(context).pushNamed('/groupWidgetTree');
-      },
-      onLongPress: () {
-        showDialog<String>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Leave Group'),
-                content: const Text('Are you sure you want to leave?'),
-                actions: [
-                  TextButton(
-                      onPressed: () async {
-                        await loseMember(
-                            userEmail!, 'groups/$groupID/Members', groupID);
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text('Ok')),
-                ],
-              );
-            });
-      },
-
-      child: Container(
-        margin: const EdgeInsets.symmetric(
-            vertical: 10), // Adjust vertical padding as needed
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            //const SizedBox(width: 50),
-            Container(
-              width: 250,
-              height: 500,
-              decoration: BoxDecoration(
-                shape: BoxShape.rectangle,
-                //borderRadius: BorderRadius.circular(25),
-                //color: const Color.fromARGB(255, 205, 201, 201),
-                //border: Border.all(width: 2),
-              ),
-      child: Column(
+        // when a user presses a button, change their currentgroup and navigate to group home page
+        onTap: () async {
+          // change the users currentGroup to the card they've pressed
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(userEmail)
+              .set({
+            'currentGroupID': groupID,
+          }, SetOptions(merge: true));
+          // navigate them to the group Home page
+          Navigator.of(context).pushNamed('/groupWidgetTree');
+        },
+        onLongPress: () {
+          showDialog<String>(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('Leave Group'),
+                  content: const Text('Are you sure you want to leave?'),
+                  actions: [
+                    TextButton(
+                        onPressed: () async {
+                          await loseMember(
+                              userEmail!, 'groups/$groupID/Members', groupID);
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Ok')),
+                  ],
+                );
+              });
+        },
+        child: Container(
+            margin: const EdgeInsets.symmetric(
+                vertical: 10), // Adjust vertical padding as needed
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 15),
-                  Text(
-                    groupName,
-                    style: const TextStyle(fontFamily: 'LeagueSpartan', fontSize: 30, fontWeight: FontWeight.bold,
-),
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  CircleAvatar(
-                    backgroundImage: NetworkImage(profPic),
-                    radius: focused ? 70 : 20,
-                    backgroundColor: Colors.grey,
-                  ),
-                ],
-              ),
-          )])));
+                  //const SizedBox(width: 50),
+                  Container(
+                    width: 250,
+                    height: 500,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.rectangle,
+                      //borderRadius: BorderRadius.circular(25),
+                      //color: const Color.fromARGB(255, 205, 201, 201),
+                      //border: Border.all(width: 2),
+                    ),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 15),
+                        Text(
+                          groupName,
+                          style: const TextStyle(
+                            fontFamily: 'LeagueSpartan',
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        CircleAvatar(
+                          backgroundImage: NetworkImage(profPic),
+                          radius: focused ? 60 : 20,
+                          backgroundColor: Colors.grey,
+                        ),
+                      ],
+                    ),
+                  )
+                ])));
   }
 
   Widget _joinGroupButton() {
@@ -255,7 +261,11 @@ class _GroupsState extends State<Groups> {
         appBar: AppBar(
           backgroundColor: const Color.fromARGB(255, 250, 241, 213),
           title: const Text('                     Your Groups',
-              style: TextStyle(color: Colors.black87, fontFamily: 'LeagueSpartan', fontSize: 25, fontWeight: FontWeight.bold)),
+              style: TextStyle(
+                  color: Colors.black87,
+                  fontFamily: 'LeagueSpartan',
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold)),
         ),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
