@@ -1,6 +1,8 @@
-import 'package:bookmates_app/Group%20Operations/group_repo.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:bookmates_app/API/services/google_books_service.dart';
+import 'package:bookmates_app/Group Operations/group_repo.dart';
+import 'package:bookmates_app/API/models/book.dart';
 
 class CreateGroupScreen extends StatefulWidget {
   const CreateGroupScreen({Key? key}) : super(key: key);
@@ -10,14 +12,41 @@ class CreateGroupScreen extends StatefulWidget {
 }
 
 class _CreateGroupState extends State<CreateGroupScreen> {
-  // vars to hold user input
   final TextEditingController _controllerGroupName = TextEditingController();
   final TextEditingController _controllerBookName = TextEditingController();
-
-  // the email of the current user
   final email = FirebaseAuth.instance.currentUser?.email;
 
-// resuable entryField where user type in data
+  bool _isLoading = false;
+
+  List<Map<String, String>> _bookSuggestions = [];
+
+  Future<void> fetchBookSuggestions(String bookName) async {
+    GoogleBooksService googleBooksService = GoogleBooksService();
+    setState(() {
+      _isLoading = true; // Start loading animation
+    });
+
+    try {
+      List<Book> bookResults = await googleBooksService.searchBooks(
+          bookName, 0, 10); // Adjust the number of results as needed
+
+      setState(() {
+        _bookSuggestions = bookResults.map((book) {
+          String title = book.title;
+          String coverUrl =
+              book.thumbnailUrl ?? ''; // Using null-aware operator
+          return {'title': title, 'coverUrl': coverUrl};
+        }).toList();
+      });
+    } catch (e) {
+      print('Error fetching book data: $e');
+    } finally {
+      setState(() {
+        _isLoading = false; // Stop loading animation
+      });
+    }
+  }
+
   Widget _entryField(String title, TextEditingController controller) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -31,23 +60,61 @@ class _CreateGroupState extends State<CreateGroupScreen> {
           labelText: title,
           border: const OutlineInputBorder(),
           contentPadding: const EdgeInsets.symmetric(horizontal: 12.0),
+          suffixIcon: IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              fetchBookSuggestions(controller.text);
+            },
+          ),
         ),
+        onChanged: (value) {
+          if (value.isNotEmpty) {
+            fetchBookSuggestions(value);
+          }
+        },
       ),
     );
   }
 
-  // where user presses to join a group
+  String _selectedBookTitle = '';
+  String _selectedBookCoverUrl = '';
+
+  Widget _bookSuggestionsDropdown() {
+    return Visibility(
+      visible: _bookSuggestions.isNotEmpty,
+      child: DropdownButton<Map<String, String>>(
+        items: _bookSuggestions.map((book) {
+          return DropdownMenuItem<Map<String, String>>(
+            value: book,
+            child: Text(book['title'] ?? ''),
+          );
+        }).toList(),
+        onChanged: (selectedBook) {
+          setState(() {
+            _selectedBookTitle = selectedBook?['title'] ?? '';
+            _selectedBookCoverUrl = selectedBook?['coverUrl'] ?? '';
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _loadingAnimation() {
+    return Visibility(
+      visible: _isLoading,
+      child: const CircularProgressIndicator(),
+    );
+  }
+
   Widget _submitButton() {
     return ElevatedButton(
       onPressed: () async {
-        // prevent group creation if all fields are not filled out
         if (_controllerBookName.text.isNotEmpty &&
-            // _controllerGroupBio.text.isNotEmpty &&
             _controllerGroupName.text.isNotEmpty) {
+          final groupID = generateGroupID();
           showDialog<String>(
               context: context,
               builder: (BuildContext context) {
-                final groupID = generateGroupID();
                 return AlertDialog(
                   title: const Text('Your GroupID'),
                   content: Text(
@@ -55,15 +122,13 @@ class _CreateGroupState extends State<CreateGroupScreen> {
                   actions: [
                     TextButton(
                         onPressed: () {
-                          // create the group in Firestore
                           createOrUpdate(
                             _controllerBookName.text,
                             _controllerGroupName.text,
-                            email,
+                            email ?? 'default@email.com',
                             groupID,
+                            _selectedBookCoverUrl, // Pass the book cover URL here
                           );
-                          //send to the homepage after
-                          // Navigator.of(context).popAndPushNamed('/listGroups');
                           Navigator.of(context).pop();
                           Navigator.of(context).pop();
                         },
@@ -79,7 +144,7 @@ class _CreateGroupState extends State<CreateGroupScreen> {
       child: const Text(
         'Create Group',
         style: TextStyle(
-          fontFamily: 'LeagueSpartan',
+          fontFamily: 'Spartan',
           fontSize: 18,
           color: Colors.white,
         ),
@@ -87,14 +152,13 @@ class _CreateGroupState extends State<CreateGroupScreen> {
     );
   }
 
-  // where user fills up information of the group
   Widget _userForm() {
     return Column(
       children: [
         const SizedBox(height: 100),
         _entryField('Book Name', _controllerBookName),
-        const SizedBox(height: 16),
-        // _entryField("Group Bio", _controllerGroupBio),
+        _bookSuggestionsDropdown(),
+        _loadingAnimation(),
         const SizedBox(height: 16),
         _entryField('Group Name', _controllerGroupName),
         const SizedBox(height: 16),
@@ -104,18 +168,17 @@ class _CreateGroupState extends State<CreateGroupScreen> {
     );
   }
 
-  // the title of the create group screen
   Widget _title() {
     return Container(
       padding: const EdgeInsets.only(
-        top: 8,
+        top: 25,
       ),
       child: const Text(
-        "Create Your Group",
+        "Create your group",
         style: TextStyle(
           fontSize: 24,
-          fontFamily: 'LeagueSpartan',
-          fontWeight: FontWeight.w600,
+          fontFamily: 'Spartan',
+          fontWeight: FontWeight.bold,
           color: Colors.white,
           shadows: [
             BoxShadow(
@@ -132,7 +195,6 @@ class _CreateGroupState extends State<CreateGroupScreen> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       home: Scaffold(
         body: Stack(
           children: [
@@ -153,14 +215,13 @@ class _CreateGroupState extends State<CreateGroupScreen> {
                     topRight: Radius.circular(35.0),
                   ),
                 ),
-                // where user puts the info of the group prior to creation
                 child: Column(
                   children: [
                     _userForm(),
-                    // TextButton(
-                    //     onPressed: () =>
-                    //         Navigator.of(context).pushNamed('/joinGroup'),
-                    //     child: const Text('Join a Group Instead?'))
+                    TextButton(
+                        onPressed: () =>
+                            Navigator.of(context).pushNamed('/joinGroup'),
+                        child: const Text('Join a Group Instead?'))
                   ],
                 ),
               ),

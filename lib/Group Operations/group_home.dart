@@ -3,12 +3,41 @@ import 'package:bookmates_app/Milestone/milestone_service.dart';
 import 'package:bookmates_app/User%20Implementation/user_repo.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:bookmates_app/API/models/book.dart';
 
 class GroupHome extends StatefulWidget {
   const GroupHome({super.key});
 
   @override
   State<GroupHome> createState() => _GroupHomeState();
+}
+
+Future<String?> getBookCoverUrl(String bookName) async {
+  final encodedBookName = Uri.encodeComponent(bookName);
+  final url = Uri.parse(
+      'https://www.googleapis.com/books/v1/volumes?q=$encodedBookName');
+
+  try {
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      if (data['totalItems'] > 0) {
+        final book = data['items'][0];
+        final imageUrl = book['volumeInfo']['imageLinks']['thumbnail'];
+        return imageUrl;
+      } else {
+        return null;
+      }
+    } else {
+      print('Failed to load book data');
+      return null;
+    }
+  } catch (e) {
+    print('Error occurred: $e');
+    return null;
+  }
 }
 
 // the anatomy of a single profile pic and its username
@@ -355,11 +384,19 @@ Widget _backgroundContainer() {
 
 // where the book cover will be located
 Widget _bookCover() {
-  return Container(
-      height: 300,
-      width: 300,
-      decoration: const BoxDecoration(color: Colors.white),
-      child: const Text('Book Cover HERE'));
+  return FutureBuilder(
+    future: getGroupData()
+        .then((groupData) => getBookCoverUrl(groupData?['bookName'])),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const CircularProgressIndicator();
+      }
+      if (snapshot.hasData && snapshot.data != null) {
+        return Image.network(snapshot.data as String);
+      }
+      return const Text('Book Cover Not Available');
+    },
+  );
 }
 
 // the title of the page

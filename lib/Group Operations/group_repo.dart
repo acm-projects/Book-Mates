@@ -136,27 +136,26 @@ Future<void> loseMember(String userEmail, groupPath, groupID) async {
   }
 }
 
-Future createOrUpdate(String bookName, groupName, userEmail, groupID) async {
+Future createOrUpdate(String bookName, String groupName, String userEmail,
+    String groupID, String bookCoverUrl) async {
   // create a group document and its data fields
-  // create random groupID number
-  final docRef = FirebaseFirestore.instance.collection('groups').doc(
-      groupID); // refrence of the specific document we want to put data into
+  final docRef = FirebaseFirestore.instance.collection('groups').doc(groupID);
 
   await docRef.set({
     'bookName': bookName,
-    'groupBio': "groupBio",
+    'groupBio':
+        "groupBio", // You might want to update this to be dynamic as well
     'groupName': groupName,
     'groupID': groupID,
     'memberCount': 0,
-    'profPicURL':
-        "https://firebasestorage.googleapis.com/v0/b/bookma-d79ce.appspot.com/o/question.jpg?alt=media&token=f62ba153-6a1f-40d1-8db5-5e6cc6394a62",
+    'profPicURL': bookCoverUrl, // Store the book cover URL here
   });
 
-  // add the user who created the group as a member
+  // Add the user who created the group as a member
   await addMember('groups/$groupID/Members', userEmail, groupID, 1);
-  // update the users subcollection upon joining
-  await joinGroup(userEmail, groupID, groupName,
-      "https://firebasestorage.googleapis.com/v0/b/bookma-d79ce.appspot.com/o/question.jpg?alt=media&token=f62ba153-6a1f-40d1-8db5-5e6cc6394a62");
+
+  // Update the users subcollection upon joining
+  await joinGroup(userEmail, groupID, groupName, bookCoverUrl);
 }
 
 Future subDelete(String path) async {

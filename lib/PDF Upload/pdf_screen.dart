@@ -50,7 +50,7 @@ class _PDFReaderAppState extends State<PDFReaderApp> {
             title: Text(
               displayName,
               style: const TextStyle(
-                fontFamily: "LeagueSpartan",
+                fontFamily: "Spartan",
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
@@ -112,7 +112,7 @@ class _PDFReaderAppState extends State<PDFReaderApp> {
         "Your Library",
         style: TextStyle(
           fontSize: 24,
-          fontFamily: 'LeagueSpartan',
+          fontFamily: 'Spartan',
           fontWeight: FontWeight.w600,
           color: Colors.white, // Text color
           shadows: [
