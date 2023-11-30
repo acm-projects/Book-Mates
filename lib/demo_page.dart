@@ -55,7 +55,7 @@ class _DemoPageState extends State<DemoPage> {
         children: [
           _backgroundContainer(),
           Positioned(
-            top: 100,
+            top: 180,
             left: 0,
             right: 0,
             bottom: 0,

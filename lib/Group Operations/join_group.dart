@@ -32,7 +32,7 @@ class _JoinGroupState extends State<JoinGroup> {
       child: const Text(
         'Join Group',
         style: TextStyle(
-          fontFamily: 'LeagueSpartan',
+          fontFamily: 'Spartan',
           fontSize: 18,
           color: Colors.white,
         ),
@@ -56,7 +56,7 @@ class _JoinGroupState extends State<JoinGroup> {
         VerificationCode(
           length: 6,
           textStyle: const TextStyle(
-            fontFamily: 'LeagueSpartan',
+            fontFamily: 'Spartan',
             fontSize: 18,
             color: Colors.white,
           ),
@@ -86,15 +86,15 @@ class _JoinGroupState extends State<JoinGroup> {
           top: 25,
         ),
         child: Container(
- padding: const EdgeInsets.only(
-        // top: 2,
-        bottom: 12,
-      ),
+          padding: const EdgeInsets.only(
+            // top: 2,
+            bottom: 12,
+          ),
           child: const Text(
             "Join A Group",
             style: TextStyle(
               fontSize: 24,
-              fontFamily: 'LeagueSpartan',
+              fontFamily: 'Spartan',
               fontWeight: FontWeight.w600,
               color: Colors.white, // Text color
               shadows: [

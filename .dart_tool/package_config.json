@@ -314,6 +314,12 @@
       "languageVersion": "2.15"
     },
     {
+      "name": "ionicons",
+      "rootUri": "file:///home/bubbq/.pub-cache/hosted/pub.dev/ionicons-0.2.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
+    },
+    {
       "name": "js",
       "rootUri": "file:///home/bubbq/.pub-cache/hosted/pub.dev/js-0.6.7",
       "packageUri": "lib/",
@@ -620,7 +626,7 @@
       "languageVersion": "3.1"
     }
   ],
-  "generated": "2023-11-29T19:37:34.956456Z",
+  "generated": "2023-11-30T17:17:40.246517Z",
   "generator": "pub",
   "generatorVersion": "3.2.1"
 }

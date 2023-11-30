@@ -90,49 +90,6 @@ class _GroupsState extends State<Groups> {
     );
   }
 
-  //         .collection('users/$userEmail/Groups')
-  //         .snapshots(),
-  //     builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-  //       if (snapshot.hasData) {
-  //         // make a list of cards of the groups that a user is in
-  //         List<Widget> carouselItems = snapshot.data!.docs.map((document) {
-  //           // make object view of each group a user is in
-  //           Map<String, dynamic> groupData =
-  //               document.data() as Map<String, dynamic>;
-
-  //           return FutureBuilder(
-  //               future: getProfURL(document.id),
-  //               builder: (context, urlSnapShot) {
-  //                 if (urlSnapShot.hasData) {
-  //                   return Container(
-  //                       child: _groupCard(groupData['groupName'],
-  //                           groupData['groupID'], urlSnapShot.data));
-  //                 } else {
-  //                   return Container();
-  //                 }
-  //               });
-  //         }).toList();
-
-  //         // return CarouselSlider()
-
-  //         // with those cards, make a carousel
-  //         return CarouselSlider(
-  //           items: carouselItems,
-  //           options: CarouselOptions(
-  //             height: 400,
-  //             enlargeCenterPage: true,
-  //             autoPlay: false,
-  //             // autoPlayInterval: Duration(seconds: 5),
-  //           ),
-  //         );
-  //         // );
-  //       } else {
-  //         return const DemoPage();
-  //       }
-  //     },
-  //   );
-  // }
-
   // the card representing a group a users in
   Widget _groupCard(String groupName, groupID, profPic, bool focused) {
     return GestureDetector(
@@ -190,7 +147,7 @@ class _GroupsState extends State<Groups> {
                         Text(
                           groupName,
                           style: const TextStyle(
-                            fontFamily: 'LeagueSpartan',
+                            fontFamily: 'Spartan',
                             fontSize: 30,
                             fontWeight: FontWeight.bold,
                           ),
@@ -227,7 +184,7 @@ class _GroupsState extends State<Groups> {
           child: Text(
             'Join Group',
             style: TextStyle(
-              fontFamily: 'LeagueSpartan',
+              fontFamily: 'Spartan',
               fontSize: 20,
               color: Colors.black,
               fontWeight: FontWeight.bold,
@@ -260,12 +217,15 @@ class _GroupsState extends State<Groups> {
       home: Scaffold(
         appBar: AppBar(
           backgroundColor: const Color.fromARGB(255, 250, 241, 213),
-          title: const Text('                     Your Groups',
-              style: TextStyle(
-                  color: Colors.black87,
-                  fontFamily: 'LeagueSpartan',
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold)),
+          title: const Align(
+            alignment: Alignment.center,
+            child: Text('Your Groups',
+                style: TextStyle(
+                    color: Colors.black87,
+                    fontFamily: 'Spartan',
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold)),
+          ),
         ),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -273,7 +233,7 @@ class _GroupsState extends State<Groups> {
           children: [
             // MySearchBarWidget(),
             Expanded(child: _listGroups()),
-            Container(
+            SizedBox(
               width: 20,
               child: _joinGroupButton(),
             ),

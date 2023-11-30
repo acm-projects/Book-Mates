@@ -33,47 +33,104 @@ class Library extends StatelessWidget {
 }
 
 class MyCard extends StatelessWidget {
+  final String harryPotterCoverUrl =
+      'https://m.media-amazon.com/images/I/81cQZG24I3L._AC_UF1000,1000_QL80_.jpg';
+  final String wimpyKidCoverUrl =
+      'https://m.media-amazon.com/images/I/51+FksZ2saL._SY445_SX342_.jpg';
+
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            width: 200,
-            height: 300,
-            child: Card(
-              elevation: 5.0,
-              margin: EdgeInsets.all(16.0),
-              child: Padding(
-                padding: EdgeInsets.all(20.0),
-                child: Align(
-                  alignment: Alignment.topLeft,
-                  child: Material(
-                    color: Color.fromARGB(255, 184, 254, 21),
-                    borderRadius: BorderRadius.circular(15),
-                    child: InkWell(
-                      onTap: () {},
-                      child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            Icon(Icons.star),
-                            Text("4.0",
-                                style: TextStyle(fontFamily: 'LeagueSpartan')),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          )
+          bookWidget(
+              harryPotterCoverUrl, "Harry Potter", 4.5), // Example rating
+          bookWidget2(wimpyKidCoverUrl, "Diary of a Wimpy Kid: The Long Haul",
+              4.0), // Example rating
         ],
       ),
     );
   }
+
+  Widget bookWidget(String coverUrl, String title, double rating) {
+    return Container(
+      width: 200,
+      height: 350, // Increased height to accommodate title and rating
+      child: Card(
+        elevation: 5.0,
+        margin: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Image.network(
+                coverUrl,
+                fit: BoxFit.cover,
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Icon(Icons.star, color: Colors.amber),
+                  Text("$rating", style: TextStyle(fontFamily: 'Spartan')),
+                ],
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                title,
+                style: TextStyle(fontFamily: 'Spartan'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+Widget bookWidget2(String coverUrl, String title, double rating) {
+  return Container(
+    width: 200,
+    height: 350, // Increased height to accommodate title and rating
+    child: Card(
+      elevation: 5.0,
+      margin: EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Image.network(
+              coverUrl,
+              width: 170,
+              fit: BoxFit.cover,
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Icon(Icons.star, color: Colors.amber),
+                Text("$rating", style: TextStyle(fontFamily: 'Spartan')),
+              ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Text(
+              title,
+              style: TextStyle(fontFamily: 'Spartan'),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 }
 
 class homePage extends StatefulWidget {

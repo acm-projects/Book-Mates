@@ -38,14 +38,14 @@ class _ProfilePageState extends State<ProfilePage> {
                   ? "Groups:  ${snapshot.data![0]}"
                   : "Books:   ${snapshot.data![1]}",
               style: const TextStyle(
-                  fontFamily: "LeagueSpartan",
+                  fontFamily: "Spartan",
                   fontSize: 25,
                   fontWeight: FontWeight.bold,
                   color: Colors.black),
             ),
           );
         } else
-          return const CircularProgressIndicator();
+          return Container();
       },
     );
   }
@@ -98,7 +98,7 @@ class _ProfilePageState extends State<ProfilePage> {
         Text(
           userField,
           style: const TextStyle(
-              fontFamily: 'LeagueSpartan',
+              fontFamily: 'Spartan',
               fontSize: 25,
               color: Colors.black,
               fontWeight: FontWeight.bold),
@@ -107,7 +107,7 @@ class _ProfilePageState extends State<ProfilePage> {
         Text(
           hidden ? '                 ******' : userData,
           style: const TextStyle(
-              fontFamily: 'LeagueSpartan',
+              fontFamily: 'Spartan',
               fontSize: 25,
               color: Colors.black,
               fontWeight: FontWeight.bold),
@@ -134,7 +134,7 @@ class _ProfilePageState extends State<ProfilePage> {
       child: const Text(
         'Sign Out',
         style: TextStyle(
-            fontFamily: 'LeagueSpartan',
+            fontFamily: 'Spartan',
             fontSize: 15,
             color: Colors.black,
             fontWeight: FontWeight.bold),
@@ -157,7 +157,8 @@ class _ProfilePageState extends State<ProfilePage> {
             setState(() {});
           },
           style: ButtonStyle(
-            backgroundColor: MaterialStatePropertyAll(Color.fromARGB(255, 240, 223, 173)),
+            backgroundColor:
+                MaterialStatePropertyAll(Color.fromARGB(255, 240, 223, 173)),
             shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
@@ -165,7 +166,11 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           child: const Text(
             "Change Pic",
-            style: TextStyle(color: Colors.black, fontFamily: "LeagueSpartan", fontWeight: FontWeight.bold, fontSize: 15),
+            style: TextStyle(
+                color: Colors.black,
+                fontFamily: "Spartan",
+                fontWeight: FontWeight.bold,
+                fontSize: 15),
           ),
         ),
         // onPressed: uploadProfPic, child: Text('Add profPic')),
@@ -174,7 +179,7 @@ class _ProfilePageState extends State<ProfilePage> {
           userName,
           style: const TextStyle(
               fontSize: 40,
-              fontFamily: 'LeagueSpartan',
+              fontFamily: 'Spartan',
               fontWeight: FontWeight.bold,
               color: Colors.white),
         ),
@@ -196,7 +201,7 @@ class _ProfilePageState extends State<ProfilePage> {
             style: TextStyle(
                 fontSize: 40,
                 color: Colors.white,
-                fontFamily: 'LeagueSpartan',
+                fontFamily: 'Spartan',
                 fontWeight: FontWeight.bold),
           ),
           centerTitle: true,
@@ -244,7 +249,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               );
             } else {
-              return const CircularProgressIndicator();
+              return Container();
             }
           },
         ),

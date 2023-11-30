@@ -2,6 +2,7 @@ import 'package:bookmates_app/PDF%20Upload/pdf_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:ionicons/ionicons.dart';
 
 class PDFReaderApp extends StatefulWidget {
   const PDFReaderApp({super.key});
@@ -46,14 +47,24 @@ class _PDFReaderAppState extends State<PDFReaderApp> {
           ),
           child: ListTile(
             // display the docID in Firestore (BookPDFs subcollection)
-
-            title: Text(
-              displayName,
-              style: const TextStyle(
-                fontFamily: "LeagueSpartan",
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+            title: Row(
+              children: [
+                const Icon(
+                  Ionicons.book_outline,
+                  color: Colors.white,
+                ),
+                const SizedBox(
+                  width: 7,
+                ),
+                Text(
+                  displayName,
+                  style: const TextStyle(
+                    fontFamily: "Spartan",
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
             ),
 
             // pressing the button takes user to read PDF
@@ -80,7 +91,7 @@ class _PDFReaderAppState extends State<PDFReaderApp> {
         builder: (context, snapshot) {
           // show loading screen when data hasn't been renedered
           if (!snapshot.hasData) {
-            return const CircularProgressIndicator();
+            return Container();
           }
 
           // get the list of all documents in this snapshot
@@ -112,8 +123,8 @@ class _PDFReaderAppState extends State<PDFReaderApp> {
         "Your Library",
         style: TextStyle(
           fontSize: 24,
-          fontFamily: 'LeagueSpartan',
-          fontWeight: FontWeight.w600,
+          fontFamily: 'Spartan',
+          fontWeight: FontWeight.bold,
           color: Colors.white, // Text color
           shadows: [
             BoxShadow(
